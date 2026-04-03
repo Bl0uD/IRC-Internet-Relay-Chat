@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:13:09 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/02 18:38:40 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/03 17:52:57 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ Client::~Client( void ) {}
 
 Client::Client( void ) {}
 
-Client::Client(  ) :
+Client::Client( std::string a )
 {
-	
+	(void)a;
 }
 
 Client::Client( Client const &copy )
@@ -28,7 +28,7 @@ Client::Client( Client const &copy )
 
 Client	&Client::operator=( Client const &instance )
 {
-	
+	(void)instance;
 	return ( *this );
 }
 

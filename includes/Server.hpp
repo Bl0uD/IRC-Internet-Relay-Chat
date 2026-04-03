@@ -1,27 +1,20 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/31 13:58:44 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/02 18:38:40 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
-#pragma once
+# pragma once
 
-#include <iostream>
-#include <string>
-#include <exception>
 #include "Include.hpp"
+#include "Client.hpp"
+
+class Client;
 
 class Server
 {
 	private:
 		int	_port;
 		std::string _password;
+		static bool	ON;
+		int SocketFd;
+		std::vector<Client> clients;
+		std::vector<struct pollfd> fds;
 
 	public:
 		~Server();
@@ -33,8 +26,16 @@ class Server
 		int			getPort( void ) const;
 		std::string	getPassword( void ) const;
 
-		void		setPort( int );
-		void		setPassword( std::string );
+		void	setPort( int );
+		void	setPassword( std::string );
 		
-	
+		static void 	SignalHandler( int );
+		void	Init( void );
+
+		void SetSockOptions( void );
+		void SetServSocket( void );
+
+		void AcceptNewClient( void );
+
+		
 };
