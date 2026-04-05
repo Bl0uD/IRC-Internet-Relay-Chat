@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/31 14:13:09 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/03 17:52:57 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../../includes/Client.hpp"
 
 Client::~Client( void ) {}
@@ -28,7 +16,18 @@ Client::Client( Client const &copy )
 
 Client	&Client::operator=( Client const &instance )
 {
-	(void)instance;
+	this->_fd = instance._fd;
+	this->_ipAddress = instance._ipAddress;
 	return ( *this );
+}
+
+void Client::setFd( int fd )
+{
+	this->_fd = fd;
+}
+
+void Client::setIpAddress( std::string add )
+{
+	this->_ipAddress = add;
 }
 

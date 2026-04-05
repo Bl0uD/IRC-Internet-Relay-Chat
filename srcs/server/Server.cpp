@@ -65,32 +65,28 @@ void Server::SignalHandler(int signum)
 void	Server::Init( void )
 {
 	this->SetServSocket();
+	std::cout << SERVER_CONNECTED( SocketFd );
 
-	std::cout << GREEN << "Server <" << SocketFd << "> Connected" << WHITE << std::endl;
-	std::cout << "Waiting to accept a connection...\n";
-	std::cout << "fds size =" << fds.size() << std::endl;
+	std::cout << WAITING_CONNECTION;
 
 	while ( this->ON )
 	{
 
-		int pollResult = poll( &this->fds[0], this->fds.size(), -1 ); // wait for an event
-		if ( pollResult == -1 )
+		if ( poll( &this->fds[0], this->fds.size(), -1 ) == -1 ) // wait for an event
 		{
 			if ( errno == EINTR && !this->ON ) // check if the poll crash was intentional or not
 				throw SERVER_OFF;
 			throw ERR_POLL;
 		}
 
-		std::cout << "hello\n";
 		for ( size_t i = 0; i < this->fds.size(); ++i )
 		{
-			if ( this->fds[i].revents & POLLIN )//-> check if there is data to read
+			if ( this->fds[i].revents & POLLIN )// check if there is data to read
 			{
-				std::cout << "fds: " << this->fds[i].fd << "SocketFd: " << SocketFd << std::endl;
 				if ( this->fds[i].fd == SocketFd )
 					AcceptNewClient();
-				//else
-					//ReceiveNewData(this->fds[i].fd); //-> receive new data from a registered client
+				else
+					ReceiveNewData( this->fds[i].fd ); // receive new data from a registered client
 			}
 		}
 	}
@@ -121,7 +117,7 @@ void Server::SetSockOptions( void )
 
 void Server::SetServSocket( void )
 {
-	struct pollfd				new_cli;
+	struct pollfd	new_cli;
 
 	this->SocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if( SocketFd == -1 ) // check if socket has been created
@@ -137,33 +133,54 @@ void Server::SetServSocket( void )
 
 void Server::AcceptNewClient( void )
 {
-	std::cout << "hello";
-	Client cli; //-> create a new client
-	struct sockaddr_in cliadd;
-	struct pollfd NewPoll;
-	socklen_t len = sizeof( cliadd );
+	Client				cli; // create a new client
+	struct sockaddr_in	cliadd;
+	struct pollfd		NewPoll;
+	socklen_t			len = sizeof( cliadd );
 
-	int incofd = accept( SocketFd, (sockaddr *)&(cliadd), &len ); //-> accept the new client
-	if ( incofd == -1 )
+	int NewFd = accept( this->SocketFd, (sockaddr *)&(cliadd), &len ); // accept the new client
+	if ( NewFd == -1 )
 	{
-		std::cout << "accept() failed" << std::endl;
+		std::cerr << ERR_ACCEPT_FAILED;
 		return ;
 	}
 
-	if ( fcntl(incofd, F_SETFL, O_NONBLOCK) == -1 ) //-> set the socket option (O_NONBLOCK) for non-blocking socket
+	if ( fcntl(NewFd, F_SETFL, O_NONBLOCK) == -1 ) // set the socket option (O_NONBLOCK) for non-blocking socket
 	{
-		std::cout << "fcntl() failed" << std::endl;
+		std::cerr << ERR_FCNTL_FAILED( NewFd );
 		return;
 	}
 
-	NewPoll.fd = incofd; //-> add the client socket to the pollfd
-	NewPoll.events = POLLIN; //-> set the event to POLLIN for reading data
-	NewPoll.revents = 0; //-> set the revents to 0
+	NewPoll.fd = NewFd; // add the client socket to the pollfd
+	NewPoll.events = POLLIN; // set the event to POLLIN for reading data
+	NewPoll.revents = 0; // set the revents to 0
 
-	//cli.SetFd(incofd); //-> set the client file descriptor
-	//cli.setIpAdd(inet_ntoa((cliadd.sin_addr))); //-> convert the ip address to string and set it
-	clients.push_back(cli); //-> add the client to the vector of clients
-	fds.push_back(NewPoll); //-> add the client socket to the pollfd
+	cli.setFd( NewFd ); // set the client file descriptor
+	cli.setIpAddress( inet_ntoa((cliadd.sin_addr)) ); //-> convert the ip address to string and set it
+	clients.push_back( cli ); // add the client to the vector of clients
+	fds.push_back( NewPoll) ; // add the client socket to the pollfd
 
-	std::cout << GREEN << "Client <" << incofd << "> Connected" << WHITE << std::endl;
+	std::cout << NEW_CLIENT( NewFd );
+}
+
+void Server::ReceiveNewData( int ClientFd )
+{
+	char	Data[1024]; // buffer for the received data
+	memset( Data, 0, sizeof( Data ) ); // clear the buffer
+
+	ssize_t bytes = recv( ClientFd, Data, sizeof( Data ) - 1 , 0 ); // receive the data
+
+	if( bytes <= 0 ) // check if the client disconnected
+	{
+		std::cout << CLIENT_DISCONNECTED( ClientFd );
+		//ClearClients(ClientFd); // clear the client
+		close( ClientFd ); // close the client socket
+	}
+
+	else // print the received data
+	{
+		Data[bytes] = '\0';
+		std::cout << PRINT_DATA( ClientFd, Data );
+		// here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+	}
 }

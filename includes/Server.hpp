@@ -36,6 +36,6 @@ class Server
 		void SetServSocket( void );
 
 		void AcceptNewClient( void );
-
+		void ReceiveNewData( int ClientFd );
 		
 };

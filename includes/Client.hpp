@@ -5,8 +5,8 @@
 class Client
 {
 	private:
-		/*int			_fd;
-		std::string	_ipAddress;*/
+		int			_fd;
+		std::string	_ipAddress;
 
 	public:
 		~Client();
@@ -15,9 +15,9 @@ class Client
 		Client( const Client &copy );
 		Client &operator=( const Client &instance );
 
-		/*int			getFd( void ) const;
+		int			getFd( void ) const;
 		std::string	getIpAddress( void ) const;
 
 		void		setFd( int );
-		void		setIpAddress( std::string );*/
+		void		setIpAddress( std::string );
 };

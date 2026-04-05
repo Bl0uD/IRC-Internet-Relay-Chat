@@ -2,8 +2,8 @@
 
 # include <arpa/inet.h> //-> for inet_ntoa()
 # include <csignal> //-> for signal()
-# include <exception>
 # include <errno.h>
+# include <exception>
 # include <fcntl.h> //-> for fcntl()
 # include <iostream>
 # include <netinet/in.h> //-> for sockaddr_in
@@ -28,36 +28,63 @@
 # define	WRONG_USAGE	RED << "\n   ⚠️\t WRONG USAGE !\n\n"
 # define	ERROR		RED + CRLF + "🚨 Error:\t" + WHITE
 			// Used in main.cpp
-# define	ERR_WRONG_USAGE 		WRONG_USAGE \
-									<< WHITE << "Try:  ./ircserv " \
-									<< GREEN << "<" \
-									<< WHITE << "port" \
-									<< GREEN << "> <" \
-									<< WHITE << "password" \
-									<< GREEN << ">" \
-									<< WHITE << "\n\n"
-# define	ERR_INVALID_PORT		std::runtime_error( RED + "Error: Invalid port" \
-									+ WHITE + " - expected a value between " \
-									+ GREEN + "1024" \
-									+ WHITE + " and " \
-									+ GREEN + "49151" \
-									+ WHITE + "." + CRLF)
-# define	ERR_INVALID_PASSWORD	std::runtime_error( ERROR \
-									+ WHITE + "Empty password" + CRLF )
-# define	ERR_SOCKET_CREATION		std::runtime_error( ERROR \
-									+ WHITE + "Socket creation failed ..." + CRLF)
-# define	ERR_SO_REUSEADDR		std::runtime_error( ERROR \
-									+ WHITE + "Failed to set option (SO_REUSEADDR) on socket ..." + CRLF)
-# define	ERR_O_NONBLOCK			std::runtime_error( ERROR \
-									+ WHITE + "Failed to set option (O_NONBLOCK) on socket ..." + CRLF)
-# define	ERR_BINDING_SOCKET			std::runtime_error( ERROR \
-									+ WHITE + "failed to bind socket ..." + CRLF)
-# define	ERR_LISTEN				std::runtime_error( ERROR \
-									+ WHITE + "Listen function failed ..." + CRLF)
-# define	ERR_POLL				std::runtime_error( ERROR \
-									+ WHITE + "Poll failed ..." + CRLF)
-# define	SERVER_OFF				std::runtime_error( WHITE + "SERVER CLOSED." + CRLF)
+# define	ERR_WRONG_USAGE 				WRONG_USAGE \
+											<< WHITE << "Try:  ./ircserv " \
+											<< GREEN << "<" \
+											<< WHITE << "port" \
+											<< GREEN << "> <" \
+											<< WHITE << "password" \
+											<< GREEN << ">" \
+											<< WHITE << "\n\n"
+# define	ERR_INVALID_PORT				std::runtime_error( RED + "Error: Invalid port" \
+											+ WHITE + " - expected a value between " \
+											+ GREEN + "1024" \
+											+ WHITE + " and " \
+											+ GREEN + "49151" \
+											+ WHITE + "." + CRLF)
+# define	ERR_INVALID_PASSWORD			std::runtime_error( ERROR \
+											+ WHITE + "Empty password" + CRLF )
+# define	ERR_SOCKET_CREATION				std::runtime_error( ERROR \
+											+ WHITE + "Server socket creation failed ..." + CRLF)
+# define	ERR_SO_REUSEADDR				std::runtime_error( ERROR \
+											+ WHITE + "Failed to set option (SO_REUSEADDR) on server socket ..." + CRLF)
+# define	ERR_O_NONBLOCK					std::runtime_error( ERROR \
+											+ WHITE + "Failed to set option (O_NONBLOCK) on server socket ..." + CRLF)
+# define	ERR_BINDING_SOCKET				std::runtime_error( ERROR \
+											+ WHITE + "failed to bind socket ..." + CRLF)
+# define	ERR_LISTEN						std::runtime_error( ERROR \
+											+ WHITE + "Listen function failed ..." + CRLF)
+# define	ERR_POLL						std::runtime_error( ERROR \
+											+ WHITE + "Poll failed ..." + CRLF)
+# define 	ERR_ACCEPT_FAILED				RED << "accept() failed" \
+											<< WHITE << CRLF
+# define 	ERR_FCNTL_FAILED( ClientFd )	WHITE << "Failed to set option (O_NONBLOCK) for client " \
+											<< RED << ClientFd \
+											<< WHITE << "." << CRLF
+# define	SERVER_OFF						std::runtime_error( WHITE + "SERVER CLOSED." + CRLF)
 
+# define	NEW_CLIENT( ClientFd )			WHITE << "Client < " \
+											<< GREEN << ClientFd \
+											<< WHITE << " > " \
+											<< GREEN << "CONNECTED.\n" \
+											<< WHITE << CRLF
+# define	CLIENT_DISCONNECTED( ClientFd )	WHITE << "Client < " \
+											<< GREEN << ClientFd \
+											<< WHITE << " > " \
+											<< RED << "DISCONNECTED.\n" \
+											<< WHITE << CRLF
+# define	SERVER_CONNECTED( SocketFd )	WHITE << "Server " \
+											<< GREEN << "CONNECTED" \
+											<< WHITE << " !! Listening on FD (" \
+											<< GREEN << SocketFd \
+											<< WHITE << ").\n" \
+											<< WHITE << CRLF
+
+# define	WAITING_CONNECTION				WHITE << "\tWaiting connection...\n" << CRLF
+
+# define 	PRINT_DATA( ClientFd, Data )			WHITE << "Client < " \
+											<< GREEN << ClientFd \
+											<< WHITE << " > " << Data << CRLF
 
 class runtime_error : public std::exception
 {
