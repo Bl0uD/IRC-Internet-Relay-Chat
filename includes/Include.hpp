@@ -3,6 +3,7 @@
 # include <arpa/inet.h> //-> for inet_ntoa()
 # include <csignal> //-> for signal()
 # include <exception>
+# include <errno.h>
 # include <fcntl.h> //-> for fcntl()
 # include <iostream>
 # include <netinet/in.h> //-> for sockaddr_in
