@@ -2,16 +2,9 @@
 
 bool Server::ON = false;
 
-Server::~Server( void )
-{
-	std::cout << "Server destructor called." << std::endl;
-}
+Server::~Server( void ) {}
 
-Server::Server( void )
-{
-	std::cout << "Server default constructor called." << std::endl;
-	
-}
+Server::Server( void ) {}
 
 Server::Server( char **av )
 {
@@ -78,17 +71,21 @@ void	Server::Init( void )
 
 	while ( this->ON )
 	{
-		if ( !this->ON )
-			throw SERVER_OFF;
-		else if( (poll(&fds[0],fds.size(),-1) == -1) ) //-> wait for an event
-			throw ERR_POLL;
 
-		for (size_t i = 0; i < fds.size(); i++)
+		int pollResult = poll( &this->fds[0], this->fds.size(), -1 ); //-> wait for an event
+		if ( pollResult == -1 )
 		{
-			if (fds[i].revents & POLLIN)//-> check if there is data to read
+			if ( errno == EINTR && !this->ON ) // check if the poll crash was intentional or not
+				throw SERVER_OFF;
+			throw ERR_POLL;
+		}
+
+		for ( size_t i = 0; i < fds.size(); i++ )
+		{
+			if ( fds[i].revents & POLLIN )//-> check if there is data to read
 			{
-				if (fds[i].fd == SocketFd )
-					AcceptNewClient(); //-> accept new client
+				if ( fds[i].fd == SocketFd )
+					AcceptNewClient();
 				//else
 					//ReceiveNewData(fds[i].fd); //-> receive new data from a registered client
 			}

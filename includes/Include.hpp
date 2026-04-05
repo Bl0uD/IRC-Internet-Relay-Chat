@@ -55,7 +55,7 @@
 									+ WHITE + "Listen function failed ..." + CRLF)
 # define	ERR_POLL				std::runtime_error( ERROR \
 									+ WHITE + "Poll failed ..." + CRLF)
-# define	SERVER_OFF				std::runtime_error( WHITE + "Server closed" + CRLF)
+# define	SERVER_OFF				std::runtime_error( WHITE + "SERVER CLOSED." + CRLF)
 
 
 class runtime_error : public std::exception
