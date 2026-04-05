@@ -15,7 +15,11 @@ Server::Server( void )
 
 Server::Server( char **av )
 {
-	this->setPort( std::atoi(av[1]) );
+	std::stringstream ss( av[1] );
+	int port;
+	ss >> port;
+
+	this->setPort( port );
 	this->setPassword( av[2] );
 }
 
