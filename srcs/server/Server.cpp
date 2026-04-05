@@ -68,11 +68,12 @@ void	Server::Init( void )
 
 	std::cout << GREEN << "Server <" << SocketFd << "> Connected" << WHITE << std::endl;
 	std::cout << "Waiting to accept a connection...\n";
+	std::cout << "fds size =" << fds.size() << std::endl;
 
 	while ( this->ON )
 	{
 
-		int pollResult = poll( &this->fds[0], this->fds.size(), -1 ); //-> wait for an event
+		int pollResult = poll( &this->fds[0], this->fds.size(), -1 ); // wait for an event
 		if ( pollResult == -1 )
 		{
 			if ( errno == EINTR && !this->ON ) // check if the poll crash was intentional or not
@@ -80,14 +81,16 @@ void	Server::Init( void )
 			throw ERR_POLL;
 		}
 
-		for ( size_t i = 0; i < fds.size(); i++ )
+		std::cout << "hello\n";
+		for ( size_t i = 0; i < this->fds.size(); ++i )
 		{
-			if ( fds[i].revents & POLLIN )//-> check if there is data to read
+			if ( this->fds[i].revents & POLLIN )//-> check if there is data to read
 			{
-				if ( fds[i].fd == SocketFd )
+				std::cout << "fds: " << this->fds[i].fd << "SocketFd: " << SocketFd << std::endl;
+				if ( this->fds[i].fd == SocketFd )
 					AcceptNewClient();
 				//else
-					//ReceiveNewData(fds[i].fd); //-> receive new data from a registered client
+					//ReceiveNewData(this->fds[i].fd); //-> receive new data from a registered client
 			}
 		}
 	}
@@ -119,7 +122,6 @@ void Server::SetSockOptions( void )
 void Server::SetServSocket( void )
 {
 	struct pollfd				new_cli;
-	std::vector<struct pollfd>	fds;
 
 	this->SocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if( SocketFd == -1 ) // check if socket has been created
@@ -129,7 +131,7 @@ void Server::SetServSocket( void )
 	new_cli.fd = SocketFd;
 	new_cli.events = POLLIN;
 	new_cli.revents = 0;
-	fds.push_back(new_cli);
+	this->fds.push_back(new_cli);
 	this->ON = true;
 }
 
