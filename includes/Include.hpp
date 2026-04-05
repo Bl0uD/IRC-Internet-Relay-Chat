@@ -1,28 +1,27 @@
 #pragma once
 
-# include <arpa/inet.h> //-> for inet_ntoa()
-# include <csignal> //-> for signal()
-# include <cstring> //-> for signal()
+# include <arpa/inet.h> // for inet_ntoa()
+# include <csignal> // for signal()
+# include <cstring>
 # include <errno.h>
 # include <exception>
-# include <fcntl.h> //-> for fcntl()
+# include <fcntl.h> // for fcntl()
 # include <iostream>
-# include <netinet/in.h> //-> for sockaddr_in
-# include <poll.h> //-> for poll()
-# include <unistd.h> //-> for close()
-# include <vector> //-> for vector
+# include <netinet/in.h> // for sockaddr_in
+# include <poll.h> // for poll()
+# include <unistd.h> // for close()
+# include <vector> // for vector
 # include <stdexcept>
 # include <string>
-# include <sys/socket.h> //-> for socket()
-# include <sys/types.h> //-> for socket()
-# include <sstream> //-> for stringstrea#include <iostream>
-# include <cstring>
+# include <sys/socket.h> // for socket()
+# include <sys/types.h> // for socket()
+# include <sstream> // for stringstrea#include <iostream>
 
-# define	GREEN std::string("\e[1;32m") //-> for green color
-# define	RED std::string("\e[1;31m") //-> for red color
-# define	WHITE std::string("\e[0;37m") //-> for white color
-# define	YELLOW std::string("\e[1;33m") //-> for yellow color
-# define	PURPLE std::string("\e[1;35m") //-> for purple color
+# define	GREEN std::string("\e[1;32m") // for green color
+# define	RED std::string("\e[1;31m") // for red color
+# define	WHITE std::string("\e[0;37m") // for white color
+# define	YELLOW std::string("\e[1;33m") // for yellow color
+# define	PURPLE std::string("\e[1;35m") // for purple color
 
 # define	DISPLAY_SERVER		PURPLE << "\n   ☑️\t Server launched !\n\n"
 
@@ -66,26 +65,26 @@
 # define	SERVER_OFF						std::runtime_error( WHITE + "SERVER CLOSED." + CRLF)
 
 # define	NEW_CLIENT( ClientFd )			WHITE << "Client < " \
-											<< GREEN << ClientFd \
+											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
 											<< GREEN << "CONNECTED.\n" \
 											<< WHITE << CRLF
 # define	CLIENT_DISCONNECTED( ClientFd )	WHITE << "Client < " \
-											<< GREEN << ClientFd \
+											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
 											<< RED << "DISCONNECTED.\n" \
 											<< WHITE << CRLF
 # define	SERVER_CONNECTED( SocketFd )	WHITE << "Server " \
 											<< GREEN << "CONNECTED" \
 											<< WHITE << " !! Listening on FD (" \
-											<< GREEN << SocketFd \
+											<< YELLOW << SocketFd \
 											<< WHITE << ").\n" \
 											<< WHITE << CRLF
 
 # define	WAITING_CONNECTION				WHITE << "\tWaiting connection...\n" << CRLF
 
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
-											<< GREEN << ClientFd \
+											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
 
 class runtime_error : public std::exception
