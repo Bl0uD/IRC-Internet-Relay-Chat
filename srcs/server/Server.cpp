@@ -138,14 +138,20 @@ void Server::AcceptNewClient( void )
 	Client cli; //-> create a new client
 	struct sockaddr_in cliadd;
 	struct pollfd NewPoll;
-	socklen_t len = sizeof(cliadd);
+	socklen_t len = sizeof( cliadd );
 
-	int incofd = accept(SocketFd, (sockaddr *)&(cliadd), &len); //-> accept the new client
-	if (incofd == -1)
-		{std::cout << "accept() failed" << std::endl; return;}
+	int incofd = accept( SocketFd, (sockaddr *)&(cliadd), &len ); //-> accept the new client
+	if ( incofd == -1 )
+	{
+		std::cout << "accept() failed" << std::endl;
+		return ;
+	}
 
-	if (fcntl(incofd, F_SETFL, O_NONBLOCK) == -1) //-> set the socket option (O_NONBLOCK) for non-blocking socket
-		{std::cout << "fcntl() failed" << std::endl; return;}
+	if ( fcntl(incofd, F_SETFL, O_NONBLOCK) == -1 ) //-> set the socket option (O_NONBLOCK) for non-blocking socket
+	{
+		std::cout << "fcntl() failed" << std::endl;
+		return;
+	}
 
 	NewPoll.fd = incofd; //-> add the client socket to the pollfd
 	NewPoll.events = POLLIN; //-> set the event to POLLIN for reading data

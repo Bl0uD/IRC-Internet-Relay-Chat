@@ -1,7 +1,7 @@
 NAME = ircserv
 OBJDIR = objects
 
-FLAGS = -Wall -Wextra -Werror -std=c++98
+FLAGS = -Wall -Wextra -Werror -std=c++98 
 SOURCES = srcs/main.cpp \
 			srcs/client/Client.cpp \
 			srcs/server/Server.cpp
@@ -15,7 +15,7 @@ $(OBJDIR)/%.o: srcs/%.cpp
 all: $(NAME)
 
 $(NAME): $(OBJECTS)
-	c++ $(FLAGS) -o $(NAME) $(OBJECTS)
+	c++ $(FLAGS) -o $(NAME) $(OBJECTS) -g
 
 clean:
 	rm -rf $(OBJDIR)
