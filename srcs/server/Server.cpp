@@ -78,9 +78,9 @@ void	Server::Init( void )
 
 	while ( this->ON )
 	{
-		if ( this->ON )
+		if ( !this->ON )
 			throw SERVER_OFF;
-		else if((poll(&fds[0],fds.size(),-1) == -1) ) //-> wait for an event
+		else if( (poll(&fds[0],fds.size(),-1) == -1) ) //-> wait for an event
 			throw ERR_POLL;
 
 		for (size_t i = 0; i < fds.size(); i++)
