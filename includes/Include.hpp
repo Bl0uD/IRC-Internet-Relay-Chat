@@ -2,6 +2,7 @@
 
 # include <arpa/inet.h> //-> for inet_ntoa()
 # include <csignal> //-> for signal()
+# include <cstring> //-> for signal()
 # include <errno.h>
 # include <exception>
 # include <fcntl.h> //-> for fcntl()
@@ -15,6 +16,7 @@
 # include <sys/socket.h> //-> for socket()
 # include <sys/types.h> //-> for socket()
 # include <sstream> //-> for stringstrea#include <iostream>
+# include <cstring>
 
 # define	GREEN std::string("\e[1;32m") //-> for green color
 # define	RED std::string("\e[1;31m") //-> for red color
@@ -82,7 +84,7 @@
 
 # define	WAITING_CONNECTION				WHITE << "\tWaiting connection...\n" << CRLF
 
-# define 	PRINT_DATA( ClientFd, Data )			WHITE << "Client < " \
+# define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< GREEN << ClientFd \
 											<< WHITE << " > " << Data << CRLF
 
