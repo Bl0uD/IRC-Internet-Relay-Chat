@@ -79,9 +79,9 @@ void	Server::Init( void )
 			throw ERR_POLL;
 		}
 
-		for ( size_t i = 0; i < this->fds.size(); ++i )
+		for ( size_t i = 0; i < this->fds.size(); i++ )
 		{
-			if ( this->fds[i].revents & POLLIN )// check if there is data to read
+			if ( this->fds[i].revents & POLLIN ) // check if there is data to read
 			{
 				if ( this->fds[i].fd == SocketFd )
 					AcceptNewClient();
@@ -90,7 +90,7 @@ void	Server::Init( void )
 			}
 		}
 	}
-	//CloseFds(); //-> close the file descriptors when the server stops*/
+	//CloseFds(); // close the file descriptors when the server stops*/
 }
 void Server::SetSockOptions( void )
 {
@@ -99,7 +99,7 @@ void Server::SetSockOptions( void )
 
 	add.sin_family = AF_INET;
 	add.sin_addr.s_addr = INADDR_ANY;
-	add.sin_port = htons(this->_port);
+	add.sin_port = htons( this->_port );
 
 	if( setsockopt(SocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1 ) // check if SO_REUSEADDR flag has been set
 		throw ERR_SO_REUSEADDR;
@@ -119,7 +119,7 @@ void Server::SetServSocket( void )
 {
 	struct pollfd	new_cli;
 
-	this->SocketFd = socket(AF_INET, SOCK_STREAM, 0);
+	this->SocketFd = socket( AF_INET, SOCK_STREAM, 0 );
 	if( SocketFd == -1 ) // check if socket has been created
 		throw ERR_SOCKET_CREATION;
 	this->SetSockOptions();
@@ -156,7 +156,7 @@ void Server::AcceptNewClient( void )
 	NewPoll.revents = 0; // set the revents to 0
 
 	cli.setFd( NewFd ); // set the client file descriptor
-	cli.setIpAddress( inet_ntoa((cliadd.sin_addr)) ); //-> convert the ip address to string and set it
+	cli.setIpAddress( inet_ntoa((cliadd.sin_addr)) ); // convert the ip address to string and set it
 	clients.push_back( cli ); // add the client to the vector of clients
 	fds.push_back( NewPoll) ; // add the client socket to the pollfd
 
@@ -176,7 +176,6 @@ void Server::ReceiveNewData( int ClientFd )
 		//ClearClients(ClientFd); // clear the client
 		close( ClientFd ); // close the client socket
 	}
-
 	else // print the received data
 	{
 		Data[bytes] = '\0';

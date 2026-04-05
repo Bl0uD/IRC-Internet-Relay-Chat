@@ -74,9 +74,9 @@
 											<< WHITE << " > " \
 											<< RED << "DISCONNECTED.\n" \
 											<< WHITE << CRLF
-# define	SERVER_CONNECTED( SocketFd )	WHITE << "Server " \
+# define	SERVER_CONNECTED( SocketFd )	WHITE << "  Server " \
 											<< GREEN << "CONNECTED" \
-											<< WHITE << " !! Listening on FD (" \
+											<< WHITE << " !!\tListening on FD (" \
 											<< YELLOW << SocketFd \
 											<< WHITE << ").\n" \
 											<< WHITE << CRLF
