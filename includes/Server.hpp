@@ -2,19 +2,22 @@
 
 # include "Include.hpp"
 # include "Client.hpp"
+# include "Channel.hpp"
 
 class Client;
 
 class Server
 {
 	private:
-		int							_Port;
-		std::string					_Password;
-		static bool					_ServerStatus;
-		int							_SocketFd;
-		std::vector<Client>			_Clients;
-		std::vector<struct pollfd>	_Fds;
+		int											_Port;
+		std::string									_Password;
+		static bool									_ServerStatus;
+		int											_SocketFd;
+		std::vector<Client>							_Clients;
+		std::vector<Channel>							_Channels;
+		std::vector<struct pollfd>					_Fds;
 		std::vector< std::pair<int, std::string> >	_Directory;
+		int											_NextChannelId;
 
 	public:
 		~Server();

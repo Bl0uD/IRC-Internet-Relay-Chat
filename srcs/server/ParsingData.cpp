@@ -40,12 +40,10 @@ void	Server::SetUsername( std::vector<std::string> Tokens, int ClientFd )
 	int i = FindClient( ClientFd );
 	Client Cli = this->_Clients[i];
 	Cli.setUsername( Tokens[1] );
-	std::cout << "func user" << std::endl;
 }
 
 void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
 {
-
 	if ( Tokens.size() != 2 )
 	{
 		std::cout << ERR_CMD_ARGS( "NICK", "<your nickname>");
@@ -54,13 +52,18 @@ void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
 	int i = FindClient( ClientFd );
 	Client Cli = this->_Clients[i];
 	Cli.setNickname( Tokens[1] );
-	std::cout << "func nick" << std::endl;
 }
 
 void	Server::ChangeTopic(  std::vector<std::string> Tokens, int ClientFd )
 {
-	(void)Tokens;
-	(void)ClientFd;
+	if ( Tokens.size() != 2 )
+	{
+		std::cout << ERR_CMD_ARGS( "TOPIC", "<new topic name>");
+		return ;
+	}
+	int i = FindClient( ClientFd );
+	Client Cli = this->_Clients[i];
+	Cli.setNickname( Tokens[1] );
 	std::cout << "func topic" << std::endl;
 }
 
@@ -80,9 +83,45 @@ void	Server::InviteClient(  std::vector<std::string> Tokens, int ClientFd )
 
 void	Server::JoinChannel(  std::vector<std::string> Tokens, int ClientFd )
 {
-	(void)Tokens;
-	(void)ClientFd;
-	std::cout << "func Join" << std::endl;
+	if ( Tokens.size() < 2 )
+	{
+		std::cout << ERR_CMD_ARGS( "JOIN", "<channel name>" );
+		return ;
+	}
+
+	std::string channelName = Tokens[1];
+	int channelId = -1;
+
+	for ( std::vector< std::pair<int, std::string> >::iterator it = this->_Directory.begin(); it != this->_Directory.end(); ++it )
+	{
+		if ( it->second == channelName )
+		{
+			channelId = it->first;
+			break ;
+		}
+	}
+
+	if ( channelId == -1 )
+	{
+		Channel newChannel;
+
+		channelId = this->_NextChannelId++;
+		newChannel.setId( channelId );
+		this->_Channels.push_back( newChannel );
+		this->_Directory.push_back( std::make_pair( channelId, channelName ) );
+	}
+
+	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); ++it )
+	{
+		if ( it->getId() == channelId )
+		{
+			if ( it->getClients().empty() )
+				it->addOperators( ClientFd );
+			it->addClients( ClientFd );
+			std::cout << "func Join" << std::endl;
+			return ;
+		}
+	}
 }
 
 void	Server::ChangeMode(  std::vector<std::string> Tokens, int ClientFd )
@@ -101,7 +140,7 @@ void	Server::SendPrivMsg(  std::vector<std::string> Tokens, int ClientFd )
 
 void	Server::ExecCommand( std::vector<std::string> Tokens, int ClientFd )
 {
-	std::string	cmds[8] = {"USER", "NICK", "TOPIC", "KICK", "INVITE", "JOIN", "MODE", "PRIVMSG"};
+	std::string	cmds[8] = { "USER", "NICK", "TOPIC", "KICK", "INVITE", "JOIN", "MODE", "PRIVMSG" };
 	int			i = 0;
 	while ( i < 8 && Tokens[0] != cmds[i] )
 		i++;

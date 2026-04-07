@@ -4,9 +4,9 @@ bool	Server::_ServerStatus = false;
 
 Server::~Server( void ) {}
 
-Server::Server( void ) {}
+Server::Server( void ) : _NextChannelId( 0 ) {}
 
-Server::Server( char **av )
+Server::Server( char **av ) : _NextChannelId( 0 )
 {
 	std::stringstream ss( av[1] );
 	int port;
@@ -24,7 +24,18 @@ Server::Server( Server const &copy )
 
 Server	&Server::operator=( Server const &instance )
 {
-	(void)instance;
+	if ( this != &instance )
+	{
+		this->_Port = instance._Port;
+		this->_Password = instance._Password;
+		this->_ServerStatus = instance._ServerStatus;
+		this->_SocketFd = instance._SocketFd;
+		this->_Clients = instance._Clients;
+		this->_Channels = instance._Channels;
+		this->_Fds = instance._Fds;
+		this->_Directory = instance._Directory;
+		this->_NextChannelId = instance._NextChannelId;
+	}
 	return ( *this );
 }
 
@@ -45,7 +56,7 @@ std::string Server::getPassword( void ) const
 
 void	Server::setPort( int port )
 {
-	if ( port > 1023 && port < 49152 ) // conditions port valide
+	if ( port > 1023 && port < 49152 )
 		this->_Port = port;
 	else
 		throw ERR_INVALID_PORT;
@@ -53,12 +64,11 @@ void	Server::setPort( int port )
 
 void	Server::setPassword( std::string pswrd )
 {
-	if ( !pswrd.empty() ) // conditions password valide
+	if ( !pswrd.empty() )
 		this->_Password = pswrd;
 	else
 		throw ERR_INVALID_PASSWORD;
 }
-
 
 void	Server::SignalHandler( int signum )
 {
@@ -69,22 +79,22 @@ void	Server::SignalHandler( int signum )
 
 void	Server::Running( void )
 {
-		if ( poll( &this->_Fds[0], this->_Fds.size(), -1 ) == -1 ) // wait for an event
+	if ( poll( &this->_Fds[0], this->_Fds.size(), -1 ) == -1 )
+	{
+		if ( errno == EINTR && !this->_ServerStatus )
+			throw SERVER_OFF;
+		throw ERR_POLL;
+	}
+	for ( size_t i = 0; i < this->_Fds.size(); i++ )
+	{
+		if ( this->_Fds[i].revents & POLLIN )
 		{
-			if ( errno == EINTR && !this->_ServerStatus ) // check if the poll crash was intentional or not
-				throw SERVER_OFF;
-			throw ERR_POLL;
+			if ( this->_Fds[i].fd == _SocketFd )
+				AcceptNewClient();
+			else
+				ReceiveNewData( this->_Fds[i].fd );
 		}
-		for ( size_t i = 0; i < this->_Fds.size(); i++ )
-		{
-			if ( this->_Fds[i].revents & POLLIN ) // check if there is data to read
-			{
-				if ( this->_Fds[i].fd == _SocketFd )
-					AcceptNewClient();
-				else
-					ReceiveNewData( this->_Fds[i].fd ); // receive new data from a registered client
-			}
-		}
+	}
 }
 
 void	Server::Init( void )
@@ -93,35 +103,32 @@ void	Server::Init( void )
 	std::cout << SERVER_CONNECTED( _SocketFd );
 	std::cout << WAITING_CONNECTION;
 }
-void Server::SetSockOptions( void )
+
+void	Server::SetSockOptions( void )
 {
 	int en = 1;
-	struct sockaddr_in	add;
+	struct sockaddr_in add;
 
 	add.sin_family = AF_INET;
 	add.sin_addr.s_addr = INADDR_ANY;
 	add.sin_port = htons( this->_Port );
 
-	if ( setsockopt(_SocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1 ) // check if SO_REUSEADDR flag has been set
+	if ( setsockopt( _SocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof( en ) ) == -1 )
 		throw ERR_SO_REUSEADDR;
-
-	if ( fcntl(_SocketFd, F_SETFL, O_NONBLOCK) == -1 ) // check if NON_BLOCK flag has been set
-		throw ERR_O_NONBLOCK ;
-
-	if ( bind(_SocketFd, (struct sockaddr *)&add, sizeof(add)) == -1 ) // check if socket is bind (assigned) to address and port 
+	if ( fcntl( _SocketFd, F_SETFL, O_NONBLOCK ) == -1 )
+		throw ERR_O_NONBLOCK;
+	if ( bind( _SocketFd, (struct sockaddr *)&add, sizeof( add ) ) == -1 )
 		throw ERR_BINDING_SOCKET;
-
-	if ( listen(_SocketFd, SOMAXCONN) == -1 ) // check if socket is passive -> listen for incoming connections 
+	if ( listen( _SocketFd, SOMAXCONN ) == -1 )
 		throw ERR_LISTEN;
-
 }
 
-void Server::SetServSocket( void )
+void	Server::SetServSocket( void )
 {
-	struct pollfd	new_cli;
+	struct pollfd new_cli;
 
 	this->_SocketFd = socket( AF_INET, SOCK_STREAM, 0 );
-	if ( _SocketFd == -1 ) // check if socket has been created
+	if ( _SocketFd == -1 )
 		throw ERR_SOCKET_CREATION;
 	this->SetSockOptions();
 	new_cli.fd = _SocketFd;
@@ -131,64 +138,57 @@ void Server::SetServSocket( void )
 	this->_ServerStatus = true;
 }
 
-void Server::AcceptNewClient( void )
+void	Server::AcceptNewClient( void )
 {
-	Client				cli; // create a new client
+	Client			cli;
 	struct sockaddr_in	cliadd;
 	struct pollfd		NewPoll;
 	socklen_t			len = sizeof( cliadd );
 
-	int NewFd = accept( this->_SocketFd, (sockaddr *)&(cliadd), &len ); // accept the new client
+	int NewFd = accept( this->_SocketFd, (sockaddr *)&( cliadd ), &len );
 	if ( NewFd == -1 )
 	{
 		std::cerr << ERR_ACCEPT_FAILED;
 		return ;
 	}
-
-	if ( fcntl(NewFd, F_SETFL, O_NONBLOCK) == -1 ) // set the socket option (O_NONBLOCK) for non-blocking socket
+	if ( fcntl( NewFd, F_SETFL, O_NONBLOCK ) == -1 )
 	{
 		std::cerr << ERR_FCNTL_FAILED( NewFd );
-		return;
+		return ;
 	}
 
-	NewPoll.fd = NewFd; // add the client socket to the pollfd
-	NewPoll.events = POLLIN; // set the event to POLLIN for reading data
-	NewPoll.revents = 0; // set the revents to 0
+	NewPoll.fd = NewFd;
+	NewPoll.events = POLLIN;
+	NewPoll.revents = 0;
 
-	cli.setFd( NewFd ); // set the client file descriptor
-	cli.setIpAddress( inet_ntoa((cliadd.sin_addr)) ); // convert the ip address to string and set it
-	_Clients.push_back( cli ); // add the client to the vector of _Clients
-	_Fds.push_back( NewPoll) ; // add the client socket to the pollfd
+	cli.setFd( NewFd );
+	cli.setIpAddress( inet_ntoa( cliadd.sin_addr ) );
+	_Clients.push_back( cli );
+	_Fds.push_back( NewPoll );
 
 	std::cout << NEW_CLIENT( NewFd );
 }
 
-
-void Server::ReceiveNewData( int ClientFd )
+void	Server::ReceiveNewData( int ClientFd )
 {
-	char	Data[1024]; // buffer for the received data
-	memset( Data, 0, sizeof( Data ) ); // clear the buffer
+	char Data[1024];
+	memset( Data, 0, sizeof( Data ) );
 
-	ssize_t bytes = recv( ClientFd, Data, sizeof( Data ) - 1 , 0 ); // receive the data
-
-	if( bytes <= 0 ) // check if the client disconnected
+	ssize_t bytes = recv( ClientFd, Data, sizeof( Data ) - 1, 0 );
+	if ( bytes <= 0 )
 	{
 		std::cout << CLIENT_DISCONNECTED( ClientFd );
-		//Clear_Clients(ClientFd); // clear the client
-		close( ClientFd ); // close the client socket
+		close( ClientFd );
 	}
-	else // print the received data
+	else
 	{
 		Data[bytes] = '\0';
-		
-		// std::cout << PRINT_DATA( ClientFd, Data );
-		std::vector< std::string >	Tokens = Parse( Data );
+		std::vector< std::string > Tokens = Parse( Data );
 		ExecCommand( Tokens, ClientFd );
-		// here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
 }
 
-bool Server::IsRegistered(int fd)
+bool	Server::IsRegistered( int fd )
 {
 	for ( std::vector<Client>::const_iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
 	{
