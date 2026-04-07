@@ -26,7 +26,7 @@ typedef struct	s_fd
 
 typedef struct	s_env
 {
-  t_fd		*fds;
+  t_fd		*_Fds;
   int		port;
   int		maxfd;
   int		max;

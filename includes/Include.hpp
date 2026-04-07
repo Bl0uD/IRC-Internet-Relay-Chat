@@ -1,5 +1,6 @@
 #pragma once
 
+# include <algorithm>
 # include <arpa/inet.h> // for inet_ntoa()
 # include <csignal> // for signal()
 # include <cstring>
@@ -9,13 +10,14 @@
 # include <iostream>
 # include <netinet/in.h> // for sockaddr_in
 # include <poll.h> // for poll()
+// # include <utility>
 # include <unistd.h> // for close()
 # include <vector> // for vector
 # include <stdexcept>
 # include <string>
 # include <sys/socket.h> // for socket()
 # include <sys/types.h> // for socket()
-# include <sstream> // for stringstrea#include <iostream>
+# include <sstream> // for stringstream
 
 # define	GREEN std::string("\e[1;32m") // for green color
 # define	RED std::string("\e[1;31m") // for red color
@@ -28,7 +30,7 @@
 # define	CRLF "\r\n"
 # define	WRONG_USAGE	RED << "\n   ⚠️\t WRONG USAGE !\n\n"
 # define	ERROR		RED + CRLF + "🚨 Error:\t" + WHITE
-			// Used in main.cpp
+
 # define	ERR_WRONG_USAGE 				WRONG_USAGE \
 											<< WHITE << "Try:  ./ircserv " \
 											<< GREEN << "<" \
@@ -74,18 +76,18 @@
 											<< WHITE << " > " \
 											<< RED << "DISCONNECTED.\n" \
 											<< WHITE << CRLF
-# define	SERVER_CONNECTED( SocketFd )	WHITE << "  Server " \
+# define	SERVER_CONNECTED( _SocketFd )	WHITE << "  Server " \
 											<< GREEN << "CONNECTED" \
 											<< WHITE << " !!\tListening on FD (" \
-											<< YELLOW << SocketFd \
+											<< YELLOW << _SocketFd \
 											<< WHITE << ").\n" \
 											<< WHITE << CRLF
-
 # define	WAITING_CONNECTION				WHITE << "\tWaiting connection...\n" << CRLF
-
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
+# define	ERR_CMD_ARGS( token, msg )		WHITE << "Wrong usage of : " << token << "\nUse like this : " << token << " " << msg << CRLF
+# define	ERR_CMD_NOT_FOUND( Cmd )		WHITE << "Wrong cmd" << CRLF
 
 class runtime_error : public std::exception
 {

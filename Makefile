@@ -4,6 +4,7 @@ OBJDIR = objects
 FLAGS = -Wall -Wextra -Werror -std=c++98 
 SOURCES = srcs/main.cpp \
 			srcs/client/Client.cpp \
+			srcs/server/ParsingData.cpp \
 			srcs/server/Server.cpp
 
 OBJECTS = $(SOURCES:srcs/%.cpp=$(OBJDIR)/%.o)

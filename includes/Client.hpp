@@ -8,6 +8,13 @@ class Client
 		int			_fd;
 		std::string	_ipAddress;
 
+		std::string _username;
+		std::string _nickname;
+
+		//bool _isOperator;
+		//bool _registered;
+		//std::vector<std::string> ChannelsInvite;
+
 	public:
 		~Client();
 		Client();
@@ -20,4 +27,6 @@ class Client
 
 		void		setFd( int );
 		void		setIpAddress( std::string );
+		void		setUsername( std::string );
+		void		setNickname( std::string );
 };

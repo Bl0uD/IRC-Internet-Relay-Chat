@@ -13,10 +13,10 @@ void	init_fd(t_env *e)
   FD_ZERO(&e->fd_write);
   while (i < e->maxfd)
     {
-      if (e->fds[i].type != FD_FREE)
+      if (e->_Fds[i].type != FD_FREE)
 	{
 	  FD_SET(i, &e->fd_read);
-	  if (strlen(e->fds[i].buf_write) > 0)
+	  if (strlen(e->_Fds[i].buf_write) > 0)
 	    {
 	      FD_SET(i, &e->fd_write);
 	    }

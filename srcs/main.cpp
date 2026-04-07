@@ -14,6 +14,10 @@ int main ( int ac, char **av )
 		signal( SIGQUIT, Irc.SignalHandler );
 		signal( SIGPIPE, SIG_IGN );
 		Irc.Init();
+		while ( Irc.getStatus() )
+			Irc.Running();
+		//CloseFds(); // close the server file descriptors when the server stops*/
+
 	}
 	catch( const std::exception &e )
 	{
