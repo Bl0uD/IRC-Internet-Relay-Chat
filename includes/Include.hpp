@@ -87,7 +87,17 @@
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
 # define	ERR_CMD_ARGS( token, msg )		WHITE << "Wrong usage of : " << token << "\nUse like this : " << token << " " << msg << CRLF
-# define	ERR_CMD_NOT_FOUND( Cmd )		WHITE << "Wrong cmd" << CRLF
+# define	ERR_CMD_NOT_FOUND( Cmd )		WHITE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + CRLF
+# define	COMMAND_LIST					WHITE + "Available commands:" + CRLF \
+											+ GREEN + "  - USER" + WHITE + " : set your username" + CRLF \
+											+ GREEN + "  - NICK" + WHITE + " : choose your nickname" + CRLF \
+											+ GREEN + "  - TOPIC" + WHITE + " : change the channel topic" + CRLF \
+											+ GREEN + "  - KICK" + WHITE + " : remove a user from a channel" + CRLF \
+											+ GREEN + "  - INVITE" + WHITE + " : invite a user to a channel" + CRLF \
+											+ GREEN + "  - JOIN" + WHITE + " : join a channel" + CRLF \
+											+ GREEN + "  - MODE" + WHITE + " : change channel mode" + CRLF \
+											+ GREEN + "  - PRIVMSG" + WHITE + " : send a private message" + CRLF \
+											+ GREEN + "  - HELP" + WHITE + " : show this list" + CRLF
 
 class runtime_error : public std::exception
 {

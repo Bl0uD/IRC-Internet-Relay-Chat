@@ -34,6 +34,16 @@ std::string Client::getIpAddress( void ) const
 	return ( this->_ipAddress );
 }
 
+std::string Client::getUsername( void ) const
+{
+	return ( this->_username );
+}
+
+std::string Client::getNickname( void ) const
+{
+	return ( this->_nickname );
+}
+
 void Client::setFd( int fd )
 {
 	this->_fd = fd;

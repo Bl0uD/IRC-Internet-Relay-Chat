@@ -24,6 +24,8 @@ class Client
 
 		int			getFd( void ) const;
 		std::string	getIpAddress( void ) const;
+		std::string	getUsername( void ) const;
+		std::string	getNickname( void ) const;
 
 		void		setFd( int );
 		void		setIpAddress( std::string );

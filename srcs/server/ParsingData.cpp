@@ -38,8 +38,8 @@ void	Server::SetUsername( std::vector<std::string> Tokens, int ClientFd )
 		return ;
 	}
 	int i = FindClient( ClientFd );
-	Client Cli = this->_Clients[i];
-	Cli.setUsername( Tokens[1] );
+	this->_Clients[i].setUsername( Tokens[1] );
+	this->SendToClient( ClientFd, ":ircserv NOTICE * :USER command accepted" );
 }
 
 void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
@@ -50,8 +50,8 @@ void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
 		return ;
 	}
 	int i = FindClient( ClientFd );
-	Client Cli = this->_Clients[i];
-	Cli.setNickname( Tokens[1] );
+	this->_Clients[i].setNickname( Tokens[1] );
+	this->SendToClient( ClientFd, ":ircserv NOTICE * :NICK command accepted" );
 }
 
 void	Server::ChangeTopic(  std::vector<std::string> Tokens, int ClientFd )
@@ -133,16 +133,61 @@ void	Server::ChangeMode(  std::vector<std::string> Tokens, int ClientFd )
 
 void	Server::SendPrivMsg(  std::vector<std::string> Tokens, int ClientFd )
 {
-	(void)Tokens;
-	(void)ClientFd;
-	std::cout << "func privmsg" << std::endl;
+	if ( Tokens.size() < 3 )
+	{
+		std::cout << ERR_CMD_ARGS( "PRIVMSG", "<nickname> <message>" );
+		return ;
+	}
+
+	std::string targetNickname = Tokens[1];
+	std::string message;
+	std::string senderNickname;
+	int senderIndex = FindClient( ClientFd );
+	int targetFd = -1;
+
+	if ( senderIndex >= 0 && senderIndex < static_cast<int>( this->_Clients.size() ) )
+	{
+		senderNickname = this->_Clients[senderIndex].getNickname();
+		if ( senderNickname == "" )
+			senderNickname = this->_Clients[senderIndex].getUsername();
+	}
+	if ( senderNickname == "" )
+		senderNickname = "*";
+
+	for ( size_t i = 0; i < this->_Clients.size(); ++i )
+	{
+		if ( this->_Clients[i].getNickname() == targetNickname )
+		{
+			targetFd = this->_Clients[i].getFd();
+			break ;
+		}
+	}
+
+	if ( targetFd == -1 )
+	{
+		this->SendToClient( ClientFd, std::string( ":ircserv 401 " ) + targetNickname + " :No such nick/channel" );
+		return ;
+	}
+
+	for ( size_t i = 2; i < Tokens.size(); ++i )
+	{
+		if ( i > 2 )
+			message += " ";
+		message += Tokens[i];
+	}
+	if ( message.size() > 0 && message[0] == ':' )
+		message.erase( 0, 1 );
+
+	this->SendToClient( targetFd, std::string( ":" ) + senderNickname + " PRIVMSG " + targetNickname + " :" + message );
 }
 
 void	Server::ExecCommand( std::vector<std::string> Tokens, int ClientFd )
 {
-	std::string	cmds[8] = { "USER", "NICK", "TOPIC", "KICK", "INVITE", "JOIN", "MODE", "PRIVMSG" };
+	std::string	cmds[9] = { "USER", "NICK", "TOPIC", "KICK", "INVITE", "JOIN", "MODE", "PRIVMSG", "HELP" };
 	int			i = 0;
-	while ( i < 8 && Tokens[0] != cmds[i] )
+	if ( Tokens.empty() )
+		return ;
+	while ( i < 9 && Tokens[0] != cmds[i] )
 		i++;
 	switch ( i )
 	{
@@ -170,8 +215,11 @@ void	Server::ExecCommand( std::vector<std::string> Tokens, int ClientFd )
 		case 7:
 			SendPrivMsg( Tokens, ClientFd );
 			break ;
+		case 8:
+			this->SendToClient( ClientFd, COMMAND_LIST );
+			break ;
 		default:
-			std::cout << ERR_CMD_NOT_FOUND( Tokens[0] );
+			this->SendToClient( ClientFd, ERR_CMD_NOT_FOUND( Tokens[0] ) );
 			break ;
 	}
 }
