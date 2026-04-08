@@ -54,34 +54,68 @@ void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
 	this->SendToClient( ClientFd, ":ircserv NOTICE * :NICK command accepted" );
 }
 
-void	Server::ChangeTopic(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::ChangeTopic( std::vector<std::string> Tokens, int ClientFd )
 {
-	if ( Tokens.size() != 2 )
+	if ( Tokens.size() < 3 )
 	{
-		std::cout << ERR_CMD_ARGS( "TOPIC", "<new topic name>");
+		std::cout << ERR_CMD_ARGS( "TOPIC", "<channel name> <new topic>" );
 		return ;
 	}
-	int i = FindClient( ClientFd );
-	Client Cli = this->_Clients[i];
-	Cli.setNickname( Tokens[1] );
-	std::cout << "func topic" << std::endl;
+
+	std::string channelName = Tokens[1];
+	std::string newTopic;
+	int channelId = -1;
+
+	for ( size_t i = 2; i < Tokens.size(); ++i )
+	{
+		if ( i > 2 )
+			newTopic += " ";
+		newTopic += Tokens[i];
+	}
+	if ( newTopic.size() > 0 && newTopic[0] == ':' )
+		newTopic.erase( 0, 1 );
+
+	for ( std::vector< std::pair<int, std::string> >::iterator it = this->_Directory.begin(); it != this->_Directory.end(); ++it )
+	{
+		if ( it->second == channelName )
+		{
+			channelId = it->first;
+			break ;
+		}
+	}
+
+	if ( channelId == -1 )
+	{
+		this->SendToClient( ClientFd, std::string( ":ircserv 403 " ) + channelName + " :No such channel" );
+		return ;
+	}
+
+	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); ++it )
+	{
+		if ( it->getId() == channelId )
+		{
+			it->setTopic( newTopic );
+			this->SendToClient( ClientFd, std::string( ":ircserv NOTICE " ) + channelName + " :Topic updated" );
+			return ;
+		}
+	}
 }
 
-void	Server::KickClient(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::KickClient( std::vector<std::string> Tokens, int ClientFd )
 {
 	(void)Tokens;
 	(void)ClientFd;
 	std::cout << "func kick" << std::endl;
 }
 
-void	Server::InviteClient(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::InviteClient( std::vector<std::string> Tokens, int ClientFd )
 {
 	(void)Tokens;
 	(void)ClientFd;
 	std::cout << "func invite" << std::endl;
 }
 
-void	Server::JoinChannel(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::JoinChannel( std::vector<std::string> Tokens, int ClientFd )
 {
 	if ( Tokens.size() < 2 )
 	{
@@ -124,14 +158,14 @@ void	Server::JoinChannel(  std::vector<std::string> Tokens, int ClientFd )
 	}
 }
 
-void	Server::ChangeMode(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 {
 	(void)Tokens;
 	(void)ClientFd;
 	std::cout << "func mode" << std::endl;
 }
 
-void	Server::SendPrivMsg(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::SendPrivMsg( std::vector<std::string> Tokens, int ClientFd )
 {
 	if ( Tokens.size() < 3 )
 	{
