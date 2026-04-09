@@ -1,10 +1,7 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-# include <iostream>
-# include <string>
-# include <exception>
-# include <vector>
+#include "Include.hpp"
 
 class Channel
 {
