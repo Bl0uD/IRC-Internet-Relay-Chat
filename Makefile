@@ -35,4 +35,8 @@ dev : fclean
 	@echo "Adding files from current directory only..."
 	@git add . && git diff --cached --quiet || (git commit -m "IRC - auto/dev" && git push) || echo "No changes to commit"
 
+dev-force : fclean
+	@echo "Adding files from current directory only..."
+	@git add . && git diff --cached --quiet || (git commit -m "IRC - auto/dev force" && git push --force) || echo "No changes to commit"
+
 .PHONY: all clean fclean re
