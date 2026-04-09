@@ -24,10 +24,11 @@
 # define	WHITE std::string("\e[0;37m") // for white color
 # define	YELLOW std::string("\e[1;33m") // for yellow color
 # define	PURPLE std::string("\e[1;35m") // for purple color
+# define	BLUE std::string("\e[1;34m") // for blue color
 
 # define	DISPLAY_SERVER		PURPLE << "\n   ☑️\t Server launched !\n\n"
 
-# define	CRLF "\r\n"
+# define	CRLF "\r\n\n"
 # define	WRONG_USAGE	RED << "\n   ⚠️\t WRONG USAGE !\n\n"
 # define	ERROR		RED + CRLF + "🚨 Error:\t" + WHITE
 
@@ -86,18 +87,27 @@
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
-# define	ERR_CMD_ARGS( token, msg )		WHITE << "Wrong usage of : " << token << "\nUse like this : " << token << " " << msg << CRLF
-# define	ERR_CMD_NOT_FOUND( Cmd )		WHITE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + CRLF
-# define	COMMAND_LIST					WHITE + "Available commands:" + CRLF \
-											+ GREEN + "  - USER" + WHITE + " : set your username" + CRLF \
-											+ GREEN + "  - NICK" + WHITE + " : choose your nickname" + CRLF \
-											+ GREEN + "  - TOPIC" + WHITE + " : change the channel topic" + CRLF \
-											+ GREEN + "  - KICK" + WHITE + " : remove a user from a channel" + CRLF \
-											+ GREEN + "  - INVITE" + WHITE + " : invite a user to a channel" + CRLF \
-											+ GREEN + "  - JOIN" + WHITE + " : join a channel" + CRLF \
-											+ GREEN + "  - MODE" + WHITE + " : change channel mode" + CRLF \
-											+ GREEN + "  - PRIVMSG" + WHITE + " : send a private message" + CRLF \
-											+ GREEN + "  - HELP" + WHITE + " : show this list" + CRLF
+# define	ERR_CMD_ARGS( token, msg )		BLUE + "Wrong usage of : " + token + "\nUse like this : " + token + " " + msg + WHITE + CRLF
+# define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + WHITE + CRLF
+# define	COMMAND_LIST					BLUE + "Available commands:" + CRLF \
+											+ GREEN + "  - USER" + BLUE + " : set your username\n" \
+											+ GREEN + "  - NICK" + BLUE + " : choose your nickname\n" \
+											+ GREEN + "  - TOPIC" + BLUE + " : change the channel topic\n" \
+											+ GREEN + "  - KICK" + BLUE + " : remove a user from a channel\n" \
+											+ GREEN + "  - INVITE" + BLUE + " : invite a user to a channel\n" \
+											+ GREEN + "  - JOIN" + BLUE + " : join a channel\n" \
+											+ GREEN + "  - MODE" + BLUE + " : change channel mode\n" \
+											+ GREEN + "  - PRIVMSG" + BLUE + " : send a private message\n" \
+											+ GREEN + "  - HELP" + BLUE + " : show this list" + WHITE + CRLF
+# define	MSG_NEW_CLIENT( NewFd )			PURPLE + "\n\tWelcome to IRC\n" \
+											+ BLUE + "First steps to use IRC. Authentificate with :\n" \
+											+ GREEN + "USER <your username>\n" \
+											+ GREEN + "PASS <your password>" + WHITE + CRLF
+# define	UPDATE_USERNAME( username )		GREEN + "Your username has been successfully processed.\n" \
+											+ BLUE + "New username : " + username + WHITE + CRLF
+# define	UPDATE_NICKNAME( nickname )		GREEN + "Your nickname has been successfully processed.\n" \
+											+ BLUE + "New nickname : " + nickname + WHITE + CRLF
+# define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLF
 
 class runtime_error : public std::exception
 {

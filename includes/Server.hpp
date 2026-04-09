@@ -43,6 +43,7 @@ class Server
 		std::vector< std::string >	Parse( char *Data );
 		void		SetUsername( std::vector<std::string> Tokens, int ClientFd );
 		void		SetNickname( std::vector<std::string> Tokens, int ClientFd );
+		void		SetPassword( std::vector<std::string> Tokens, int ClientFd );
 		void		ChangeTopic( std::vector<std::string> Tokens, int ClientFd );
 		void		KickClient( std::vector<std::string> Tokens, int ClientFd );
 		void		InviteClient( std::vector<std::string> Tokens, int ClientFd );

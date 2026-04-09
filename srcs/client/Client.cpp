@@ -24,45 +24,54 @@ Client	&Client::operator=( Client const &instance )
 	return ( *this );
 }
 
-int Client::getFd( void ) const
+int	Client::getFd( void ) const
 {
 	return ( this->_fd );
 }
 
-std::string Client::getIpAddress( void ) const
+std::string	Client::getIpAddress( void ) const
 {
 	return ( this->_ipAddress );
 }
 
-std::string Client::getUsername( void ) const
+std::string	Client::getUsername( void ) const
 {
 	return ( this->_username );
 }
 
-std::string Client::getNickname( void ) const
+std::string	Client::getNickname( void ) const
 {
 	return ( this->_nickname );
 }
 
-void Client::setFd( int fd )
+std::string	Client::getPassword( void ) const
+{
+	return ( this->_password );
+}
+
+void	Client::setFd( int fd )
 {
 	this->_fd = fd;
 }
 
-void Client::setIpAddress( std::string add )
+void	Client::setIpAddress( std::string add )
 {
 	this->_ipAddress = add;
 }
 
-void Client::setUsername( std::string username )
+void	Client::setUsername( std::string username )
 {
-	if ( !this->_username.empty() )
+	//if ( !this->_username.empty() )
 		//confirmation modification;
 	this->_username = username;
 }
 
-void Client::setNickname( std::string nickname )
+void	Client::setNickname( std::string nickname )
 {
 	this->_nickname = nickname;
 }
 
+void	Client::setPassword( std::string password )
+{
+	this->_password = password;
+}
