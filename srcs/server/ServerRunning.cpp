@@ -96,11 +96,11 @@ void	Server::AcceptNewClient( void )
 
 	cli.setFd( NewFd );
 	cli.setIpAddress( inet_ntoa( cliadd.sin_addr ) );
-	_Clients.push_back( cli );
+	this->_Clients.push_back( cli );
 	_Fds.push_back( NewPoll );
 
-	std::cout << NEW_CLIENT( NewFd );
-	SendToClient( NewFd, MSG_NEW_CLIENT( NewFd ) );
+	std::cout << NEW_CLIENT( cli.getFd() );
+	SendToClient( cli.getFd() , MSG_NEW_CLIENT( cli.getFd() ) );
 }
 
 void	Server::ReceiveNewData( int ClientFd )
@@ -118,6 +118,8 @@ void	Server::ReceiveNewData( int ClientFd )
 		{
 			if ( it->getFd() == ClientFd )
 			{
+				if ( it->getNickname() != "" )
+					this->_Nicknames.erase( it->getNickname() );
 				this->_Clients.erase( it );
 				break;
 			}

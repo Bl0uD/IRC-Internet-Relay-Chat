@@ -1,19 +1,33 @@
 # include "../../includes/Server.hpp"
 
-bool	Server::IsRegistered( int fd )
+
+bool	Server::IsOperator( int ClientFd )
 {
-	for ( std::vector<Client>::const_iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
+	int Cli = FindClient( ClientFd );
+	if ( !Cli.getOperator() )
 	{
-		if ( it->getFd() == fd )
-			return true;
+		this->SendToClient( ClientFd, "You're not a client operator." );
+		return false ;
 	}
-	return false;
+	return true ;
 }
 
 int Server::FindClient( int ClientFd )
 {
-	int	i = 0;
-	while ( this->_Clients[i].getFd() != ClientFd )
-		i++;
-	return ( i );
+	for ( size_t i = 0; i < this->_Clients.size(); ++i )
+	{
+		if ( this->_Clients[i].getFd() == ClientFd )
+			return ( static_cast<int>( i ) );
+	}
+	return ( -1 );
+}
+
+std::string	Server::FindClientNickname( int ClientFd )
+{
+	for ( std::vector< Client >::const_iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
+	{
+		if ( it->getFd() == ClientFd )
+			return ( it->getUsername() );
+	}
+	return ( "NoUsername" );
 }

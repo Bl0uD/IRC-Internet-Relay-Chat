@@ -18,6 +18,7 @@
 # include <sys/socket.h> // for socket()
 # include <sys/types.h> // for socket()
 # include <sstream> // for stringstream
+# include <set>
 
 # define	GREEN std::string("\e[1;32m") // for green color
 # define	RED std::string("\e[1;31m") // for red color
@@ -28,7 +29,8 @@
 
 # define	DISPLAY_SERVER		PURPLE << "\n   ☑️\t Server launched !\n\n"
 
-# define	CRLF "\r\n\n"
+# define	CRLF "\r\n"
+# define	CRLFNL "\r\n\n"
 # define	WRONG_USAGE	RED << "\n   ⚠️\t WRONG USAGE !\n\n"
 # define	ERROR		RED + CRLF + "🚨 Error:\t" + WHITE
 
@@ -66,23 +68,23 @@
 # define	NEW_CLIENT( ClientFd )			WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< GREEN << "CONNECTED." << WHITE << CRLF
+											<< GREEN << "CONNECTED." << WHITE << CRLFNL
 # define	CLIENT_DISCONNECTED( ClientFd )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< RED << "DISCONNECTED." << WHITE << CRLF
+											<< RED << "DISCONNECTED." << WHITE << CRLFNL
 # define	SERVER_CONNECTED( _SocketFd )	WHITE << "  Server " \
 											<< GREEN << "CONNECTED" \
 											<< WHITE << " !!\tListening on FD (" \
 											<< YELLOW << _SocketFd \
-											<< WHITE << ")." << WHITE << CRLF
-# define	WAITING_CONNECTION				WHITE << "\tWaiting connection..." << CRLF
+											<< WHITE << ")." << WHITE << CRLFNL
+# define	WAITING_CONNECTION				WHITE << "\tWaiting connection..." << CRLFNL
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
-# define	ERR_CMD_ARGS( token, msg )		BLUE + "Wrong usage of : " + token + "\nUse like this : " + token + " " + msg + WHITE + CRLF
-# define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + WHITE + CRLF
-# define	COMMAND_LIST					BLUE + "Available commands:" + CRLF \
+# define	ERR_CMD_ARGS( token, msg )		BLUE + "Wrong usage of : " + token + "\nUse like this : " + token + " " + msg + WHITE + CRLFNL
+# define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + WHITE + CRLFNL
+# define	COMMAND_LIST					BLUE + "Available commands:" + CRLFNL \
 											+ GREEN + "  - USER" + BLUE + " : set your username\n" \
 											+ GREEN + "  - NICK" + BLUE + " : choose your nickname\n" \
 											+ GREEN + "  - TOPIC" + BLUE + " : change the channel topic\n" \
@@ -90,19 +92,20 @@
 											+ GREEN + "  - INVITE" + BLUE + " : invite a user to a channel\n" \
 											+ GREEN + "  - JOIN" + BLUE + " : join a channel\n" \
 											+ GREEN + "  - MODE" + BLUE + " : change channel mode\n" \
-											+ GREEN + "  - PRIVMSG" + BLUE + " : send a private message\n" \
-											+ GREEN + "  - HELP" + BLUE + " : show this list" + WHITE + CRLF
+											+ GREEN + "  - PRIVMSG" + BLUE + " : send a private message\n" + WHITE
 # define	MSG_NEW_CLIENT( NewFd )			PURPLE + "\n\tWelcome to IRC\n" \
-											+ BLUE + "First steps to use IRC. Authentificate with :\n" \
-											+ GREEN + "USER <your username>\n" \
-											+ GREEN + "PASS <your password>" + WHITE + CRLF
+											+ BLUE + "First steps to use IRC. Register with :\n" \
+											+ GREEN + " - USER <your username>\n" \
+											+ GREEN + " - PASS <your password>" + WHITE + CRLF
 # define	UPDATE_USERNAME( username )		GREEN + "Your username has been successfully processed.\n" \
 											+ BLUE + "New username : " + username + WHITE + CRLF
 # define	UPDATE_NICKNAME( nickname )		GREEN + "Your nickname has been successfully processed.\n" \
-											+ BLUE + "New nickname : " + nickname + WHITE + CRLF
-# define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLF
+											+ BLUE + "New nickname : " + nickname + WHITE + CRLFNL
+# define	ERR_NICKNAME_USED( nickname )	RED + "INFO:" + BLUE + nickname + " Nickname is already used." + WHITE + CRLF
+# define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLFNL
 # define	SERVER_CLOSED					RED + "\tINFO: " \
-											+ BLUE + "IRC server has been closed. Thanks you" + WHITE + CRLF
+											+ BLUE + "IRC server has been closed. Thank you." + WHITE + CRLFNL
+# define	REGISTERED( status )			BLUE + "You have been correctly " + GREEN + status + "." + WHITE + CRLFNL
 
 class runtime_error : public std::exception
 {

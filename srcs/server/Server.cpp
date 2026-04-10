@@ -18,7 +18,6 @@ Server::Server( char **av ) : _NextChannelId( 0 )
 
 Server::Server( Server const &copy )
 {
-	std::cout << "Server copy constructor called." << std::endl;
 	*this = copy;
 }
 
@@ -33,7 +32,8 @@ Server	&Server::operator=( Server const &instance )
 		this->_Clients = instance._Clients;
 		this->_Channels = instance._Channels;
 		this->_Fds = instance._Fds;
-		this->_Directory = instance._Directory;
+		this->_ChannelDirectory = instance._ChannelDirectory;
+		this->_Nicknames = instance._Nicknames;
 		this->_NextChannelId = instance._NextChannelId;
 	}
 	return ( *this );

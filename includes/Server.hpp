@@ -14,9 +14,10 @@ class Server
 		static bool									_ServerStatus;
 		int											_SocketFd;
 		std::vector<Client>							_Clients;
-		std::vector<Channel>							_Channels;
+		std::vector<Channel>						_Channels;
+		std::vector< std::pair<int, std::string> >	_ChannelDirectory;
+		std::set<std::string>						_Nicknames;
 		std::vector<struct pollfd>					_Fds;
-		std::vector< std::pair<int, std::string> >	_Directory;
 		int											_NextChannelId;
 
 	public:
@@ -41,6 +42,7 @@ class Server
 		void		SetServSocket( void );
 
 		std::vector< std::string >	Parse( char *Data );
+
 		void		SetUsername( std::vector<std::string> Tokens, int ClientFd );
 		void		SetNickname( std::vector<std::string> Tokens, int ClientFd );
 		void		SetPassword( std::vector<std::string> Tokens, int ClientFd );
@@ -51,11 +53,15 @@ class Server
 		void		ChangeMode( std::vector<std::string> Tokens, int ClientFd );
 		void		SendPrivMsg( std::vector<std::string> Tokens, int ClientFd );
 		void		ExecCommand( std::vector<std::string> Tokens, int ClientFd );
-		bool		IsRegistered( int );
 		
 		void		AcceptNewClient( void );
 		void		ReceiveNewData( int );
+
+		bool		IsOperator( int ClientFd );
+		bool		IsRegistered( int ClientFd );
 		int			FindClient( int );
+		std::string	FindClientNickname( int ClientFd );
+
 		bool		SendToAllClient( const std::string &message );
 		bool		SendToChannel( int clientFd, const std::string &message );
 		bool		SendToClient( int clientFd, const std::string &message );

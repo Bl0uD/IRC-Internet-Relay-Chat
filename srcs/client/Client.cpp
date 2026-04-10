@@ -3,14 +3,22 @@
 Client::~Client( void ) {}
 
 Client::Client( void )
-{
+	: _fd( -1 ),
+	  _ipAddress( "" ),
+	  _username( "" ),
+	  _nickname( "" ),
+	  _password( "" ),
+	  _registered( false )
+{}
 
-}
-
-Client::Client( std::string a )
-{
-	(void)a;
-}
+Client::Client( std::string ipAddress )
+	: _fd( -1 ),
+	  _ipAddress( ipAddress ),
+	  _username( "" ),
+	  _nickname( "" ),
+	  _password( "" ),
+	  _registered( false )
+{}
 
 Client::Client( Client const &copy )
 {
@@ -19,8 +27,15 @@ Client::Client( Client const &copy )
 
 Client	&Client::operator=( Client const &instance )
 {
-	this->_fd = instance._fd;
-	this->_ipAddress = instance._ipAddress;
+	if ( this != &instance )
+	{
+		this->_fd = instance._fd;
+		this->_ipAddress = instance._ipAddress;
+		this->_username = instance._username;
+		this->_nickname = instance._nickname;
+		this->_password = instance._password;
+		this->_registered = instance._registered;
+	}
 	return ( *this );
 }
 
@@ -49,6 +64,18 @@ std::string	Client::getPassword( void ) const
 	return ( this->_password );
 }
 
+bool	Client::getRegistered( void ) const
+{
+	si pas registered
+		send au client message : "Register first." 
+	return ( this->_registered );
+}
+
+bool	Client::getOperator( void ) const
+{
+	return ( this->_Operator );
+}
+
 void	Client::setFd( int fd )
 {
 	this->_fd = fd;
@@ -72,4 +99,36 @@ void	Client::setNickname( std::string nickname )
 void	Client::setPassword( std::string password )
 {
 	this->_password = password;
+}
+
+bool	SendToClient( int clientFd, const std::string &message )
+{
+	std::string	wire = message;
+	size_t		total = 0;
+	
+	if ( wire.size() < 2 || wire.substr( wire.size() - 2 ) != CRLF )
+		wire += CRLF;
+	while ( total < wire.size() )
+	{
+		ssize_t sent = send( clientFd, wire.c_str() + total, wire.size() - total, 0 );
+
+		if ( sent > 0 )
+			total += static_cast<size_t>( sent );
+		else if ( sent == -1 && errno == EINTR )
+			continue;
+		else if ( sent == -1 && ( errno == EAGAIN || errno == EWOULDBLOCK ) )
+			return false;
+		else
+			return false;
+	}
+	return true;
+}
+
+void	Client::setRegistered( bool regis )
+{
+	this->_registered = regis;
+	if ( this->_registered )
+		SendToClient( this->getFd(), REGISTERED( "registered" ) );
+	else
+		SendToClient( this->getFd(), REGISTERED( "unregistered" ) );
 }
