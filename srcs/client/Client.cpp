@@ -66,8 +66,7 @@ std::string	Client::getPassword( void ) const
 
 bool	Client::getRegistered( void ) const
 {
-	si pas registered
-		send au client message : "Register first." 
+		// send au client message : "Register first." 
 	return ( this->_registered );
 }
 

@@ -3,10 +3,26 @@
 
 bool	Server::IsOperator( int ClientFd )
 {
-	int Cli = FindClient( ClientFd );
-	if ( !Cli.getOperator() )
+	int i = FindClient( ClientFd );
+	if ( i < 0 )
+		return false ;
+	if ( !this->_Clients[i].getOperator() )
 	{
 		this->SendToClient( ClientFd, "You're not a client operator." );
+		return false ;
+	}
+	return true ;
+}
+
+bool	Server::IsRegistered( int ClientFd )
+{
+	int i = FindClient( ClientFd );
+
+	if ( i < 0 )
+		return false ;
+	if ( !this->_Clients[i].getRegistered() )
+	{
+		this->SendToClient( ClientFd, "Register first." );
 		return false ;
 	}
 	return true ;
