@@ -23,7 +23,7 @@ bool	Server::SendToClient( int clientFd, const std::string &message )
 	return true;
 }
 
-bool	Server::SendToAllClient( int clientFd, const std::string &message )
+bool	Server::SendToChannel( int clientFd, const std::string &message )
 {
 	int	size = this->_Clients.size();
 	for ( int i = 0; i < size; i++ )
@@ -32,5 +32,13 @@ bool	Server::SendToAllClient( int clientFd, const std::string &message )
 			i++;
 		SendToClient( this->_Clients[i].getFd(), message );
 	}
+	return true;
+}
+
+bool	Server::SendToAllClient( const std::string &message )
+{
+	int	size = this->_Clients.size();
+	for ( int i = 0; i < size; i++ )
+		SendToClient( this->_Clients[i].getFd(), message );
 	return true;
 }

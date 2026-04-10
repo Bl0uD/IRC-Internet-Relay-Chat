@@ -1,4 +1,4 @@
-#pragma once
+# pragma once
 
 # include <algorithm>
 # include <arpa/inet.h> // for inet_ntoa()
@@ -38,14 +38,12 @@
 											<< WHITE << "port" \
 											<< GREEN << "> <" \
 											<< WHITE << "password" \
-											<< GREEN << ">" \
-											<< WHITE << "\n\n"
+											<< GREEN << ">" << WHITE << CRLF
 # define	ERR_INVALID_PORT				std::runtime_error( RED + "Error: Invalid port" \
 											+ WHITE + " - expected a value between " \
 											+ GREEN + "1024" \
 											+ WHITE + " and " \
-											+ GREEN + "49151" \
-											+ WHITE + "." + CRLF)
+											+ GREEN + "49151" + WHITE + "." + CRLF)
 # define	ERR_INVALID_PASSWORD			std::runtime_error( ERROR \
 											+ WHITE + "Empty password" + CRLF )
 # define	ERR_SOCKET_CREATION				std::runtime_error( ERROR \
@@ -60,30 +58,25 @@
 											+ WHITE + "Listen function failed ..." + CRLF)
 # define	ERR_POLL						std::runtime_error( ERROR \
 											+ WHITE + "Poll failed ..." + CRLF)
-# define 	ERR_ACCEPT_FAILED				RED << "accept() failed" \
-											<< WHITE << CRLF
+# define 	ERR_ACCEPT_FAILED				RED << "accept() failed" << WHITE << CRLF
 # define 	ERR_FCNTL_FAILED( ClientFd )	WHITE << "Failed to set option (O_NONBLOCK) for client " \
-											<< RED << ClientFd \
-											<< WHITE << "." << CRLF
-# define	SERVER_OFF						std::runtime_error( WHITE + "SERVER CLOSED." + CRLF)
+											<< RED << ClientFd << WHITE << "." << CRLF
+# define	SERVER_OFF						std::runtime_error( WHITE + "SERVER CLOSED.")
 
 # define	NEW_CLIENT( ClientFd )			WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< GREEN << "CONNECTED.\n" \
-											<< WHITE << CRLF
+											<< GREEN << "CONNECTED." << WHITE << CRLF
 # define	CLIENT_DISCONNECTED( ClientFd )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< RED << "DISCONNECTED.\n" \
-											<< WHITE << CRLF
+											<< RED << "DISCONNECTED." << WHITE << CRLF
 # define	SERVER_CONNECTED( _SocketFd )	WHITE << "  Server " \
 											<< GREEN << "CONNECTED" \
 											<< WHITE << " !!\tListening on FD (" \
 											<< YELLOW << _SocketFd \
-											<< WHITE << ").\n" \
-											<< WHITE << CRLF
-# define	WAITING_CONNECTION				WHITE << "\tWaiting connection...\n" << CRLF
+											<< WHITE << ")." << WHITE << CRLF
+# define	WAITING_CONNECTION				WHITE << "\tWaiting connection..." << CRLF
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
@@ -108,6 +101,8 @@
 # define	UPDATE_NICKNAME( nickname )		GREEN + "Your nickname has been successfully processed.\n" \
 											+ BLUE + "New nickname : " + nickname + WHITE + CRLF
 # define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLF
+# define	SERVER_CLOSED					RED + "\tINFO: " \
+											+ BLUE + "IRC server has been closed. Thanks you" + WHITE + CRLF
 
 class runtime_error : public std::exception
 {

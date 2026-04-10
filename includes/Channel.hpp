@@ -1,5 +1,4 @@
-#ifndef CHANNEL_HPP
-# define CHANNEL_HPP
+# pragma once
 
 #include "Include.hpp"
 
@@ -44,5 +43,3 @@ class Channel
 		void				removeClients( int );
 		void				removeOperators( int );
 };
-
-#endif

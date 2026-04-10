@@ -12,7 +12,10 @@ void	Server::Running( void )
 	if ( poll( &this->_Fds[0], this->_Fds.size(), -1 ) == -1 )
 	{
 		if ( errno == EINTR && !this->_ServerStatus )
+		{
+			SendToAllClient( SERVER_CLOSED );
 			throw SERVER_OFF;
+		}
 		throw ERR_POLL;
 	}
 	for ( size_t i = 0; i < this->_Fds.size(); i++ )
@@ -110,6 +113,24 @@ void	Server::ReceiveNewData( int ClientFd )
 	{
 		std::cout << CLIENT_DISCONNECTED( ClientFd );
 		close( ClientFd );
+
+		for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
+		{
+			if ( it->getFd() == ClientFd )
+			{
+				this->_Clients.erase( it );
+				break;
+			}
+		}
+
+		for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
+		{
+			if ( it->fd == ClientFd )
+			{
+				this->_Fds.erase( it );
+				break;
+			}
+		}
 	}
 	else
 	{

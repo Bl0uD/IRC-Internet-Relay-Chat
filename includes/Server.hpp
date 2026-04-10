@@ -56,7 +56,8 @@ class Server
 		void		AcceptNewClient( void );
 		void		ReceiveNewData( int );
 		int			FindClient( int );
-		bool		SendToAllClient( int clientFd, const std::string &message );
+		bool		SendToAllClient( const std::string &message );
+		bool		SendToChannel( int clientFd, const std::string &message );
 		bool		SendToClient( int clientFd, const std::string &message );
 		
 };

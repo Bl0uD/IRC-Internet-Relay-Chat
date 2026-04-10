@@ -61,8 +61,6 @@ void	Client::setIpAddress( std::string add )
 
 void	Client::setUsername( std::string username )
 {
-	//if ( !this->_username.empty() )
-		//confirmation modification;
 	this->_username = username;
 }
 
