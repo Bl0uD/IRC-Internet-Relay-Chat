@@ -10,15 +10,16 @@ class Server
 {
 	private:
 		int											_Port;
-		std::string									_Password;
-		static bool									_ServerStatus;
 		int											_SocketFd;
-		std::vector<Client>							_Clients;
-		std::vector<Channel>						_Channels;
-		std::vector< std::pair<int, std::string> >	_ChannelDirectory;
-		std::set<std::string>						_Nicknames;
-		std::vector<struct pollfd>					_Fds;
 		int											_NextChannelId;
+		static bool									_ServerStatus;
+		std::string									_Password;
+		std::vector< Client >						_Clients;
+		std::vector< std::pair<int, std::string> >	_ChannelDirectory;
+		std::vector< struct pollfd >				_Fds;
+		std::vector< Channel >						_Channels;
+		std::set< std::string >						_Nicknames;
+		std::set< std::string >						_Topics;
 
 	public:
 		~Server();
@@ -28,12 +29,12 @@ class Server
 		Server		&operator=( const Server &instance );
 
 		int			getPort( void ) const;
+		void		setPort( int );
 		std::string	getPassword( void ) const;
+		void		setPassword( std::string );
 		bool		getStatus( void ) const;
 
-		void		setPort( int );
-		void		setPassword( std::string );
-		
+
 		static void	SignalHandler( int );
 		void		Init( void );
 		void		Running( void );
@@ -53,17 +54,23 @@ class Server
 		void		ChangeMode( std::vector<std::string> Tokens, int ClientFd );
 		void		SendPrivMsg( std::vector<std::string> Tokens, int ClientFd );
 		void		ExecCommand( std::vector<std::string> Tokens, int ClientFd );
+		void		ChannelList( int ClientFd );
 		
 		void		AcceptNewClient( void );
 		void		ReceiveNewData( int );
 
-		bool		IsOperator( int ClientFd );
-		bool		IsRegistered( int ClientFd );
-		int			FindClient( int );
+		int			FindChannelId( std::string topic );
+		int			FindClientId( int );
 		std::string	FindClientNickname( int ClientFd );
+		int			FindClientFd( std::string Nickname );
+		bool		IsOperator( int ClientFd, int channelId );
+		bool		IsRegistered( int ClientFd );
 
-		bool		SendToAllClient( const std::string &message );
-		bool		SendToChannel( int clientFd, const std::string &message );
+		void		SendToAllClient( const std::string &message );
+		void		SendToChannel( int clientFd, std::vector<std::string> Tokens );
 		bool		SendToClient( int clientFd, const std::string &message );
-		
+		void		SendToAllMembers( int ChannelId , std::string message );
+		bool		InChannel( int ClientFd, int ChannelId );
+
+
 };

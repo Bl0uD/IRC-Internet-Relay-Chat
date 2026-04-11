@@ -2,19 +2,17 @@
 
 #include "Include.hpp"
 
+class Channel;
+
 class Client
 {
 	private:
 		int			_fd;
 		std::string	_ipAddress;
-
 		std::string _username;
 		std::string _nickname;
 		std::string _password;
-
-		bool	_registered;
-		bool	_Operator;
-		//std::vector<std::string> ChannelsInvite;
+		bool		_registered;
 
 	public:
 		~Client();
@@ -28,16 +26,14 @@ class Client
 		std::string	getUsername( void ) const;
 		std::string	getNickname( void ) const;
 		std::string getPassword( void ) const;
-		bool		getusernameSet( void ) const;
-		bool		getpasswordSet( void ) const;
 
 		bool		getRegistered( void ) const;
-		bool		getOperator( void ) const;
 
 		void		setFd( int );
 		void		setIpAddress( std::string );
 		void		setUsername( std::string );
 		void		setNickname( std::string );
 		void		setPassword( std::string );
+
 		void		setRegistered( bool );
 };

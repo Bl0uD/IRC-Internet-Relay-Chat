@@ -1,25 +1,22 @@
 # include "../../includes/Server.hpp"
 
 
-bool	Server::IsOperator( int ClientFd )
+bool	Server::IsOperator( int ClientFd, int channelId )
 {
-	int i = FindClient( ClientFd );
-	if ( i < 0 )
-		return false ;
-	if ( !this->_Clients[i].getOperator() )
-	{
-		this->SendToClient( ClientFd, "You're not a client operator." );
-		return false ;
+	size_t i = 0;
+	
+	while ( i < this->_Channels[channelId].getOperators().size() )
+	{	
+		if ( this->_Channels[channelId].getOperators()[i] == ClientFd )		
+			return true ;
+		i++;
 	}
-	return true ;
+	return false ;
 }
 
 bool	Server::IsRegistered( int ClientFd )
 {
-	int i = FindClient( ClientFd );
-
-	if ( i < 0 )
-		return false ;
+	int i = FindClientId( ClientFd );
 	if ( !this->_Clients[i].getRegistered() )
 	{
 		this->SendToClient( ClientFd, "Register first." );
@@ -28,12 +25,25 @@ bool	Server::IsRegistered( int ClientFd )
 	return true ;
 }
 
-int Server::FindClient( int ClientFd )
+int Server::FindClientId( int ClientFd )
 {
 	for ( size_t i = 0; i < this->_Clients.size(); ++i )
 	{
 		if ( this->_Clients[i].getFd() == ClientFd )
 			return ( static_cast<int>( i ) );
+	}
+	return ( -1 );
+}
+
+int	Server::FindClientFd( std::string Nickname )
+{
+	size_t i = 0;
+	
+	while ( i < this->_Clients.size() )
+	{
+		if ( this->_Clients[i].getNickname() == Nickname )
+			return ( this->_Clients[i].getFd() );
+		i++;
 	}
 	return ( -1 );
 }
@@ -45,5 +55,15 @@ std::string	Server::FindClientNickname( int ClientFd )
 		if ( it->getFd() == ClientFd )
 			return ( it->getUsername() );
 	}
-	return ( "NoUsername" );
+	return ( "NotFound" );
+}
+
+bool	Server::InChannel( int ClientFd, int ChannelId )
+{
+	for ( size_t i = 0; this->_Channels[ChannelId].getClients()[i]; ++i )
+	{
+		if ( this->_Channels[ChannelId].getClients()[i] == ClientFd )
+			return ( true );
+	}
+	return ( false );
 }

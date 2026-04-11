@@ -70,11 +70,6 @@ bool	Client::getRegistered( void ) const
 	return ( this->_registered );
 }
 
-bool	Client::getOperator( void ) const
-{
-	return ( this->_Operator );
-}
-
 void	Client::setFd( int fd )
 {
 	this->_fd = fd;

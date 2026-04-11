@@ -55,7 +55,7 @@
 # define	ERR_O_NONBLOCK					std::runtime_error( ERROR \
 											+ WHITE + "Failed to set option (O_NONBLOCK) on server socket ..." + CRLF)
 # define	ERR_BINDING_SOCKET				std::runtime_error( ERROR \
-											+ WHITE + "failed to bind socket ..." + CRLF)
+											+ WHITE + "failed to bind socket ...\n" + "Check if server is not already running in another terminal." + CRLF)
 # define	ERR_LISTEN						std::runtime_error( ERROR \
 											+ WHITE + "Listen function failed ..." + CRLF)
 # define	ERR_POLL						std::runtime_error( ERROR \
@@ -83,7 +83,15 @@
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
 # define	ERR_CMD_ARGS( token, msg )		BLUE + "Wrong usage of : " + token + "\nUse like this : " + token + " " + msg + WHITE + CRLFNL
-# define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType HELP to see the list of available commands." + WHITE + CRLFNL
+# define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType " \
+											+ GREEN + "HELP " \
+											+ BLUE + "to see the list of available commands." + WHITE + CRLFNL
+# define	ERR_INEXISTANT_CHANNEL( topic )	BLUE + "Unknown channel: " + topic + "\nType " \
+											+ GREEN + "CHANNEL_ON " \
+											+ BLUE + "to see the list of available channels." + WHITE + CRLFNL
+# define	ERR_INEXISTANT_CLIENT( name )	BLUE + "Unknown client: " + name + "\nType a valid client." + WHITE + CRLFNL
+# define	ERR_NOT_OPERATOR( chanName )	YELLOW + "You are not operator for " + chanName + " channel." + WHITE + CRLFNL
+# define	ERR_NOT_IN_CHANNEL( chanName )	YELLOW + "You are not in " + chanName + " channel." + WHITE + CRLFNL
 # define	COMMAND_LIST					BLUE + "Available commands:" + CRLFNL \
 											+ GREEN + "  - USER" + BLUE + " : set your username\n" \
 											+ GREEN + "  - NICK" + BLUE + " : choose your nickname\n" \
@@ -93,6 +101,12 @@
 											+ GREEN + "  - JOIN" + BLUE + " : join a channel\n" \
 											+ GREEN + "  - MODE" + BLUE + " : change channel mode\n" \
 											+ GREEN + "  - PRIVMSG" + BLUE + " : send a private message\n" + WHITE
+# define	HELP_MODE						BLUE + "MODE - Change the channel’s mode:\n" \
+											+ "· " + GREEN + "i: " + BLUE + "Set/remove Invite-only channel\n" \
+											+ "· " + GREEN + "t: " + BLUE + "Set/remove the restrictions of the TOPIC command to channel operators\n" \
+											+ "· " + GREEN + "k: " + BLUE + "Set/remove the channel key (password)\n" \
+											+ "· " + GREEN + "o: " + BLUE + "Give/take channel operator privilege\n" \
+											+ "· " + GREEN + "l: " + BLUE + "Set/remove the user limit to channel\n" + WHITE
 # define	MSG_NEW_CLIENT( NewFd )			PURPLE + "\n\tWelcome to IRC\n" \
 											+ BLUE + "First steps to use IRC. Register with :\n" \
 											+ GREEN + " - USER <your username>\n" \
@@ -106,6 +120,13 @@
 # define	SERVER_CLOSED					RED + "\tINFO: " \
 											+ BLUE + "IRC server has been closed. Thank you." + WHITE + CRLFNL
 # define	REGISTERED( status )			BLUE + "You have been correctly " + GREEN + status + "." + WHITE + CRLFNL
+# define	CHANNEL_MESSAGE( topic , msg )	YELLOW + topic + ":" + WHITE + msg + CRLFNL
+# define	CHANNEL_INVITE( topic )			YELLOW + topic + WHITE + " send you an invite." + CRLFNL
+# define	CHANNEL_OPERATOR( topic )		YELLOW + topic + WHITE + " Func mode called." + CRLFNL
+# define	CREATE_CHANNEL(channelName)		BLUE + "Channel " + YELLOW + channelName + BLUE + " has been successfully created." + WHITE + CRLFNL
+
+
+
 
 class runtime_error : public std::exception
 {

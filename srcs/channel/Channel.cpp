@@ -128,24 +128,29 @@ std::vector< int >	Channel::getOperators( void ) const
 	return ( this->_operators );
 }
 
-void	Channel::addClients( int newClient )
+void	Channel::addClient( int newClient )
 {
 	this->_clients.push_back( newClient );
 }
 
-void	Channel::addOperators( int newOperator )
+void	Channel::addPendingClient( int newClient )
+{
+	this->_pendingClients.push_back( newClient );
+}
+
+void	Channel::addOperator( int newOperator )
 {
 	this->_operators.push_back( newOperator );
 }
 
-void	Channel::removeClients( int clientFd )
+void	Channel::removeClient( int clientFd )
 {
 	std::vector< int >::iterator it = std::find( this->_clients.begin(), this->_clients.end(), clientFd );
 	if ( it != this->_clients.end() )
 		this->_clients.erase( it );
 }
 
-void	Channel::removeOperators( int operatorFd )
+void	Channel::removeOperator( int operatorFd )
 {
 	std::vector< int >::iterator it = std::find( this->_operators.begin(), this->_operators.end(), operatorFd );
 	if ( it != this->_operators.end() )

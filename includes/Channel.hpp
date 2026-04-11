@@ -14,6 +14,7 @@ class Channel
 		std::string			_topic;
 		std::vector< int >	_clients;
 		std::vector< int >	_operators;
+		std::vector< int >	_pendingClients;
 
 	public:
 		~Channel();
@@ -38,8 +39,9 @@ class Channel
 		void				setUserLimitation( int );
 		std::vector< int >	getClients( void ) const;
 		std::vector< int >	getOperators( void ) const;
-		void				addClients( int );
-		void				addOperators( int );
-		void				removeClients( int );
-		void				removeOperators( int );
+		void				addClient( int );
+		void				addPendingClient( int );
+		void				addOperator( int );
+		void				removeClient( int );
+		void				removeOperator( int );
 };
