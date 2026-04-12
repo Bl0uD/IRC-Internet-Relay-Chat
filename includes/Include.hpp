@@ -109,7 +109,7 @@
 											+ "· " + GREEN + "t: " + BLUE + "Set/remove the restrictions of the TOPIC command to channel operators\n" \
 											+ "· " + GREEN + "k: " + BLUE + "Set/remove the channel key (password)\n" \
 											+ "· " + GREEN + "o: " + BLUE + "Give/take channel operator privilege\n" \
-											+ "· " + GREEN + "l: " + BLUE + "Set/remove the user limit to channel\n" + WHITE
+											+ "· " + GREEN + "l: " + BLUE + "Set/remove the user limit to channel. 0 to none.\n" + WHITE
 # define	MSG_NEW_CLIENT( NewFd )			PURPLE + "\n\tWelcome to IRC\n" \
 											+ BLUE + "First steps to use IRC. Register with :\n" \
 											+ GREEN + " - USER <your username>\n" \

@@ -28,11 +28,11 @@ class Channel
 		std::string			getPassword( void ) const;
 		void				setPassword( std::string );
 		bool				getInviteOnly( void ) const;
-		void				setInviteOnly( void );
+		void				setInviteOnly( bool );
 		bool				getTopicRestriction( void ) const;
-		void				setTopicRestriction( void );
+		void				setTopicRestriction( bool );
 		bool				getPasswordRestriction( void ) const;
-		void				setPasswordRestriction( void );
+		void				setPasswordRestriction( bool );
 		int					getId( void ) const;
 		void				setId( int );
 		int					getUserLimitation( void ) const;

@@ -201,20 +201,53 @@ void	Server::JoinChannel( std::vector<std::string> Tokens, int ClientFd )
 		this->SendToClient( ClientFd, "Channel is invite-only or full." );
 }
 
-void	GiveTakeOperatorGrade( Channel *channel, int ClientFd )
+void	SetRemoveInviteOnly( Channel *channel )
 {
-	if ( channel == NULL )
-		return ;
-
-	if ( channel->getOperators().find( ClientFd ) != channel->getOperators().end() )
-		channel->removeOperator( ClientFd );
+	if ( channel->getInviteOnly() )
+		channel->setInviteOnly( false );
 	else
-		channel->addOperator( ClientFd );
+		channel->setInviteOnly( true );
+}
+
+void	ChangeTopicRestriction( Channel *channel )
+{
+	if ( channel->getTopicRestriction() )
+		channel->setTopicRestriction( false );
+	else
+		channel->setTopicRestriction( true );
+}
+
+void	SetRemovePassword( Channel *channel, std::string password )
+{
+	if ( password.empty() )
+		channel->setPassword( "" );
+	else
+		channel->setPassword( password );
+}
+
+void	GiveTakeOperatorGrade( Channel *channel, int TargetFd )
+{
+	if ( channel->getOperators().find( TargetFd ) != channel->getOperators().end() )
+		channel->removeOperator( TargetFd );
+	else
+		channel->addOperator( TargetFd );
+}
+
+void	SetRemoveUserLimitation( Channel *channel, std::string	Limitation )
+{
+	int	newUserLimitation = 0;
+	std::stringstream	ss( Limitation );
+	ss >> newUserLimitation;
+
+	if ( newUserLimitation != 0 )
+		channel->setUserLimitation( newUserLimitation );
+	else
+		channel->setUserLimitation( 0 );
 }
 
 void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 {
-	if ( (Tokens.size() < 3 && Tokens.size() > 4) || Tokens[2].size() != 1 )
+	if ( Tokens.size() < 3 || Tokens.size() > 4 || Tokens[2].size() != 1 )
 	{
 		this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> <FLAG>" ) ); //flags: i t k o l
 		return ;
@@ -225,15 +258,21 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 		SendToClient( ClientFd, ERR_INEXISTANT_CHANNEL( Tokens[1] ));
 		return ;
 	}
+	if ( !IsOperator( ClientFd, channelId ) )
+	{
+		ERR_NOT_OPERATOR( Tokens[1] );
+		return ;
+	}
 	
 	char	flag = Tokens[2][0];
 	switch( flag )
 	{
 		case 'i':
-			this->_Channels[ channelId ].setInviteOnly();
+			SetRemoveInviteOnly( &this->_Channels[ channelId ] );
 			break;
 
 		case 't':
+			ChangeTopicRestriction( &this->_Channels[ channelId ] );
 			break;
 
 		case 'k':
@@ -242,8 +281,7 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 				this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> k <new password>" ) );
 				return ;
 			}
-			std::cout << " fonction mode avec flag k appelle\n";
-			//this->_Channels[ channelId ].addPassword( Tokens[4] );
+			SetRemovePassword( &this->_Channels[ channelId ], Tokens[3] );
 			break;
 
 		case 'o':
@@ -259,7 +297,7 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 				ERR_INEXISTANT_CLIENT( Tokens[3] );
 				return ;
 			}
-			this->_Channels[ channelId ].addOperator( TargetFd );
+			GiveTakeOperatorGrade( &this->_Channels[ channelId ], TargetFd );
 			break;
 		}
 
@@ -269,7 +307,7 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 				this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> l <user limitation>" ) );
 				return ;
 			}
-			GiveTakeOperatorGrade( &this->_Channels[ channelId ], ClientFd );
+			SetRemoveUserLimitation( &this->_Channels[ channelId ], Tokens[3] );
 			break;
 
 		default:
