@@ -12,9 +12,9 @@ class Channel
 		int					_userLimitation;
 		std::string			_password;
 		std::string			_topic;
-		std::vector< int >	_clients;
-		std::vector< int >	_operators;
-		std::vector< int >	_pendingClients;
+		std::set< int >		_clients;
+		std::set< int >		_operators;
+		std::set< int >		_pendingClients;
 
 	public:
 		~Channel();
@@ -37,11 +37,13 @@ class Channel
 		void				setId( int );
 		int					getUserLimitation( void ) const;
 		void				setUserLimitation( int );
-		std::vector< int >	getClients( void ) const;
-		std::vector< int >	getOperators( void ) const;
+		const std::set< int >	&getClients( void ) const;
+		const std::set< int >	&getOperators( void ) const;
 		void				addClient( int );
 		void				addPendingClient( int );
 		void				addOperator( int );
+		bool				hasPendingClient( int ) const;
 		void				removeClient( int );
+		void				removePendingClient( int );
 		void				removeOperator( int );
 };

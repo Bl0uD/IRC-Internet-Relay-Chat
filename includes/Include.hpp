@@ -92,6 +92,9 @@
 # define	ERR_INEXISTANT_CLIENT( name )	BLUE + "Unknown client: " + name + "\nType a valid client." + WHITE + CRLFNL
 # define	ERR_NOT_OPERATOR( chanName )	YELLOW + "You are not operator for " + chanName + " channel." + WHITE + CRLFNL
 # define	ERR_NOT_IN_CHANNEL( chanName )	YELLOW + "You are not in " + chanName + " channel." + WHITE + CRLFNL
+# define	ERR_NICKNAME_USED( nickname )	RED + "INFO:" + BLUE + nickname + " Nickname is already used." + WHITE + CRLF
+# define	ERR_TOPIC_USED( topic )			RED + "INFO:" + BLUE + topic + " topic is already used by an other channel." + WHITE + CRLF
+# define	ERR_NOT_TOPIC_FOUND( topic )	RED + "INFO:" + BLUE + topic + " no channel match with this topic." + WHITE + CRLF
 # define	COMMAND_LIST					BLUE + "Available commands:" + CRLFNL \
 											+ GREEN + "  - USER" + BLUE + " : set your username\n" \
 											+ GREEN + "  - NICK" + BLUE + " : choose your nickname\n" \
@@ -115,18 +118,24 @@
 											+ BLUE + "New username : " + username + WHITE + CRLF
 # define	UPDATE_NICKNAME( nickname )		GREEN + "Your nickname has been successfully processed.\n" \
 											+ BLUE + "New nickname : " + nickname + WHITE + CRLFNL
-# define	ERR_NICKNAME_USED( nickname )	RED + "INFO:" + BLUE + nickname + " Nickname is already used." + WHITE + CRLF
 # define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLFNL
 # define	SERVER_CLOSED					RED + "\tINFO: " \
 											+ BLUE + "IRC server has been closed. Thank you." + WHITE + CRLFNL
 # define	REGISTERED( status )			BLUE + "You have been correctly " + GREEN + status + "." + WHITE + CRLFNL
 # define	CHANNEL_MESSAGE( topic , msg )	YELLOW + topic + ":" + WHITE + msg + CRLFNL
-# define	CHANNEL_INVITE( topic )			YELLOW + topic + WHITE + " send you an invite." + CRLFNL
+# define	RECEIVED_INVITE( topic )		YELLOW + topic + WHITE + " send you an invite." + CRLFNL
+# define	RECEIVED_KICK( topic )			YELLOW + "You have been " + RED + "kicked " + BLUE + "from " + RED + topic + WHITE + CRLFNL
 # define	CHANNEL_OPERATOR( topic )		YELLOW + topic + WHITE + " Func mode called." + CRLFNL
-# define	CREATE_CHANNEL(channelName)		BLUE + "Channel " + YELLOW + channelName + BLUE + " has been successfully created." + WHITE + CRLFNL
-
-
-
+# define	CREATE_CHANNEL( channelName )	BLUE + "Channel " + YELLOW + channelName + BLUE + " has been successfully created." + WHITE + CRLFNL
+# define	NEW_TOPIC_SET( newTopic )		BLUE + "New Topic has been set to " + newTopic + WHITE + CRLFNL
+# define	CLIENT_KICKED( topic, name )	RED + "Client named " \
+											+ GREEN + name \
+											+ BLUE + "has been kicked from the " \
+											+ RED + topic + BLUE + " channel." + WHITE + CRLFNL
+# define	CLIENT_INVITED( topic, name )	BLUE + "Client named " \
+											+ GREEN + name \
+											+ BLUE + "has been invite to the " \
+											+ RED + topic + BLUE + " channel." + WHITE + CRLFNL
 
 class runtime_error : public std::exception
 {

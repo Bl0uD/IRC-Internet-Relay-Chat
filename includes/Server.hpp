@@ -53,8 +53,9 @@ class Server
 		void		JoinChannel( std::vector<std::string> Tokens, int ClientFd );
 		void		ChangeMode( std::vector<std::string> Tokens, int ClientFd );
 		void		SendPrivMsg( std::vector<std::string> Tokens, int ClientFd );
-		void		ExecCommand( std::vector<std::string> Tokens, int ClientFd );
+		void		ChannelMessage( std::vector< std::string > Tokens, int ClientFd );
 		void		ChannelList( int ClientFd );
+		void		ExecCommand( std::vector<std::string> Tokens, int ClientFd );
 		
 		void		AcceptNewClient( void );
 		void		ReceiveNewData( int );
@@ -67,10 +68,13 @@ class Server
 		bool		IsRegistered( int ClientFd );
 
 		void		SendToAllClient( const std::string &message );
-		void		SendToChannel( int clientFd, std::vector<std::string> Tokens );
+		void		SendToChannel( int ClientFd, int ChannelId, const std::string &message );
 		bool		SendToClient( int clientFd, const std::string &message );
-		void		SendToAllMembers( int ChannelId , std::string message );
+		void		SendToAllMembers( int ChannelId , const std::string &message );
 		bool		InChannel( int ClientFd, int ChannelId );
+		bool		FindDuplicateTopic( std::string oldTopic, std::string newTopic );
+		bool		IsChannelJoinable( int	CliendFd, int ChannelId );
+
 
 
 };

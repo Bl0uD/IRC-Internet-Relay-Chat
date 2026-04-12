@@ -11,7 +11,8 @@ Channel::Channel( void ) :
 	_password( "" ),
 	_topic( "" ),
 	_clients(),
-	_operators()
+	_operators(),
+	_pendingClients()
 {}
 
 Channel::Channel( std::string topic, std::string paswrd ) :
@@ -23,7 +24,8 @@ Channel::Channel( std::string topic, std::string paswrd ) :
 	_password( paswrd ),
 	_topic( topic ),
 	_clients(),
-	_operators()
+	_operators(),
+	_pendingClients()
 {}
 
 Channel::Channel( Channel const &copy )
@@ -44,6 +46,7 @@ Channel	&Channel::operator=( Channel const &instance )
 		this->_topic = instance._topic;
 		this->_clients = instance._clients;
 		this->_operators = instance._operators;
+		this->_pendingClients = instance._pendingClients;
 	}
 	return ( *this );
 }
@@ -118,41 +121,47 @@ void	Channel::setUserLimitation( int newlimit )
 	this->_userLimitation = newlimit;
 }
 
-std::vector< int >	Channel::getClients( void ) const
+const std::set< int >	&Channel::getClients( void ) const
 {
 	return ( this->_clients );
 }
 
-std::vector< int >	Channel::getOperators( void ) const
+const std::set< int >	&Channel::getOperators( void ) const
 {
 	return ( this->_operators );
 }
 
 void	Channel::addClient( int newClient )
 {
-	this->_clients.push_back( newClient );
+	this->_clients.insert( newClient );
 }
 
 void	Channel::addPendingClient( int newClient )
 {
-	this->_pendingClients.push_back( newClient );
+	this->_pendingClients.insert( newClient );
 }
 
 void	Channel::addOperator( int newOperator )
 {
-	this->_operators.push_back( newOperator );
+	this->_operators.insert( newOperator );
+}
+
+bool	Channel::hasPendingClient( int clientFd ) const
+{
+	return ( this->_pendingClients.find( clientFd ) != this->_pendingClients.end() );
 }
 
 void	Channel::removeClient( int clientFd )
 {
-	std::vector< int >::iterator it = std::find( this->_clients.begin(), this->_clients.end(), clientFd );
-	if ( it != this->_clients.end() )
-		this->_clients.erase( it );
+	this->_clients.erase( clientFd );
+}
+
+void	Channel::removePendingClient( int clientFd )
+{
+	this->_pendingClients.erase( clientFd );
 }
 
 void	Channel::removeOperator( int operatorFd )
 {
-	std::vector< int >::iterator it = std::find( this->_operators.begin(), this->_operators.end(), operatorFd );
-	if ( it != this->_operators.end() )
-		this->_operators.erase( it );
+	this->_operators.erase( operatorFd );
 }

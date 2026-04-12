@@ -33,43 +33,25 @@ int	Server::FindChannelId( std::string topic )
 	return ( -1 );
 }
 
-void	Server::SendToChannel( int ClientFd, std::vector<std::string> Tokens )
+void	Server::SendToChannel( int ClientFd, int ChannelId, const std::string &message )
 {
-	int ChannelId = FindChannelId( Tokens[1] );
-	if ( ChannelId == -1 )
+	const std::set< int > &members = this->_Channels[ChannelId].getClients();
+	for ( std::set< int >::const_iterator it = members.begin(); it != members.end(); ++it )
 	{
-		this->SendToClient( ClientFd, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
-		return ;
-	}
-	if ( !InChannel( ClientFd, ChannelId ) )
-	{
-		ERR_NOT_IN_CHANNEL( Tokens[1] );
-		return ;
-	}
-	std::string message;
-	for ( size_t i = 2; i < Tokens.size(); ++i )
-	{
-		if ( i > 2 )
-			message += " ";
-		message += Tokens[i];
-	}
-
-	int	size = this->_Channels[ChannelId].getClients().size();
-	for ( int i = 0; i < size; i++ )
-	{
-		if ( this->_Channels[ChannelId].getClients()[i] == ClientFd )
-			i++;
-		SendToClient( this->_Channels[ChannelId].getClients()[i], message );
+		int memberFd = *it;
+		if ( memberFd == ClientFd )
+			continue ;
+		SendToClient( memberFd, message );
 	}
 	SendToClient( ClientFd, "Message correctly send to channel members\n.");
 	return ;
 }
 
-void	Server::SendToAllMembers( int ChannelId, std::string message )
+void	Server::SendToAllMembers( int ChannelId, const std::string &message )
 {
-	int	size = this->_Channels[ChannelId].getClients().size();
-	for ( int i = 0; i < size; i++ )
-		SendToClient( this->_Channels[ChannelId].getClients()[i], message );
+	const std::set< int > &members = this->_Channels[ChannelId].getClients();
+	for ( std::set< int >::const_iterator it = members.begin(); it != members.end(); ++it )
+		SendToClient( *it, message );
 	return ;
 }
 
