@@ -1,204 +1,221 @@
 # include "../../includes/Server.hpp"
 
-void	Server::SetUsername( std::vector<std::string> Tokens, int ClientFd )
+void	Server::SetUsername( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() != 2 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "USER", "<your username>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "USER", "<your username>" ) );
 		return ;
 	}
-	int i = FindClientId( ClientFd );
-	this->_Clients[i].setUsername( Tokens[1] );
-	this->SendToClient( ClientFd, UPDATE_USERNAME( this->_Clients[i].getUsername() ) );
-	if ( !this->_Clients[i].getPassword().empty() )
-		this->_Clients[i].setRegistered( true );
+	client->setUsername( Tokens[1] );
+	SendToClient( client , UPDATE_USERNAME( client->getUsername() ) );
+	if ( !client->getPassword().empty() )
+		client->setRegistered( true );
 }
 
-void	Server::SetNickname(  std::vector<std::string> Tokens, int ClientFd )
+void	Server::SetNickname( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() != 2 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "NICK", "<your nickname>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "NICK", "<your nickname>" ) );
 		return ;
 	}
 
-	int id = FindClientId( ClientFd );
 	std::string newNickname = Tokens[1];
-	std::string oldNickname = this->_Clients[id].getNickname();
+	std::string oldNickname = client->getNickname();
 
 	if ( newNickname != oldNickname
 		&& this->_Nicknames.find( newNickname ) != this->_Nicknames.end() )
 	{
-		this->SendToClient( ClientFd, ERR_NICKNAME_USED( newNickname ) );
+		SendToClient( client, ERR_NICKNAME_USED( newNickname ) );
 		return ;
 	}
 
 	if ( oldNickname != "" )
 		this->_Nicknames.erase( oldNickname );
-	this->_Clients[id].setNickname( newNickname );
+	client->setNickname( newNickname );
 	this->_Nicknames.insert( newNickname );
-	this->SendToClient( ClientFd, UPDATE_NICKNAME( this->_Clients[id].getNickname() ) );
+	SendToClient( client, UPDATE_NICKNAME( client->getNickname() ) );
 }
 
-void	Server::SetPassword( std::vector<std::string> Tokens, int ClientFd )
+void	Server::SetPassword( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() != 2 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "PASS", "<your password>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "PASS", "<your password>" ) );
 		return ;
 	}
-	int id = FindClientId( ClientFd );
-
-	this->_Clients[id].setPassword( Tokens[1] );
-	this->SendToClient( ClientFd, UPDATE_PASSWORD );
-	if ( !this->_Clients[id].getUsername().empty() )
-		this->_Clients[id].setRegistered( true );
+	client->setPassword( Tokens[1] );
+	SendToClient( client, UPDATE_PASSWORD );
+	if ( !client->getUsername().empty() )
+		client->setRegistered( true );
 }
 
 
-void	Server::ChangeTopic( std::vector<std::string> Tokens, int ClientFd )
+void	Server::ChangeTopic( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() < 3 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "TOPIC", "<old topic> <new topic>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "TOPIC", "<old topic> <new topic>" ) );
 		return ;
 	}
 
 	std::string oldTopic = Tokens[1];
-	int	ChannelId = FindChannelId( oldTopic );
-	if ( ChannelId == -1 )
+	Channel	*channel = FindChannelWithTopic( oldTopic );
+	if ( channel == NULL )
 	{
-		this->SendToClient( ClientFd, ERR_NOT_TOPIC_FOUND( oldTopic ) );
+		SendToClient( client, ERR_NOT_TOPIC_FOUND( oldTopic ) );
+		return ;
+	}
+
+	if ( !IsOperator( client, channel ) && channel->getTopicRestriction() )
+	{
+		SendToClient( client, ERR_NOT_OPERATOR( channel->getTopic() ) );
 		return ;
 	}
 
 	std::string newTopic = Tokens[2];
 	if ( FindDuplicateTopic( oldTopic, newTopic ) )
 	{
-		this->SendToClient( ClientFd, ERR_TOPIC_USED( newTopic ) );
+		SendToClient( client, ERR_TOPIC_USED( newTopic ) );
 		return ;
 	}
 
-	this->_Channels[ChannelId].setTopic( newTopic );
-	this->SendToClient( ClientFd, NEW_TOPIC_SET( this->_Channels[ChannelId].getTopic() ) );
+	SendToClient( client, NEW_TOPIC_SET( channel->getTopic(), newTopic ) );
+	channel->setTopic( newTopic );
 	return ;
 }
 
-void	Server::KickClient( std::vector<std::string> Tokens, int ClientFd )
+void	Server::KickClient( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() != 3 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "KICK", "<channel topic> <username>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "KICK", "<channel topic> <username>" ) );
 		return ;
 	}
 
-	int channelId = FindChannelId(Tokens[1]);
-	if ( channelId == -1 )
+	Channel  *channel = FindChannelWithTopic(Tokens[1]);
+	if ( channel == NULL )
 	{
 		ERR_INEXISTANT_CHANNEL( Tokens[1] );
 		return ;
 	}
 
-	int TargetFd = FindClientFd( Tokens[2] );
-	if ( TargetFd == -1 )
+	Client *TargetClient = FindClientWithNickname( Tokens[2] );
+	if ( TargetClient == NULL )
 	{
 		ERR_INEXISTANT_CLIENT( Tokens[2] );
 		return ;
 	}
 	
-	if ( !IsOperator( ClientFd, channelId ))
+	if ( !IsOperator( client, channel ))
 	{
 		ERR_NOT_OPERATOR();
 		return ;
 	}
 
-	this->_Channels[channelId].removeClient( TargetFd );
-	this->SendToClient( TargetFd, RECEIVED_KICK( this->_Channels[ channelId ].getTopic() ) );
+	channel->removeClient( TargetClient->getFd() );
+	SendToClient( TargetClient, RECEIVED_KICK( channel->getTopic() ) );
 
-	std::string	Topic = this->_Channels[channelId].getTopic();
-	std::string	Nickname = this->_Clients[FindClientId( TargetFd )].getNickname();
-	this->SendToAllMembers( channelId, CLIENT_KICKED( Topic, Nickname ) );
+	SendToAllMembers( channel, CLIENT_KICKED( channel->getTopic(), TargetClient->getNickname() ) );
 }
 
-void	Server::InviteClient( std::vector<std::string> Tokens, int ClientFd )
+void	Server::InviteClient( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() < 3 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "INVITE", "<channel name, client nickname>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "INVITE", "<channel name, client nickname>" ) );
 		return ;
 	}
 
-	int channelId = FindChannelId( Tokens[1] );
-	if ( channelId == -1 )
+	Channel *channel = FindChannelWithTopic( Tokens[1] );
+	if ( !channel )
 	{
-		this->SendToClient( ClientFd, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
+		SendToClient( client, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
 		return ;
 	}
 
-	if ( !IsOperator( ClientFd, channelId ) )
+	if ( !IsOperator( client, channel ) )
 	{
 		ERR_NOT_OPERATOR( Tokens[1] );
 		return ;
 	}
 
-	int TargetFd = FindClientFd( Tokens[2] );
-	if ( TargetFd == -1 )
-		this->SendToClient( ClientFd, ERR_INEXISTANT_CLIENT( Tokens[2] ) );	
+	Client *TargetClient = FindClientWithNickname( Tokens[2] );
+	if ( !TargetClient )
+		SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[2] ) );
 
-	this->_Channels[ channelId ].addPendingClient( TargetFd );
-	this->SendToClient( TargetFd, RECEIVED_INVITE( this->_Channels[ channelId ].getTopic() ) );
+	channel->addPendingClient( TargetClient->getFd() );
+	SendToClient( TargetClient, RECEIVED_INVITE( channel->getTopic() ) );
 
-	std::string Topic = this->_Channels[channelId].getTopic();
-	std::string Nickname = this->_Clients[FindClientId( TargetFd )].getNickname();
-	this->SendToAllMembers( channelId, CLIENT_INVITED( Topic, Nickname ) );
+	SendToAllMembers( channel, CLIENT_INVITED( channel->getTopic(), TargetClient->getNickname() ) );
 }
-bool	Server::IsChannelJoinable( int	CliendFd, int ChannelId )
+bool	Server::IsChannelFull( Channel *channel )
 {
-	if ( ChannelId < 0 || ChannelId >= static_cast<int>( this->_Channels.size() ) )
-		return false;
-	if ( this->_Channels[ ChannelId ].getInviteOnly()
-		&& !this->_Channels[ ChannelId ].hasPendingClient( CliendFd ) )
-		return false;
-	if ( this->_Channels[ ChannelId ].getUserLimitation() > 0
-		&& this->_Channels[ ChannelId ].getClients().size() >= static_cast<size_t>( this->_Channels[ ChannelId ].getUserLimitation() ) )
-		return false;
-	return true;
+	if ( channel->getUserLimitation() > 0
+		&& channel->getClients().size() >= static_cast<size_t>( channel->getUserLimitation() ) )
+		return true;
+	return false;
 }
 
-void	Server::JoinChannel( std::vector<std::string> Tokens, int ClientFd )
+void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() < 2 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "JOIN", "<channel name>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "JOIN", "<channel name>" ) );
 		return ;
 	}
 
-	std::string newTopic = Tokens[1];
-	int id = FindChannelId( newTopic );
-	if ( id == -1 )
+	std::string Topic = Tokens[1];
+	Channel *channel = FindChannelWithTopic( Topic );
+	if ( !channel )
 	{
 		Channel newChannel;
-		id = this->_NextChannelId++;
-		newChannel.setId( id );
-		newChannel.setTopic( newTopic );
+		newChannel.setId( ++this->_NextChannelId );
+		newChannel.setTopic( Topic );
 		this->_Channels.push_back( newChannel );
-		this->_ChannelDirectory.push_back( std::make_pair( id, newTopic ) );
-		this->SendToClient( ClientFd, CREATE_CHANNEL( newTopic ) );
+		channel = &this->_Channels.back();
+		SendToClient( client, CREATE_CHANNEL( Topic ) );
 	}
-
-	if ( this->_Channels[id].getClients().empty() )
+	if ( channel->getClients().empty() )
 	{
-		this->_Channels[id].addOperator( ClientFd );
-		this->_Channels[id].addClient( ClientFd );
+		channel->addOperator( client->getFd() );
+		channel->addClient( client->getFd() );
 		return ;
 	}
-	if ( IsChannelJoinable( ClientFd, id ))
+	if ( InChannel( client, channel ))
 	{
-		this->_Channels[id].addClient( ClientFd );
-		this->_Channels[id].removePendingClient( ClientFd );
+		SendToClient( client, ALREADY_IN_CHANNEL( Topic ));
+		return ;
+	}
+
+	bool	isInvited = channel->hasPendingClient( client->getFd() );
+	bool	hasValidPassword = ( channel->getPasswordRestriction()
+		&& Tokens.size() >= 3
+		&& channel->getPassword() == Tokens[2] );
+
+	if ( !hasValidPassword && Tokens.size() == 3 ) 
+		SendToClient( client, WRONG_PASSWORD( channel->getTopic() ));
+
+	if ( ( channel->getInviteOnly() || channel->getPasswordRestriction() )
+		&& !isInvited && !hasValidPassword )
+	{
+		if ( channel->getPasswordRestriction() )
+			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE );
+		else
+			SendToClient( client, GREEN + "Channel is in invite-only mode." + WHITE );
+		return ;
+	}
+
+	if ( !IsChannelFull( channel ))
+	{
+		channel->addClient( client->getFd() );
+		SendToAllMembers( channel, NEW_CLIENT_JOIN( client->getNickname(), channel->getTopic() ));
+		if ( isInvited )
+			channel->removePendingClient( client->getFd() );
 	}
 	else
-		this->SendToClient( ClientFd, "Channel is invite-only or full." );
+		SendToClient( client, GREEN + "Channel is full." + WHITE );
 }
 
 void	SetRemoveInviteOnly( Channel *channel )
@@ -212,55 +229,67 @@ void	SetRemoveInviteOnly( Channel *channel )
 void	ChangeTopicRestriction( Channel *channel )
 {
 	if ( channel->getTopicRestriction() )
-		channel->setTopicRestriction( false );
+		channel->setTopicRestriction( false ); 
 	else
 		channel->setTopicRestriction( true );
 }
 
-void	SetRemovePassword( Channel *channel, std::string password )
+void	Server::SetRemovePassword( Channel *channel, std::string password )
 {
-	if ( password.empty() )
+	if ( password == "0" )
+	{
 		channel->setPassword( "" );
+		channel->setPasswordRestriction( false );
+	}
 	else
+	{
 		channel->setPassword( password );
+		channel->setPasswordRestriction( true );
+	}
 }
 
-void	GiveTakeOperatorGrade( Channel *channel, int TargetFd )
+bool	Server::GiveTakeOperatorGrade( Channel *channel, Client *target )
 {
-	if ( channel->getOperators().find( TargetFd ) != channel->getOperators().end() )
-		channel->removeOperator( TargetFd );
+	if ( channel->getOperators().find( target->getFd() ) != channel->getOperators().end() )
+	{
+		channel->removeOperator( target->getFd() );
+		return false;
+	}
 	else
-		channel->addOperator( TargetFd );
+	{
+		channel->addOperator( target->getFd() );
+		return true;
+	}
 }
 
-void	SetRemoveUserLimitation( Channel *channel, std::string	Limitation )
+void	Server::SetRemoveUserLimitation( Channel *channel, std::string	Limitation )
 {
-	int	newUserLimitation = 0;
+	int					newUserLimitation = 0;
 	std::stringstream	ss( Limitation );
-	ss >> newUserLimitation;
 
+	ss >> newUserLimitation;
 	if ( newUserLimitation != 0 )
 		channel->setUserLimitation( newUserLimitation );
 	else
 		channel->setUserLimitation( 0 );
 }
 
-void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
+void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() < 3 || Tokens.size() > 4 || Tokens[2].size() != 1 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> <FLAG>" ) ); //flags: i t k o l
+		SendToClient( client, ERR_CMD_ARGS( "MODE", "<channel topic> <FLAG>" ) ); //flags: i t k o l
 		return ;
 	}
-	int channelId = FindChannelId( Tokens[1] );
-	if ( channelId == -1 )
+	Channel *channel = FindChannelWithTopic( Tokens[1] );
+	if ( !channel )
 	{
-		SendToClient( ClientFd, ERR_INEXISTANT_CHANNEL( Tokens[1] ));
+		SendToClient( client, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
 		return ;
 	}
-	if ( !IsOperator( ClientFd, channelId ) )
+	if ( !IsOperator( client, channel ) )
 	{
-		ERR_NOT_OPERATOR( Tokens[1] );
+		SendToClient( client, ERR_NOT_OPERATOR( Tokens[1] ) );
 		return ;
 	}
 	
@@ -268,84 +297,92 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, int ClientFd )
 	switch( flag )
 	{
 		case 'i':
-			SetRemoveInviteOnly( &this->_Channels[ channelId ] );
+		{
+			SetRemoveInviteOnly( channel );
+			if ( channel->getInviteOnly() )
+				SendToAllMembers( channel, channel->getTopic() + " channel Invite has been set to " + GREEN + "true." + WHITE + CRLFNL );
+			else
+				SendToAllMembers( channel, channel->getTopic() + " channel Invite has been set to " + RED + "false." + WHITE + CRLFNL );
 			break;
-
+		}
 		case 't':
-			ChangeTopicRestriction( &this->_Channels[ channelId ] );
+		{
+			ChangeTopicRestriction( channel );
+			if ( channel->getTopicRestriction() )
+				SendToClient( client, channel->getTopic() + " channel Topic restriction has been set to " + GREEN + "true." + WHITE + CRLFNL );
+			else
+				SendToClient( client, channel->getTopic() + " channel Topic restriction has been set to " + RED + "false." + WHITE + CRLFNL );
 			break;
-
+		}
 		case 'k':
+		{
 			if ( Tokens.size() != 4 )
 			{
-				this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> k <new password>" ) );
+				SendToClient( client, ERR_CMD_ARGS( "MODE", "<channel topic> k <new password> - password to 0 to remove it" ) );
 				return ;
 			}
-			SetRemovePassword( &this->_Channels[ channelId ], Tokens[3] );
+			SetRemovePassword( channel, Tokens[3] );
+			SendToClient( client, SET_PSWD_RESTRICTION( channel->getTopic() ));
 			break;
-
+		}
 		case 'o':
 		{
 			if ( Tokens.size() != 4 )
 			{
-				this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> o <nickname>" ) );
+				SendToClient( client, ERR_CMD_ARGS( "MODE", "<channel topic> o <nickname>" ) );
 				return ;
 			}
-			int TargetFd = FindClientFd( Tokens[3] );
-			if ( TargetFd == -1 )
+			Client *TargetClient = FindClientWithNickname( Tokens[3] );
+			if ( !TargetClient )
 			{
-				ERR_INEXISTANT_CLIENT( Tokens[3] );
+				SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[3] ) );
 				return ;
 			}
-			GiveTakeOperatorGrade( &this->_Channels[ channelId ], TargetFd );
+			if ( GiveTakeOperatorGrade( channel, TargetClient ) )
+				SendToClient( client, YELLOW + TargetClient->getNickname() + "has been promoted to Operator grade." + WHITE + CRLFNL );
+			else
+				SendToClient( client, YELLOW + TargetClient->getNickname() + "was relieved of his duties as an operator." + WHITE + CRLFNL );
 			break;
 		}
-
 		case 'l':
+		{
 			if ( Tokens.size() != 4 )
 			{
-				this->SendToClient( ClientFd, ERR_CMD_ARGS( "MODE", "<channel topic> l <user limitation>" ) );
+				SendToClient( client, ERR_CMD_ARGS( "MODE", "<" + channel->getTopic() + "> l <user limitation> - 0 to remove limitation" ) );
 				return ;
 			}
-			SetRemoveUserLimitation( &this->_Channels[ channelId ], Tokens[3] );
+			SetRemoveUserLimitation( channel, Tokens[3] );
+			std::stringstream	ss;
+			ss << channel->getUserLimitation();
+			std::string	UserLimitation = ss.str();
+			if ( channel->getUserLimitation() )
+				SendToClient( client, channel->getTopic() + " channel UserLimitation has been set to " + GREEN + UserLimitation + WHITE + CRLFNL );
+			else
+				SendToClient( client, channel->getTopic() + " channel UserLimitation has been removed." + WHITE + CRLFNL );
 			break;
-
+		}
 		default:
-			this->SendToClient( ClientFd, HELP_MODE );
+			SendToClient( client, HELP_MODE );
 			break ;
-
 	}
-	this->SendToClient( ClientFd, CHANNEL_OPERATOR( this->_Channels[ channelId ].getTopic() ));
 }
 
-void	Server::SendPrivMsg( std::vector<std::string> Tokens, int ClientFd )
+void	Server::SendPrivMsg( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() < 3 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "PRIVMSG", "<nickname> <message>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "PRIVMSG", "<nickname> <message>" ) );
 		return ;
 	}
 
-	std::string targetNickname = Tokens[1];
+	Client *TargetClient = FindClientWithNickname( Tokens[1] );
+	if ( !TargetClient  )
+	{
+		SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[1] ) );
+		return ;
+	}
+
 	std::string message;
-	std::string senderNickname;
-	int senderIndex = FindClientId( ClientFd );
-	int targetFd = -1;
-
-	if ( senderIndex >= 0 && senderIndex < static_cast<int>( this->_Clients.size() ) )
-	{
-		senderNickname = this->_Clients[senderIndex].getNickname();
-		if ( senderNickname == "" )
-			senderNickname = this->_Clients[senderIndex].getUsername();
-	}
-
-	targetFd = FindClientFd( targetNickname );
-	if ( targetFd == -1 )
-	{
-		this->SendToClient( ClientFd, std::string( ":ircserv 401 " ) + targetNickname + " :No such nick/user" );
-		return ;
-	}
-
 	for ( size_t i = 2; i < Tokens.size(); ++i )
 	{
 		if ( i > 2 )
@@ -353,25 +390,25 @@ void	Server::SendPrivMsg( std::vector<std::string> Tokens, int ClientFd )
 		message += Tokens[i];
 	}
 	
-	this->SendToClient( targetFd, std::string( ":" ) + senderNickname + " PRIVMSG " + targetNickname + " :" + message );
+	SendToClient( TargetClient, PRIV_MSG( client->getNickname(), message ) );
 }
 
-void	Server::ChannelMessage( std::vector< std::string > Tokens, int ClientFd )
+void	Server::ChannelMessage( std::vector< std::string > Tokens, Client *client )
 {
 	if ( Tokens.size() < 3 )
 	{
-		this->SendToClient( ClientFd, ERR_CMD_ARGS( "CHANNEL", "<channel topic> <message>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "CHANNEL", "<channel topic> <message>" ) );
 		return ;
 	}
 
-	int ChannelId = FindChannelId( Tokens[1] );
-	if ( ChannelId == -1 )
+	Channel *channel = FindChannelWithTopic( Tokens[1] );
+	if ( !channel )
 	{
-		this->SendToClient( ClientFd, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
+		SendToClient( client, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
 		return ;
 	}
 
-	if ( !InChannel( ClientFd, ChannelId ) )
+	if ( !InChannel( client, channel ) )
 	{
 		ERR_NOT_IN_CHANNEL( Tokens[1] );
 		return ;
@@ -385,15 +422,15 @@ void	Server::ChannelMessage( std::vector< std::string > Tokens, int ClientFd )
 		message += Tokens[i];
 	}
 
-	SendToChannel( ClientFd, ChannelId, message);
+	SendToChannel( client, channel, message );
 }
 
 
-void	Server::ChannelList( int ClientFd )
+void	Server::ChannelList( Client *client )
 {
 	if ( this->_Channels.size() == 0 )
 	{
-		this->SendToClient( ClientFd, "No such channel existing..");
+		SendToClient( client, GREEN + "No channel exists." + WHITE );
 		return ;
 	}
 
@@ -406,10 +443,10 @@ void	Server::ChannelList( int ClientFd )
 			list += std::string("\n");
 	}
 
-	SendToClient( ClientFd, list );
+	SendToClient( client, list );
 }
 
-void	Server::ExecCommand( std::vector<std::string> Tokens, int ClientFd )
+void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )
 {
 	int			i = 0;
 	std::string	cmds[13] = {	"USER",				//0
@@ -424,62 +461,62 @@ void	Server::ExecCommand( std::vector<std::string> Tokens, int ClientFd )
 								"HELP",				//9
 								"CHANNEL",			//10
 								"HELP_MODE",		//11
-								"CHANNEL_ON" };		//12
+								"CHANNEL_ON"};		//12
 	if ( Tokens.empty() )
 		return ;
-	while ( i < 13 && Tokens[0] != cmds[i] )
+	while ( i < 14 && Tokens[0] != cmds[i] )
 		i++;
 	switch ( i )
 	{
 		case 0:		//USER
-			SetUsername( Tokens, ClientFd );
+			SetUsername( Tokens, client );
 			break ;
 		case 1:		//NICK
-			if ( IsRegistered( ClientFd ) )
-				SetNickname( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				SetNickname( Tokens, client );
 			break ;
 		case 2:		//PASS
-			SetPassword( Tokens, ClientFd );
+			SetPassword( Tokens, client );
 			break ;
 		case 3:		//TOPIC
-			if ( IsRegistered( ClientFd ) )
-				ChangeTopic( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				ChangeTopic( Tokens, client );
 			break ;
 		case 4:		//KICK
-			if ( IsRegistered( ClientFd ) )
-				KickClient( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				KickClient( Tokens, client );
 			break ;
 		case 5:		//INVITE
-			if ( IsRegistered( ClientFd ) )
-				InviteClient( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				InviteClient( Tokens, client );
 			break ;
 		case 6:		//JOIN
-			if ( IsRegistered( ClientFd ) )
-				JoinChannel( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				JoinChannel( Tokens, client );
 			break ;
 		case 7:		//MODE
-			if ( IsRegistered( ClientFd ) )
-				ChangeMode( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				ChangeMode( Tokens, client );
 			break ;
 		case 8:		//PRIVMSG
-			if ( IsRegistered( ClientFd ) )
-				SendPrivMsg( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				SendPrivMsg( Tokens, client );
 			break ;
 		case 9:		//HELP
-			this->SendToClient( ClientFd, COMMAND_LIST );
+			SendToClient( client, COMMAND_LIST );
 			break ;
 		case 10:	//CHANNEL
-			if ( IsRegistered( ClientFd ) )
-				this->ChannelMessage( Tokens, ClientFd );
+			if ( IsRegistered( client ) )
+				ChannelMessage( Tokens, client );
 			break ;
 		case 11:	//HELP_MODE
-			this->SendToClient( ClientFd, HELP_MODE );
+			SendToClient( client, HELP_MODE );
 			break ;
 		case 12:	//CHANNEL_ON
-			ChannelList( ClientFd );
+			ChannelList( client );
 			break ;
 		default:
-			this->SendToClient( ClientFd, ERR_CMD_NOT_FOUND( Tokens[0] ) );
+			SendToClient( client, ERR_CMD_NOT_FOUND( Tokens[0] ) );
 			break ;
 	}
 }

@@ -15,7 +15,6 @@ class Server
 		static bool									_ServerStatus;
 		std::string									_Password;
 		std::vector< Client >						_Clients;
-		std::vector< std::pair<int, std::string> >	_ChannelDirectory;
 		std::vector< struct pollfd >				_Fds;
 		std::vector< Channel >						_Channels;
 		std::set< std::string >						_Nicknames;
@@ -44,37 +43,36 @@ class Server
 
 		std::vector< std::string >	Parse( char *Data );
 
-		void		SetUsername( std::vector<std::string> Tokens, int ClientFd );
-		void		SetNickname( std::vector<std::string> Tokens, int ClientFd );
-		void		SetPassword( std::vector<std::string> Tokens, int ClientFd );
-		void		ChangeTopic( std::vector<std::string> Tokens, int ClientFd );
-		void		KickClient( std::vector<std::string> Tokens, int ClientFd );
-		void		InviteClient( std::vector<std::string> Tokens, int ClientFd );
-		void		JoinChannel( std::vector<std::string> Tokens, int ClientFd );
-		void		ChangeMode( std::vector<std::string> Tokens, int ClientFd );
-		void		SendPrivMsg( std::vector<std::string> Tokens, int ClientFd );
-		void		ChannelMessage( std::vector< std::string > Tokens, int ClientFd );
-		void		ChannelList( int ClientFd );
-		void		ExecCommand( std::vector<std::string> Tokens, int ClientFd );
+		void		SetUsername( std::vector<std::string> Tokens, Client *client );
+		void		SetNickname( std::vector<std::string> Tokens, Client *client );
+		void		SetPassword( std::vector<std::string> Tokens, Client *client );
+		void		ChangeTopic( std::vector<std::string> Tokens, Client *client );
+		void		KickClient( std::vector<std::string> Tokens, Client *client );
+		void		InviteClient( std::vector<std::string> Tokens, Client *client );
+		void		JoinChannel( std::vector<std::string> Tokens, Client *client );
+		void		ChangeMode( std::vector<std::string> Tokens, Client *client );
+		void		SendPrivMsg( std::vector<std::string> Tokens, Client *client );
+		void		ChannelMessage( std::vector< std::string > Tokens, Client *client );
+		void		ChannelList( Client *client );
+		void		ExecCommand( std::vector<std::string> Tokens, Client *client );
 		
 		void		AcceptNewClient( void );
-		void		ReceiveNewData( int );
+		void		ReceiveNewData( Client *client );
 
-		int			FindChannelId( std::string topic );
-		int			FindClientId( int );
-		std::string	FindClientNickname( int ClientFd );
-		int			FindClientFd( std::string Nickname );
-		bool		IsOperator( int ClientFd, int channelId );
-		bool		IsRegistered( int ClientFd );
+		bool		IsOperator( Client *client, Channel *channel );
+		bool		IsRegistered( Client *client );
 
 		void		SendToAllClient( const std::string &message );
-		void		SendToChannel( int ClientFd, int ChannelId, const std::string &message );
-		bool		SendToClient( int clientFd, const std::string &message );
-		void		SendToAllMembers( int ChannelId , const std::string &message );
-		bool		InChannel( int ClientFd, int ChannelId );
+		void		SendToChannel( Client *client, Channel *channel, const std::string &message );
+		bool		SendToClient( Client *client, const std::string &message );
+		void		SendToAllMembers( Channel *channel, const std::string &message );
+		bool		InChannel( Client *client, Channel *channel );
+		void		SetRemovePassword( Channel *channel, std::string password );
 		bool		FindDuplicateTopic( std::string oldTopic, std::string newTopic );
-		bool		IsChannelJoinable( int	CliendFd, int ChannelId );
-
-
-
+		bool		IsChannelFull( Channel *channel );
+		Client		*FindClientWithFd( int );
+		Channel		*FindChannelWithTopic( std::string topic );
+		Client		*FindClientWithNickname( std::string Nickname );
+		bool		GiveTakeOperatorGrade( Channel *channel, Client *target );
+		void		SetRemoveUserLimitation( Channel *channel, std::string	Limitation );
 };

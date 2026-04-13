@@ -25,7 +25,10 @@ void	Server::Running( void )
 			if ( this->_Fds[i].fd == _SocketFd )
 				AcceptNewClient();
 			else
-				ReceiveNewData( this->_Fds[i].fd );
+			{
+				Client	*client = FindClientWithFd( this->_Fds[i].fd );
+				ReceiveNewData( client );
+			}
 		}
 	}
 }
@@ -73,12 +76,12 @@ void	Server::SetServSocket( void )
 
 void	Server::AcceptNewClient( void )
 {
-	Client			cli;
-	struct sockaddr_in	cliadd;
+	Client				client;
+	struct sockaddr_in	clientAdd;
 	struct pollfd		NewPoll;
-	socklen_t			len = sizeof( cliadd );
+	socklen_t			len = sizeof( clientAdd );
 
-	int NewFd = accept( this->_SocketFd, (sockaddr *)&( cliadd ), &len );
+	int NewFd = accept( this->_SocketFd, (sockaddr *)&( clientAdd ), &len );
 	if ( NewFd == -1 )
 	{
 		std::cerr << ERR_ACCEPT_FAILED;
@@ -94,29 +97,29 @@ void	Server::AcceptNewClient( void )
 	NewPoll.events = POLLIN;
 	NewPoll.revents = 0;
 
-	cli.setFd( NewFd );
-	cli.setIpAddress( inet_ntoa( cliadd.sin_addr ) );
-	this->_Clients.push_back( cli );
+	client.setFd( NewFd );
+	client.setIpAddress( inet_ntoa( clientAdd.sin_addr ) );
+	this->_Clients.push_back( client );
 	_Fds.push_back( NewPoll );
 
-	std::cout << NEW_CLIENT( cli.getFd() );
-	SendToClient( cli.getFd() , MSG_NEW_CLIENT( cli.getFd() ) );
+	std::cout << NEW_CLIENT( client.getFd() );
+	SendToClient( &client , MSG_NEW_CLIENT( client.getFd() ) );
 }
 
-void	Server::ReceiveNewData( int ClientFd )
+void	Server::ReceiveNewData( Client *client )
 {
 	char Data[1024];
 	memset( Data, 0, sizeof( Data ) );
 
-	ssize_t bytes = recv( ClientFd, Data, sizeof( Data ) - 1, 0 );
+	ssize_t bytes = recv( client->getFd() , Data, sizeof( Data ) - 1, 0 );
 	if ( bytes <= 0 )
 	{
-		std::cout << CLIENT_DISCONNECTED( ClientFd );
-		close( ClientFd );
+		std::cout << CLIENT_DISCONNECTED( client->getFd() );
+		close( client->getFd() );
 
 		for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
 		{
-			if ( it->getFd() == ClientFd )
+			if ( it->getFd() == client->getFd() )
 			{
 				if ( it->getNickname() != "" )
 					this->_Nicknames.erase( it->getNickname() );
@@ -127,7 +130,7 @@ void	Server::ReceiveNewData( int ClientFd )
 
 		for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
 		{
-			if ( it->fd == ClientFd )
+			if ( it->fd == client->getFd() )
 			{
 				this->_Fds.erase( it );
 				break;
@@ -138,6 +141,6 @@ void	Server::ReceiveNewData( int ClientFd )
 	{
 		Data[bytes] = '\0';
 		std::vector< std::string > Tokens = Parse( Data );
-		ExecCommand( Tokens, ClientFd );
+		ExecCommand( Tokens, client );
 	}
 }

@@ -56,6 +56,8 @@ std::string	Client::getUsername( void ) const
 
 std::string	Client::getNickname( void ) const
 {
+	if ( this->_nickname.empty() )
+		return ( this->_username );
 	return ( this->_nickname );
 }
 
@@ -100,7 +102,8 @@ bool	SendToClient( int clientFd, const std::string &message )
 	std::string	wire = message;
 	size_t		total = 0;
 	
-	if ( wire.size() < 2 || wire.substr( wire.size() - 2 ) != CRLF )
+	if ( (wire.size() < 2 || wire.substr( wire.size() - 2 ) != CRLF )
+		&& ( wire.size() < 3 || wire.substr( wire.size() - 3 ) != CRLFNL ))
 		wire += CRLF;
 	while ( total < wire.size() )
 	{

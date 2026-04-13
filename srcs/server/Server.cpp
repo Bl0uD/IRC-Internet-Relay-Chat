@@ -32,7 +32,6 @@ Server	&Server::operator=( Server const &instance )
 		this->_Clients = instance._Clients;
 		this->_Channels = instance._Channels;
 		this->_Fds = instance._Fds;
-		this->_ChannelDirectory = instance._ChannelDirectory;
 		this->_Nicknames = instance._Nicknames;
 		this->_NextChannelId = instance._NextChannelId;
 	}

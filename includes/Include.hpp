@@ -24,8 +24,8 @@
 # define	RED std::string("\e[1;31m") // for red color
 # define	WHITE std::string("\e[0;37m") // for white color
 # define	YELLOW std::string("\e[1;33m") // for yellow color
-# define	PURPLE std::string("\e[1;35m") // for purple color
-# define	BLUE std::string("\e[1;34m") // for blue color
+# define	PURPLE std::string("\e[1;35m")
+# define	BLUE std::string("\e[1;34m")
 
 # define	DISPLAY_SERVER		PURPLE << "\n   ☑️\t Server launched !\n\n"
 
@@ -68,34 +68,34 @@
 # define	NEW_CLIENT( ClientFd )			WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< GREEN << "CONNECTED." << WHITE << CRLFNL
+											<< GREEN << "CONNECTED." << WHITE << CRLF
 # define	CLIENT_DISCONNECTED( ClientFd )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " \
-											<< RED << "DISCONNECTED." << WHITE << CRLFNL
+											<< RED << "DISCONNECTED." << WHITE << CRLF
 # define	SERVER_CONNECTED( _SocketFd )	WHITE << "  Server " \
 											<< GREEN << "CONNECTED" \
 											<< WHITE << " !!\tListening on FD (" \
 											<< YELLOW << _SocketFd \
-											<< WHITE << ")." << WHITE << CRLFNL
-# define	WAITING_CONNECTION				WHITE << "\tWaiting connection..." << CRLFNL
+											<< WHITE << ")." << WHITE << CRLF
+# define	WAITING_CONNECTION				WHITE << "\tWaiting connection..." << CRLF
 # define 	PRINT_DATA( ClientFd, Data )	WHITE << "Client < " \
 											<< YELLOW << ClientFd \
 											<< WHITE << " > " << Data << CRLF
 # define	ERR_CMD_ARGS( token, msg )		BLUE + "Wrong usage of : " + token + "\nUse like this : " + token + " " + msg + WHITE + CRLFNL
 # define	ERR_CMD_NOT_FOUND( Cmd )		BLUE + "Unknown command: " + Cmd + "\nType " \
 											+ GREEN + "HELP " \
-											+ BLUE + "to see the list of available commands." + WHITE + CRLFNL
-# define	ERR_INEXISTANT_CHANNEL( topic )	BLUE + "Unknown channel: " + topic + "\nType " \
+											+ BLUE + "to see the list of available commands." + WHITE + CRLF
+# define	ERR_INEXISTANT_CHANNEL( topic )	BLUE + "Unknown channel: " + YELLOW + topic + BLUE + "\nType " \
 											+ GREEN + "CHANNEL_ON " \
 											+ BLUE + "to see the list of available channels." + WHITE + CRLFNL
-# define	ERR_INEXISTANT_CLIENT( name )	BLUE + "Unknown client: " + name + "\nType a valid client." + WHITE + CRLFNL
-# define	ERR_NOT_OPERATOR( chanName )	YELLOW + "You are not operator for " + chanName + " channel." + WHITE + CRLFNL
-# define	ERR_NOT_IN_CHANNEL( chanName )	YELLOW + "You are not in " + chanName + " channel." + WHITE + CRLFNL
-# define	ERR_NICKNAME_USED( nickname )	RED + "INFO:" + BLUE + nickname + " Nickname is already used." + WHITE + CRLF
-# define	ERR_TOPIC_USED( topic )			RED + "INFO:" + BLUE + topic + " topic is already used by an other channel." + WHITE + CRLF
-# define	ERR_NOT_TOPIC_FOUND( topic )	RED + "INFO:" + BLUE + topic + " no channel match with this topic." + WHITE + CRLF
-# define	COMMAND_LIST					BLUE + "Available commands:" + CRLFNL \
+# define	ERR_INEXISTANT_CLIENT( name )	BLUE + "Unknown client: " + YELLOW +  name + "\nType a valid client." + WHITE + CRLF
+# define	ERR_NOT_OPERATOR( chanName )	YELLOW + "You are not operator in the channel " + YELLOW + chanName + "." + WHITE + CRLF
+# define	ERR_NOT_IN_CHANNEL( chanName )	YELLOW + "You are not in " + YELLOW + chanName + " channel." + WHITE + CRLF
+# define	ERR_NICKNAME_USED( nickname )	RED + "INFO:" + YELLOW + nickname + " Nickname is already used." + WHITE + CRLF
+# define	ERR_TOPIC_USED( topic )			RED + "INFO:" + YELLOW + topic + " topic is already used by an other channel." + WHITE + CRLF
+# define	ERR_NOT_TOPIC_FOUND( topic )	RED + "INFO:" + YELLOW + topic + " no channel match with this topic." + WHITE + CRLF
+# define	COMMAND_LIST					BLUE + "Available commands:" + CRLF \
 											+ GREEN + "  - USER" + BLUE + " : set your username\n" \
 											+ GREEN + "  - NICK" + BLUE + " : choose your nickname\n" \
 											+ GREEN + "  - TOPIC" + BLUE + " : change the channel topic\n" \
@@ -113,29 +113,35 @@
 # define	MSG_NEW_CLIENT( NewFd )			PURPLE + "\n\tWelcome to IRC\n" \
 											+ BLUE + "First steps to use IRC. Register with :\n" \
 											+ GREEN + " - USER <your username>\n" \
-											+ GREEN + " - PASS <your password>" + WHITE + CRLF
+											+ GREEN + " - PASS <your password>" + WHITE + CRLFNL
 # define	UPDATE_USERNAME( username )		GREEN + "Your username has been successfully processed.\n" \
-											+ BLUE + "New username : " + username + WHITE + CRLF
+											+ BLUE + "New username : " + YELLOW + username + WHITE + CRLFNL
 # define	UPDATE_NICKNAME( nickname )		GREEN + "Your nickname has been successfully processed.\n" \
-											+ BLUE + "New nickname : " + nickname + WHITE + CRLFNL
-# define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLFNL
+											+ BLUE + "New nickname : " + YELLOW + nickname + WHITE + CRLFNL
+# define	UPDATE_PASSWORD					GREEN + "Your password has been successfully processed." + WHITE + CRLF
 # define	SERVER_CLOSED					RED + "\tINFO: " \
-											+ BLUE + "IRC server has been closed. Thank you." + WHITE + CRLFNL
-# define	REGISTERED( status )			BLUE + "You have been correctly " + GREEN + status + "." + WHITE + CRLFNL
-# define	CHANNEL_MESSAGE( topic , msg )	YELLOW + topic + ":" + WHITE + msg + CRLFNL
-# define	RECEIVED_INVITE( topic )		YELLOW + topic + WHITE + " send you an invite." + CRLFNL
-# define	RECEIVED_KICK( topic )			YELLOW + "You have been " + RED + "kicked " + BLUE + "from " + RED + topic + WHITE + CRLFNL
-# define	CHANNEL_OPERATOR( topic )		YELLOW + topic + WHITE + " Func mode called." + CRLFNL
-# define	CREATE_CHANNEL( channelName )	BLUE + "Channel " + YELLOW + channelName + BLUE + " has been successfully created." + WHITE + CRLFNL
-# define	NEW_TOPIC_SET( newTopic )		BLUE + "New Topic has been set to " + newTopic + WHITE + CRLFNL
-# define	CLIENT_KICKED( topic, name )	RED + "Client named " \
-											+ GREEN + name \
-											+ BLUE + "has been kicked from the " \
-											+ RED + topic + BLUE + " channel." + WHITE + CRLFNL
-# define	CLIENT_INVITED( topic, name )	BLUE + "Client named " \
-											+ GREEN + name \
-											+ BLUE + "has been invite to the " \
-											+ RED + topic + BLUE + " channel." + WHITE + CRLFNL
+											+ BLUE + "IRC server has been closed. Thank you." + WHITE + CRLF
+# define	REGISTERED( status )			GREEN + "You have been correctly " + YELLOW + status + GREEN + "." + WHITE + CRLFNL
+# define	CHANNEL_MESSAGE(top, nick, msg)	YELLOW + top + GREEN + " : " + YELLOW + nick + GREEN + " : " + WHITE + msg + CRLF
+# define	RECEIVED_INVITE( topic )		YELLOW + topic + WHITE + " send you an invite." + CRLF
+# define	RECEIVED_KICK( topic )			YELLOW + "You have been " + RED + "kicked " + BLUE + "from " + RED + topic + WHITE + CRLF
+# define	CHANNEL_OPERATOR( topic )		GREEN + "Channel " + YELLOW + topic + GREEN + " mode updated." + WHITE + CRLFNL
+# define	CREATE_CHANNEL( topic )	BLUE + "Channel " + YELLOW + topic + BLUE + " has been successfully created." + WHITE + CRLFNL
+# define	ALREADY_IN_CHANNEL( Topic )		BLUE + "You are already in channel " + YELLOW + Topic + BLUE + "." + WHITE + CRLF
+# define	NEW_TOPIC_SET( old, new )		BLUE + "Channel topic has been set to " + YELLOW + newTopic + WHITE + ". (OLD: " + YELLOW + old + ")" + WHITE + CRLF
+# define	CLIENT_KICKED( topic, name )	BLUE + "Client named " \
+											+ YELLOW + name \
+											+ BLUE + " has been kicked from the " \
+											+ YELLOW + topic + BLUE + " channel." + WHITE + CRLF
+# define	CLIENT_INVITED( topic, name )	GREEN + "Client named " \
+											+ YELLOW + name \
+											+ GREEN + " has been invite to the " \
+											+ YELLOW + topic + GREEN + " channel." + WHITE + CRLF
+# define	NEW_CLIENT_JOIN( nick, topic )	YELLOW + nick + GREEN + " has joined channel " + YELLOW + topic + GREEN + "." + WHITE + CRLFNL
+# define	PRIV_MSG( sender, message )		YELLOW + sender + GREEN + " : " + WHITE + message + CRLF
+# define	WRONG_PASSWORD( channel )		RED + "Error:" + GREEN + "Wrong password to access to " + YELLOW + channel + GREEN + " channel" + WHITE + CRLF
+# define	SET_PSWD_RESTRICTION( channel )	YELLOW + channel + GREEN + " channel password restriction updated." + WHITE + CRLFNL
+
 
 class runtime_error : public std::exception
 {

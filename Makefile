@@ -5,6 +5,7 @@ FLAGS = -Wall -Wextra -Werror -std=c++98
 SOURCES = srcs/main.cpp \
 			srcs/client/Client.cpp \
 			srcs/channel/Channel.cpp \
+			srcs/server/ChannelUtils.cpp \
 			srcs/server/ParsingData.cpp \
 			srcs/server/ClientUtils.cpp \
 			srcs/server/Commands.cpp \

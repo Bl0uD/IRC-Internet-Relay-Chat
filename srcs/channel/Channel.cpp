@@ -4,7 +4,7 @@ Channel::~Channel( void ) {}
 
 Channel::Channel( void ) :
 	_inviteOnly( false ),
-	_topicRestriction( false ),
+	_topicRestriction( true ),
 	_passwordRestriction( false ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -17,7 +17,7 @@ Channel::Channel( void ) :
 
 Channel::Channel( std::string topic, std::string paswrd ) :
 	_inviteOnly( false ),
-	_topicRestriction( false ),
+	_topicRestriction( true ),
 	_passwordRestriction( !paswrd.empty() ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -87,9 +87,9 @@ bool	Channel::getTopicRestriction( void ) const
 	return ( this->_topicRestriction );
 }
 
-void	Channel::setTopicRestriction( bool regis )
+void	Channel::setTopicRestriction( bool restriction )
 {
-	this->_topicRestriction = regis;
+	this->_topicRestriction = restriction;
 }
 
 bool	Channel::getPasswordRestriction( void ) const
@@ -97,10 +97,10 @@ bool	Channel::getPasswordRestriction( void ) const
 	return ( this->_passwordRestriction );
 }
 
-void	Channel::setPasswordRestriction( bool regis )
+void	Channel::setPasswordRestriction( bool restriction )
 {
-	this->_passwordRestriction = regis;
-	if ( !regis )
+	this->_passwordRestriction = restriction;
+	if ( !restriction )
 		this->_password.clear();
 }
 
