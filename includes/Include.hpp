@@ -136,7 +136,7 @@
 # define	CLIENT_INVITED( topic, name )	GREEN + "Client named " \
 											+ YELLOW + name \
 											+ GREEN + " has been invite to the " \
-											+ YELLOW + topic + GREEN + " channel." + WHITE + CRLF
+											+ YELLOW + topic + GREEN + " channel." + WHITE + CRLFNL
 # define	NEW_CLIENT_JOIN( nick, topic )	YELLOW + nick + GREEN + " has joined channel " + YELLOW + topic + GREEN + "." + WHITE + CRLFNL
 # define	PRIV_MSG( sender, message )		YELLOW + sender + GREEN + " : " + WHITE + message + CRLF
 # define	WRONG_PASSWORD( channel )		RED + "Error:" + GREEN + "Wrong password to access to " + YELLOW + channel + GREEN + " channel" + WHITE + CRLF
