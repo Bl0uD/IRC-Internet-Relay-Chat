@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:38 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:39 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:27:05 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,15 +247,14 @@ void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
 	}
 
 	bool	isInvited = channel->hasPendingClient( client->getFd() );
-	bool	hasValidPassword = ( channel->getPasswordRestriction()
-		&& Tokens.size() >= 3
-		&& channel->getPassword() == Tokens[2] );
+	bool	hasValidPassword = false;
+	if ( Tokens.size() > 2 )
+		hasValidPassword = channel->getPassword() == Tokens[2];
 
-	if ( !hasValidPassword && Tokens.size() == 3 ) 
+	if ( channel->getPasswordRestriction() && Tokens.size() == 3 && !hasValidPassword  ) 
 		SendToClient( client, WRONG_PASSWORD( channel->getTopic() ));
 
-	if ( ( channel->getInviteOnly() || channel->getPasswordRestriction() )
-		&& !isInvited && !hasValidPassword )
+	if ( channel->getInviteOnly() && !isInvited && !hasValidPassword )
 	{
 		if ( channel->getPasswordRestriction() )
 			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE + CRLFNL );
@@ -272,7 +271,7 @@ void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
 			channel->removePendingClient( client->getFd() );
 	}
 	else
-		SendToClient( client, GREEN + "Channel is full." + WHITE );
+		SendToClient( client, CHANNEL_FULL( channel->getTopic() ) );
 }
 
 void	SetRemoveInviteOnly( Channel *channel )
@@ -424,9 +423,9 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
 			ss << channel->getUserLimitation();
 			std::string	UserLimitation = ss.str();
 			if ( channel->getUserLimitation() )
-				SendToClient( client, channel->getTopic() + " channel UserLimitation has been set to " + GREEN + UserLimitation + WHITE + CRLFNL );
+				SendToClient( client, CHANNEL_LIMIT( channel->getTopic(), UserLimitation ) );
 			else
-				SendToClient( client, channel->getTopic() + " channel UserLimitation has been removed." + WHITE + CRLFNL );
+				SendToClient( client, CHANNEL_LIMIT_R( channel->getTopic() ) );
 			break;
 		}
 		default:
@@ -526,7 +525,7 @@ void	Server::ChannelList( Client *client )
 			list << CRLF;
 	}
 
-	SendToClient( client, list.str() );
+	SendToClient( client, list.str() + CRLFNL );
 }
 
 void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )

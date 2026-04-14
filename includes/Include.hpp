@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:19 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:16:45 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,9 @@
 # define	RECEIVED_INVITE( topic )			YELLOW + topic + WHITE + " send you an invite." + CRLFNL
 # define	RECEIVED_KICK( topic )				YELLOW + "You have been " + RED + "kicked " + YELLOW + "from " + RED + topic + WHITE + CRLFNL
 # define	CHANNEL_OPERATOR( topic )			GREEN + "Channel " + YELLOW + topic + GREEN + " mode updated." + WHITE + CRLFNL
+# define	CHANNEL_LIMIT( topic, limit )		YELLOW + topic + GREEN + " channel user limitation has been set to " + limit + WHITE + CRLFNL
+# define	CHANNEL_LIMIT_R( topic )			YELLOW + topic + GREEN + " channel user limitation has been removed." + WHITE + CRLFNL
+# define	CHANNEL_FULL( topic )				RED + "Channel " + YELLOW + topic + " is full." + WHITE + CRLFNL
 # define	CREATE_CHANNEL( topic )				BLUE + "Channel " + YELLOW + topic + BLUE + " has been successfully created." + WHITE + CRLFNL
 # define	ALREADY_IN_CHANNEL( Topic )			BLUE + "You are already in channel " + YELLOW + Topic + BLUE + "." + WHITE + CRLFNL
 # define	NEW_TOPIC_SET( old, nTopic, name )	GREEN + "Channel topic has been set to " + YELLOW + nTopic + GREEN + " by " + YELLOW + name + GREEN + ". (OLD: " + YELLOW + old + GREEN + ")" + WHITE + CRLFNL
@@ -159,9 +162,8 @@
 												+ YELLOW + topic + GREEN + " channel." + WHITE + CRLFNL
 # define	NEW_CLIENT_JOIN( nick, topic )		YELLOW + nick + GREEN + " has joined channel " + YELLOW + topic + GREEN + "." + WHITE + CRLFNL
 # define	PRIV_MSG( sender, message )			YELLOW + sender + GREEN + " : " + WHITE + message + CRLFNL
-# define	WRONG_PASSWORD( channel )			RED + "Error:" + GREEN + "Wrong password to access to " + YELLOW + channel + GREEN + " channel" + WHITE + CRLFNL
+# define	WRONG_PASSWORD( channel )			RED + "Error: " + GREEN + "Wrong password to access to " + YELLOW + channel + GREEN + " channel" + WHITE + CRLFNL
 # define	SET_PSWD_RESTRICTION( channel )		YELLOW + channel + GREEN + " channel password restriction updated." + WHITE + CRLFNL
-
 
 class runtime_error : public std::exception
 {
