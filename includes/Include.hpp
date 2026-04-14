@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:16:45 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:32:43 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,12 +104,13 @@
 												+ GREEN + "CHANNEL_ON " \
 												+ PURPLE + "to see the list of available channels." + WHITE + CRLFNL
 # define	ERR_INEXISTANT_CLIENT( name )		PURPLE + "Unknown client: " + YELLOW + name + PURPLE + "\nType a valid client." + WHITE + CRLFNL
-# define	ERR_NOT_OPERATOR( chanName )		PURPLE + "You are not operator in the channel " + YELLOW + chanName + PURPLE + "." + WHITE + CRLFNL
-# define	ERR_NOT_IN_CHANNEL( chanName )		PURPLE + "You are not in " + YELLOW + chanName + PURPLE + " channel." + WHITE + CRLFNL
+# define	ERR_NOT_OPERATOR( topic )		PURPLE + "You are not operator in the channel " + YELLOW + topic + PURPLE + "." + WHITE + CRLFNL
+# define	ERR_NOT_IN_CHANNEL( topic )		PURPLE + "You are not in " + YELLOW + topic + PURPLE + " channel." + WHITE + CRLFNL
 # define	ERR_CLI_NOT_IN_CHAN( cli, chan )	YELLOW + cli + WHITE + "are not in " + YELLOW + chan + " channel." + WHITE + CRLFNL
-# define	ERR_NICKNAME_USED( nickname )		RED + "INFO:" + YELLOW + nickname + WHITE + " Nickname is already used." + CRLFNL
-# define	ERR_TOPIC_USED( topic )				RED + "INFO:" + YELLOW + topic + WHITE + " topic is already used by an other channel." + CRLFNL
-# define	ERR_NOT_TOPIC_FOUND( topic )		RED + "INFO:" + YELLOW + topic + WHITE + " no channel match with this topic." + CRLFNL
+# define	ERR_NICKNAME_USED( nickname )		RED + "INFO: " + YELLOW + nickname + WHITE + " Nickname is already used." + CRLFNL
+# define	ERR_USERNAME_USED( nickname )		RED + "INFO: " + YELLOW + nickname + WHITE + " Username is already used." + CRLFNL
+# define	ERR_TOPIC_USED( topic )				RED + "INFO: " + YELLOW + topic + WHITE + " topic is already used by an other channel." + CRLFNL
+# define	ERR_NOT_TOPIC_FOUND( topic )		RED + "INFO: " + YELLOW + topic + WHITE + " no channel match with this topic." + CRLFNL
 # define	COMMAND_LIST						PURPLE + "Available commands:" + CRLFNL \
 												+ GREEN + "  - USER" + WHITE + " : set your username\n" \
 												+ GREEN + "  - NICK" + WHITE + " : choose your nickname\n" \

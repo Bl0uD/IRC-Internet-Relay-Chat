@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:27:05 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:35:36 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ void	Server::ReceiveNewData( Client *client )
 	if ( bytes <= 0 )
 	{
 		int				fd = client->getFd();
+		std::string	username = client->getUsername();
 		std::string	nickname = client->getNickname();
 
 		std::cout << CLIENT_DISCONNECTED( fd );
@@ -154,6 +155,8 @@ void	Server::ReceiveNewData( Client *client )
 		{
 			if ( it->getFd() == fd )
 			{
+				if ( username != "" )
+					this->_Usernames.erase( username );
 				if ( nickname != "" )
 					this->_Nicknames.erase( nickname );
 				this->_Clients.erase( it );

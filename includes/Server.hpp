@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:26:44 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:28:42 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server
 		std::vector< struct pollfd >				_Fds;
 		std::vector< Channel >						_Channels;
 		std::set< std::string >						_Nicknames;
+		std::set< std::string >						_Usernames;
 		std::set< std::string >						_Topics;
 
 	public:

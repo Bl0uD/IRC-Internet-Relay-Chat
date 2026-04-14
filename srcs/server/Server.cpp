@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:49 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:27:05 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:34:08 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ Server	&Server::operator=( Server const &instance )
 		this->_Channels = instance._Channels;
 		this->_Fds = instance._Fds;
 		this->_Nicknames = instance._Nicknames;
+		this->_Usernames = instance._Usernames;
 		this->_NextChannelId = instance._NextChannelId;
 	}
 	return ( *this );

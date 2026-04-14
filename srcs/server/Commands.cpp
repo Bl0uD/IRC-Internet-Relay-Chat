@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:38 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:27:05 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/14 18:33:31 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,22 @@ void	Server::SetUsername( std::vector<std::string> Tokens, Client *client )
 		SendToClient( client, ERR_CMD_ARGS( "USER", "<your username>" ) );
 		return ;
 	}
+	std::string newUsername = Tokens[1];
+	std::string oldUsername = client->getUsername();
+
+	if ( newUsername != oldUsername
+		&& this->_Usernames.find( newUsername ) != this->_Usernames.end() )
+	{
+		SendToClient( client, ERR_USERNAME_USED( newUsername ) );
+		return ;
+	}
+
+	if ( oldUsername != "" )
+		this->_Usernames.erase( oldUsername );
+	client->setNickname( newUsername );
+	this->_Usernames.insert( newUsername );
+	
+
 	client->setUsername( Tokens[1] );
 	SendToClient( client , UPDATE_USERNAME( client->getUsername() ) );
 	if ( !client->getPassword().empty() )
