@@ -4,7 +4,7 @@ Channel::~Channel( void ) {}
 
 Channel::Channel( void ) :
 	_inviteOnly( false ),
-	_topicRestriction( true ),
+	_topicRestriction( false ),
 	_passwordRestriction( false ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -17,7 +17,7 @@ Channel::Channel( void ) :
 
 Channel::Channel( std::string topic, std::string paswrd ) :
 	_inviteOnly( false ),
-	_topicRestriction( true ),
+	_topicRestriction( false ),
 	_passwordRestriction( !paswrd.empty() ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -119,9 +119,11 @@ int	Channel::getUserLimitation( void ) const
 	return ( this->_userLimitation );
 }
 
-void	Channel::setUserLimitation( int newlimit )
+void	Channel::setUserLimitation( int newLimit )
 {
-	this->_userLimitation = newlimit;
+	if ( newLimit < 0 )
+		newLimit = 0;
+	this->_userLimitation = newLimit;
 }
 
 const std::set< int >	&Channel::getClients( void ) const

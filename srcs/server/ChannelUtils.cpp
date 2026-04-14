@@ -7,10 +7,7 @@ bool	Server::InChannel( Client *client, Channel *channel )
 
 bool	Server::FindDuplicateTopic( std::string oldTopic, std::string newTopic )
 {
-	if ( newTopic != oldTopic
-		&& this->_Topics.find( newTopic ) != this->_Topics.end() )
+	if ( newTopic == oldTopic )
 		return false;
-	if ( oldTopic != "" )
-		this->_Topics.erase( oldTopic );
-	return true;
+	return ( FindChannelWithTopic( newTopic ) != NULL );
 }

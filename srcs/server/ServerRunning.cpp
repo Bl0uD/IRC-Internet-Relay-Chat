@@ -27,6 +27,13 @@ void	Server::Running( void )
 			else
 			{
 				Client	*client = FindClientWithFd( this->_Fds[i].fd );
+				if ( !client )
+				{
+					this->_Fds.erase( this->_Fds.begin() + i );
+					if ( i > 0 )
+						i--;
+					continue;
+				}
 				ReceiveNewData( client );
 			}
 		}
@@ -108,21 +115,34 @@ void	Server::AcceptNewClient( void )
 
 void	Server::ReceiveNewData( Client *client )
 {
+	if ( !client )
+		return ;
+
 	char Data[1024];
 	memset( Data, 0, sizeof( Data ) );
 
 	ssize_t bytes = recv( client->getFd() , Data, sizeof( Data ) - 1, 0 );
 	if ( bytes <= 0 )
 	{
-		std::cout << CLIENT_DISCONNECTED( client->getFd() );
-		close( client->getFd() );
+		int				fd = client->getFd();
+		std::string	nickname = client->getNickname();
+
+		std::cout << CLIENT_DISCONNECTED( fd );
+		close( fd );
+
+		for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
+		{
+			ch->removeClient( fd );
+			ch->removeOperator( fd );
+			ch->removePendingClient( fd );
+		}
 
 		for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
 		{
-			if ( it->getFd() == client->getFd() )
+			if ( it->getFd() == fd )
 			{
-				if ( it->getNickname() != "" )
-					this->_Nicknames.erase( it->getNickname() );
+				if ( nickname != "" )
+					this->_Nicknames.erase( nickname );
 				this->_Clients.erase( it );
 				break;
 			}
@@ -130,7 +150,7 @@ void	Server::ReceiveNewData( Client *client )
 
 		for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
 		{
-			if ( it->fd == client->getFd() )
+			if ( it->fd == fd )
 			{
 				this->_Fds.erase( it );
 				break;

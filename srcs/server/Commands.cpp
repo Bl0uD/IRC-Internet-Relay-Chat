@@ -68,6 +68,12 @@ void	Server::ChangeTopic( std::vector<std::string> Tokens, Client *client )
 		return ;
 	}
 
+	if ( !InChannel( client, channel ) )
+	{
+		SendToClient( client, ERR_NOT_IN_CHANNEL( oldTopic ) );
+		return ;
+	}
+
 	if ( !IsOperator( client, channel ) && channel->getTopicRestriction() )
 	{
 		SendToClient( client, ERR_NOT_OPERATOR( channel->getTopic() ) );
@@ -81,7 +87,7 @@ void	Server::ChangeTopic( std::vector<std::string> Tokens, Client *client )
 		return ;
 	}
 
-	SendToClient( client, NEW_TOPIC_SET( channel->getTopic(), newTopic ) );
+	SendToAllMembers( channel, NEW_TOPIC_SET( channel->getTopic(), newTopic, client->getNickname() ) );
 	channel->setTopic( newTopic );
 	return ;
 }
@@ -97,27 +103,39 @@ void	Server::KickClient( std::vector<std::string> Tokens, Client *client )
 	Channel  *channel = FindChannelWithTopic(Tokens[1]);
 	if ( channel == NULL )
 	{
-		ERR_INEXISTANT_CHANNEL( Tokens[1] );
+		SendToClient( client, ERR_INEXISTANT_CHANNEL( Tokens[1] ) );
 		return ;
 	}
 
 	Client *TargetClient = FindClientWithNickname( Tokens[2] );
 	if ( TargetClient == NULL )
 	{
-		ERR_INEXISTANT_CLIENT( Tokens[2] );
+		SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[2] ) );
 		return ;
 	}
 	
 	if ( !IsOperator( client, channel ))
 	{
-		ERR_NOT_OPERATOR();
+		SendToClient( client, ERR_NOT_OPERATOR( channel->getTopic() ) );
 		return ;
 	}
 
-	channel->removeClient( TargetClient->getFd() );
-	SendToClient( TargetClient, RECEIVED_KICK( channel->getTopic() ) );
+	if ( !InChannel( client, channel ) )
+	{
+		SendToClient( client, ERR_NOT_IN_CHANNEL( channel->getTopic() ) );
+		return ;
+	}
 
-	SendToAllMembers( channel, CLIENT_KICKED( channel->getTopic(), TargetClient->getNickname() ) );
+	if ( InChannel( TargetClient, channel ))
+	{
+		channel->removeClient( TargetClient->getFd() );
+		channel->removeOperator( TargetClient->getFd() );
+		channel->removePendingClient( TargetClient->getFd() );
+		SendToClient( TargetClient, RECEIVED_KICK( channel->getTopic() ) );
+		SendToAllMembers( channel, CLIENT_KICKED( channel->getTopic(), TargetClient->getNickname() ) );
+	}
+	else
+		SendToClient( client, ERR_CLI_NOT_IN_CHAN( TargetClient->getNickname(), channel->getTopic() ) );
 }
 
 void	Server::InviteClient( std::vector<std::string> Tokens, Client *client )
@@ -137,13 +155,28 @@ void	Server::InviteClient( std::vector<std::string> Tokens, Client *client )
 
 	if ( !IsOperator( client, channel ) )
 	{
-		ERR_NOT_OPERATOR( Tokens[1] );
+		SendToClient( client, ERR_NOT_OPERATOR( Tokens[1] ) );
+		return ;
+	}
+
+	if ( !InChannel( client, channel ) )
+	{
+		SendToClient( client, ERR_NOT_IN_CHANNEL( Tokens[1] ) );
 		return ;
 	}
 
 	Client *TargetClient = FindClientWithNickname( Tokens[2] );
 	if ( !TargetClient )
+	{
 		SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[2] ) );
+		return ;
+	}
+
+	if ( InChannel( TargetClient, channel ) )
+	{
+		SendToClient( client, BLUE + TargetClient->getNickname() + " is already in " + channel->getTopic() + "." + WHITE + CRLF );
+		return ;
+	}
 
 	channel->addPendingClient( TargetClient->getFd() );
 	SendToClient( TargetClient, RECEIVED_INVITE( channel->getTopic() ) );
@@ -203,7 +236,7 @@ void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
 		if ( channel->getPasswordRestriction() )
 			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE );
 		else
-			SendToClient( client, GREEN + "Channel is in invite-only mode." + WHITE );
+			SendToClient( client, GREEN + "Channel is in invite-only mode." + WHITE + CRLFNL );
 		return ;
 	}
 
@@ -268,7 +301,7 @@ void	Server::SetRemoveUserLimitation( Channel *channel, std::string	Limitation )
 	std::stringstream	ss( Limitation );
 
 	ss >> newUserLimitation;
-	if ( newUserLimitation != 0 )
+	if ( newUserLimitation > 0 )
 		channel->setUserLimitation( newUserLimitation );
 	else
 		channel->setUserLimitation( 0 );
@@ -336,6 +369,11 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
 			if ( !TargetClient )
 			{
 				SendToClient( client, ERR_INEXISTANT_CLIENT( Tokens[3] ) );
+				return ;
+			}
+			if ( !InChannel( TargetClient, channel ) )
+			{
+				SendToClient( client, ERR_CLI_NOT_IN_CHAN( TargetClient->getNickname(), channel->getTopic() ) );
 				return ;
 			}
 			if ( GiveTakeOperatorGrade( channel, TargetClient ) )
@@ -434,16 +472,18 @@ void	Server::ChannelList( Client *client )
 		return ;
 	}
 
-	std::string list = "";
-	
+	std::stringstream	list;
+	list << BLUE << "Active channels (" << this->_Channels.size() << "):" << WHITE << CRLF;
+
 	for ( size_t i = 0; i < this->_Channels.size(); i++ )
 	{
-		list += this->_Channels[i].getTopic();
+		list << GREEN << "- " << YELLOW << this->_Channels[i].getTopic() << WHITE
+			<< " (" << this->_Channels[i].getClients().size() << " users)";
 		if ( i + 1 < this->_Channels.size())
-			list += std::string("\n");
+			list << CRLF;
 	}
 
-	SendToClient( client, list );
+	SendToClient( client, list.str() );
 }
 
 void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )
@@ -464,7 +504,7 @@ void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )
 								"CHANNEL_ON"};		//12
 	if ( Tokens.empty() )
 		return ;
-	while ( i < 14 && Tokens[0] != cmds[i] )
+	while ( i < 13 && Tokens[0] != cmds[i] )
 		i++;
 	switch ( i )
 	{

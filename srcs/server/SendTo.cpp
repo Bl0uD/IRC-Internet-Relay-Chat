@@ -2,6 +2,9 @@
 
 bool	Server::SendToClient( Client *client, const std::string &message )
 {
+	if ( !client )
+		return false;
+
 	std::string	wire = message;
 	size_t		total = 0;
 	
@@ -24,8 +27,6 @@ bool	Server::SendToClient( Client *client, const std::string &message )
 	return true;
 }
 
-
-
 void	Server::SendToChannel( Client *client, Channel *channel, const std::string &message )
 {
 	for ( std::set< int >::const_iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it )
@@ -34,9 +35,11 @@ void	Server::SendToChannel( Client *client, Channel *channel, const std::string 
 		if ( memberFd == client->getFd() )
 			continue ;
 		Client *Member = FindClientWithFd( memberFd );
+		if ( !Member )
+			continue ;
 		SendToClient( Member, CHANNEL_MESSAGE( channel->getTopic(), client->getNickname(), message ) );
 	}
-	SendToClient( client, GREEN + "Message sent to channel " + YELLOW + channel->getTopic() + GREEN + " members." + WHITE );
+	SendToClient( client, GREEN + "Message sent to channel " + YELLOW + channel->getTopic() + GREEN + " members." + WHITE + CRLFNL );
 	return ;
 }
 
@@ -45,6 +48,8 @@ void	Server::SendToAllMembers( Channel *channel, const std::string &message )
 	for ( std::set< int >::const_iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it )
 	{
 		Client *Member = FindClientWithFd( *it );
+		if ( !Member )
+			continue ;
 		SendToClient( Member, message );
 	}
 	return ;
