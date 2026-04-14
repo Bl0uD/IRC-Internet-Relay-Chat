@@ -1,5 +1,16 @@
 # include "../../includes/Server.hpp"
 
+void	Server::PruneEmptyChannels( void )
+{
+	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); )
+	{
+		if ( it->getClients().empty() )
+			it = this->_Channels.erase( it );
+		else
+			++it;
+	}
+}
+
 void	Server::SetUsername( std::vector<std::string> Tokens, Client *client )
 {
 	if ( Tokens.size() != 2 )
@@ -131,6 +142,7 @@ void	Server::KickClient( std::vector<std::string> Tokens, Client *client )
 		channel->removeClient( TargetClient->getFd() );
 		channel->removeOperator( TargetClient->getFd() );
 		channel->removePendingClient( TargetClient->getFd() );
+		PruneEmptyChannels();
 		SendToClient( TargetClient, RECEIVED_KICK( channel->getTopic() ) );
 		SendToAllMembers( channel, CLIENT_KICKED( channel->getTopic(), TargetClient->getNickname() ) );
 	}
@@ -234,7 +246,7 @@ void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
 		&& !isInvited && !hasValidPassword )
 	{
 		if ( channel->getPasswordRestriction() )
-			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE );
+			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE + CRLFNL );
 		else
 			SendToClient( client, GREEN + "Channel is in invite-only mode." + WHITE + CRLFNL );
 		return ;
@@ -472,20 +484,33 @@ void	Server::ChannelMessage( std::vector< std::string > Tokens, Client *client )
 
 void	Server::ChannelList( Client *client )
 {
-	if ( this->_Channels.size() == 0 )
+	size_t activeCount = 0;
+
+	for ( size_t i = 0; i < this->_Channels.size(); ++i )
+	{
+		if ( !this->_Channels[i].getClients().empty() )
+			++activeCount;
+	}
+
+	if ( activeCount == 0 )
 	{
 		SendToClient( client, GREEN + "No channel exists." + WHITE );
 		return ;
 	}
 
 	std::stringstream	list;
-	list << BLUE << "Active channels (" << this->_Channels.size() << "):" << WHITE << CRLF;
+	list << BLUE << "Active channels (" << activeCount << "):" << WHITE << CRLF;
 
+	size_t printed = 0;
 	for ( size_t i = 0; i < this->_Channels.size(); i++ )
 	{
+		if ( this->_Channels[i].getClients().empty() )
+			continue ;
+
+		++printed;
 		list << GREEN << "- " << YELLOW << this->_Channels[i].getTopic() << WHITE
 			<< " (" << this->_Channels[i].getClients().size() << " users)";
-		if ( i + 1 < this->_Channels.size())
+		if ( printed < activeCount )
 			list << CRLF;
 	}
 

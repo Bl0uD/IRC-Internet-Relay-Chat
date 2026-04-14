@@ -136,6 +136,7 @@ void	Server::ReceiveNewData( Client *client )
 			ch->removeOperator( fd );
 			ch->removePendingClient( fd );
 		}
+		PruneEmptyChannels();
 
 		for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
 		{

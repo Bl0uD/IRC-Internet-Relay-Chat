@@ -75,4 +75,5 @@ class Server
 		Client		*FindClientWithNickname( std::string Nickname );
 		bool		GiveTakeOperatorGrade( Channel *channel, Client *target );
 		void		SetRemoveUserLimitation( Channel *channel, std::string	Limitation );
+		void		PruneEmptyChannels( void );
 };
