@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SendTo.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/14 17:06:43 by jdupuis           #+#    #+#             */
+/*   Updated: 2026/04/14 17:06:44 by jdupuis          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "../../includes/Server.hpp"
 
 bool	Server::SendToClient( Client *client, const std::string &message )

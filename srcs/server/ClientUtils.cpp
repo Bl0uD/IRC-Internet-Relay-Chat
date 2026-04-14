@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ClientUtils.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/14 17:06:36 by jdupuis           #+#    #+#             */
+/*   Updated: 2026/04/14 17:06:37 by jdupuis          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "../../includes/Server.hpp"
 
 bool	Server::IsOperator( Client *client, Channel *channel )
