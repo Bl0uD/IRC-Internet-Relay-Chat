@@ -377,9 +377,15 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
 				return ;
 			}
 			if ( GiveTakeOperatorGrade( channel, TargetClient ) )
+			{
 				SendToClient( client, YELLOW + TargetClient->getNickname() + " has been promoted to Operator grade." + WHITE + CRLFNL );
+				SendToClient( TargetClient, GREEN + "You have been promoted to Operator grade of " + YELLOW + channel->getTopic() + GREEN + "." + WHITE + CRLFNL );
+			}
 			else
+			{
 				SendToClient( client, YELLOW + TargetClient->getNickname() + " was relieved of his duties as an operator." + WHITE + CRLFNL );
+				SendToClient( TargetClient, RED + "You are no longer an operator of " + YELLOW + channel->getTopic() + RED + "." + WHITE + CRLFNL );
+			}
 			break;
 		}
 		case 'l':
@@ -448,7 +454,7 @@ void	Server::ChannelMessage( std::vector< std::string > Tokens, Client *client )
 
 	if ( !InChannel( client, channel ) )
 	{
-		ERR_NOT_IN_CHANNEL( Tokens[1] );
+		SendToClient( client, ERR_NOT_IN_CHANNEL( Tokens[1] ) );
 		return ;
 	}
 

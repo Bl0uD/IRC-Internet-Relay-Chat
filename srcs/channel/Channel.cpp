@@ -3,8 +3,8 @@
 Channel::~Channel( void ) {}
 
 Channel::Channel( void ) :
-	_inviteOnly( false ),
-	_topicRestriction( false ),
+	_inviteOnly( true ),
+	_topicRestriction( true ),
 	_passwordRestriction( false ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -16,8 +16,8 @@ Channel::Channel( void ) :
 {}
 
 Channel::Channel( std::string topic, std::string paswrd ) :
-	_inviteOnly( false ),
-	_topicRestriction( false ),
+	_inviteOnly( true ),
+	_topicRestriction( true ),
 	_passwordRestriction( !paswrd.empty() ),
 	_id( 0 ),
 	_userLimitation( 0 ),
