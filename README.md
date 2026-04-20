@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <jdupuis>, <norabino>.*
+*This project has been created as part of the 42 curriculum by "jdupuis" - Julien DUPUIS, "norabino" - Noé RABINOVICI.*
 
 # IRC - Internet Relay Chat Server (C++98)
 
