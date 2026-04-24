@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:35:36 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/23 18:39:31 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	Server::Running( void )
 	{
 		if ( errno == EINTR && !this->_ServerStatus )
 		{
-			SendToAllClient( SERVER_CLOSED );
+			//SendToAllClient( SERVER_CLOSED );
 			throw SERVER_OFF;
 		}
 		throw ERR_POLL;
@@ -55,7 +55,7 @@ void	Server::Running( void )
 void	Server::Init( void )
 {
 	this->SetServSocket();
-	std::cout << SERVER_CONNECTED( _SocketFd );
+	std::cout << SERVER_CONNECTED( this->_SocketFd, this->getPort() );
 	std::cout << WAITING_CONNECTION;
 }
 
@@ -69,13 +69,25 @@ void	Server::SetSockOptions( void )
 	add.sin_port = htons( this->_Port );
 
 	if ( setsockopt( _SocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof( en ) ) == -1 )
+	{
+		close( this->_SocketFd );
 		throw ERR_SO_REUSEADDR;
+	}
 	if ( fcntl( _SocketFd, F_SETFL, O_NONBLOCK ) == -1 )
+	{
+		close( this->_SocketFd );
 		throw ERR_O_NONBLOCK;
+	}
 	if ( bind( _SocketFd, (struct sockaddr *)&add, sizeof( add ) ) == -1 )
+	{
+		close( this->_SocketFd );
 		throw ERR_BINDING_SOCKET;
+	}
 	if ( listen( _SocketFd, SOMAXCONN ) == -1 )
-		throw ERR_LISTEN;
+	{
+		close( this->_SocketFd );
+		throw ERR_LISTEN;	
+	}
 }
 
 void	Server::SetServSocket( void )
@@ -122,7 +134,7 @@ void	Server::AcceptNewClient( void )
 	_Fds.push_back( NewPoll );
 
 	std::cout << NEW_CLIENT( client.getFd() );
-	SendToClient( &client , MSG_NEW_CLIENT( client.getFd() ) );
+	//SendToClient( &client , MSG_NEW_CLIENT( client.getFd() ) );
 }
 
 void	Server::ReceiveNewData( Client *client )
@@ -136,13 +148,13 @@ void	Server::ReceiveNewData( Client *client )
 	ssize_t bytes = recv( client->getFd() , Data, sizeof( Data ) - 1, 0 );
 	if ( bytes <= 0 )
 	{
-		int				fd = client->getFd();
+		int			fd = client->getFd();
 		std::string	username = client->getUsername();
 		std::string	nickname = client->getNickname();
 
 		std::cout << CLIENT_DISCONNECTED( fd );
 		close( fd );
-
+		SendToAllClient( RPL_QUIT( nickname, "Leaving" ) );
 		for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
 		{
 			ch->removeClient( fd );
@@ -176,7 +188,13 @@ void	Server::ReceiveNewData( Client *client )
 	else
 	{
 		Data[bytes] = '\0';
-		std::vector< std::string > Tokens = Parse( Data );
-		ExecCommand( Tokens, client );
+		//std::vector< std::string > Tokens = Parse( Data );
+		std::string message;
+		while ( (message = client->extractNextMessage()) != "" )
+		{
+		//	std::cout << GREEN"Message complet: '"DEFAULT << message << GREEN DEFAULT << std::endl;
+			this->Parse( Data );
+			ExecCommand( client );
+		}
 	}
 }

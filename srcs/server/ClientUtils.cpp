@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:36 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:37 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/23 18:39:32 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,4 +58,15 @@ Channel	*Server::FindChannelWithTopic( std::string topic )
 			return ( &(*it) );
 	}
 	return ( NULL );
+}
+
+std::string Client::extractNextMessage()
+{
+	size_t pos = this->_buffer.find("\n");
+	if (pos != std::string::npos) {
+		std::string message = this->_buffer.substr(0, pos);
+		this->_buffer.erase(0, pos + 1);
+		return message;
+	}
+	return "";
 }

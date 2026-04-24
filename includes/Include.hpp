@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Include.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:32:43 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/23 18:23:516 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,33 @@
 
 # include <algorithm>
 # include <arpa/inet.h> // for inet_ntoa()
-# include <csignal> // for signal()
+# include <csignal>
 # include <cstring>
 # include <errno.h>
 # include <exception>
-# include <fcntl.h> // for fcntl()
+# include <fcntl.h>
 # include <iostream>
 # include <netinet/in.h> // for sockaddr_in
-# include <poll.h> // for poll()
+# include <poll.h>
 # include <utility>
 # include <unistd.h> // for close()
-# include <vector> // for vector
+# include <vector>
 # include <stdexcept>
 # include <string>
-# include <sys/socket.h> // for socket()
+# include <sys/socket.h>
 # include <sys/types.h> // for socket()
-# include <sstream> // for stringstream
+# include <sstream>
 # include <set>
 
-# define	GREEN std::string("\e[1;32m") // for green color
-# define	RED std::string("\e[1;31m") // for red color
-# define	WHITE std::string("\e[0;37m") // for white color
-# define	YELLOW std::string("\e[1;33m") // for yellow color
+class Parser;
+class Server;
+class Client;
+class Channel;
+
+# define	GREEN std::string("\e[1;32m")
+# define	RED std::string("\e[1;31m")
+# define	WHITE std::string("\e[0;37m")
+# define	YELLOW std::string("\e[1;33m")
 # define	PURPLE std::string("\e[1;35m")
 # define	BLUE std::string("\e[1;34m")
 
@@ -53,11 +58,17 @@
 												<< GREEN << "> <" \
 												<< WHITE << "password" \
 												<< GREEN << ">" << WHITE << CRLFNL
-# define	ERR_INVALID_PORT					std::runtime_error( RED + "Error: Invalid port" \
+# define	ERR_INVALID_PORT					std::runtime_error( RED + "\nError: Invalid port" \
 												+ WHITE + " - expected a value between " \
 												+ GREEN + "1024" \
 												+ WHITE + " and " \
-												+ GREEN + "49151" + WHITE + "." + CRLFNL)
+												+ GREEN + "49151" + WHITE + "." + CRLF \
+												+ WHITE + "Try:  ./ircserv " \
+												+ GREEN + "<" \
+												+ WHITE + "port" \
+												+ GREEN + "> <" \
+												+ WHITE + "password" \
+												+ GREEN + ">" + WHITE + CRLF)
 # define	ERR_INVALID_PASSWORD				std::runtime_error( ERROR \
 												+ WHITE + "Empty password" + CRLFNL )
 # define	ERR_SOCKET_CREATION					std::runtime_error( ERROR \
@@ -82,16 +93,23 @@
 # define	NEW_CLIENT( ClientFd )				WHITE << "Client < " \
 												<< YELLOW << ClientFd \
 												<< WHITE << " > " \
-												<< GREEN << "CONNECTED." << WHITE << CRLF
+												<< YELLOW << "TRYING TO CONNECT." << WHITE << CRLF
+# define	RPL_QUIT( nickname, reason )		":" + nickname + " QUIT :" + reason
 # define	CLIENT_DISCONNECTED( ClientFd )		WHITE << "Client < " \
 												<< YELLOW << ClientFd \
 												<< WHITE << " > " \
 												<< RED << "DISCONNECTED." << WHITE << CRLF
-# define	SERVER_CONNECTED( _SocketFd )		WHITE << "  Server " \
+# define	SERVER_CONNECTED( fd, port )		WHITE << "  Server " \
 												<< GREEN << "CONNECTED" \
-												<< WHITE << " !!\tListening on FD (" \
-												<< YELLOW << _SocketFd \
-												<< WHITE << ")." << WHITE << CRLF
+												<< WHITE << " !!\tListening on FD " \
+												<< GREEN << "< " \
+												<< YELLOW << fd \
+												<< GREEN << " >" \
+												<< WHITE << " and port " \
+												<< GREEN << "< " \
+												<< YELLOW << port \
+												<< GREEN << " >" \
+												<< WHITE << " )." << WHITE << CRLF
 # define	WAITING_CONNECTION					WHITE << "\tWaiting connection..." << CRLF
 # define 	PRINT_DATA( ClientFd, Data )		WHITE << "Client < " \
 												<< YELLOW << ClientFd \
@@ -165,6 +183,8 @@
 # define	PRIV_MSG( sender, message )			YELLOW + sender + GREEN + " : " + WHITE + message + CRLFNL
 # define	WRONG_PASSWORD( channel )			RED + "Error: " + GREEN + "Wrong password to access to " + YELLOW + channel + GREEN + " channel" + WHITE + CRLFNL
 # define	SET_PSWD_RESTRICTION( channel )		YELLOW + channel + GREEN + " channel password restriction updated." + WHITE + CRLFNL
+
+bool getStringUntil(const std::string& input, std::string& result, char delimiter, size_t& startPos);
 
 class runtime_error : public std::exception
 {

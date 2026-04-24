@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:43 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:44 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/22 12:56:38 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,9 @@ void	Server::SendToAllClient( const std::string &message )
 {
 	int	size = this->_Clients.size();
 	for ( int i = 0; i < size; i++ )
-		SendToClient( &this->_Clients[i], message );
+	{
+		if ( IsRegistered( &this->_Clients[i] ) )
+			SendToClient( &this->_Clients[i], message );
+	}
 	return ;
 }

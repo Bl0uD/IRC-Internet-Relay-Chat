@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:15 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:16 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/23 18:39:32 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@ class Client
 		std::string _password;
 		bool		_registered;
 
+		bool		_isAuth;
+		bool		_isLog;
+		std::string _buffer;
+
+
 	public:
 		~Client();
 		Client();
@@ -38,6 +43,7 @@ class Client
 		std::string	getUsername( void ) const;
 		std::string	getNickname( void ) const;
 		std::string getPassword( void ) const;
+		std::string extractNextMessage();
 
 		bool		getRegistered( void ) const;
 
@@ -46,6 +52,5 @@ class Client
 		void		setUsername( std::string );
 		void		setNickname( std::string );
 		void		setPassword( std::string );
-
 		void		setRegistered( bool );
 };

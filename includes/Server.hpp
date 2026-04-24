@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignanperpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:28:42 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/23 18:25:2541 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include "Include.hpp"
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "Parser.hpp"
 
 class Client;
 
@@ -32,6 +33,7 @@ class Server
 		std::set< std::string >						_Nicknames;
 		std::set< std::string >						_Usernames;
 		std::set< std::string >						_Topics;
+		std::vector<Parser>							_parsedMessages;
 
 	public:
 		~Server();
@@ -44,17 +46,18 @@ class Server
 		void		setPort( int );
 		std::string	getPassword( void ) const;
 		void		setPassword( std::string );
+
 		bool		getStatus( void ) const;
 
 
 		static void	SignalHandler( int );
 		void		Init( void );
 		void		Running( void );
-
-		void		SetSockOptions( void );
 		void		SetServSocket( void );
 
-		std::vector< std::string >	Parse( char *Data );
+		void		Parse( std::string );
+
+		void		SetSockOptions( void );
 
 		void		SetUsername( std::vector<std::string> Tokens, Client *client );
 		void		SetNickname( std::vector<std::string> Tokens, Client *client );
