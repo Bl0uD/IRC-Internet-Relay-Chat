@@ -27,6 +27,7 @@ class Server
 		int											_NextChannelId;
 		static bool									_ServerStatus;
 		std::string									_Password;
+		std::string									_hostName;
 		std::vector< Client >						_Clients;
 		std::vector< struct pollfd >				_Fds;
 		std::vector< Channel >						_Channels;
@@ -34,7 +35,6 @@ class Server
 		std::set< std::string >						_Usernames;
 		std::set< std::string >						_Topics;
 		std::vector<Parser>							_parsedMessages;
-
 	public:
 		~Server();
 		Server();
@@ -48,7 +48,7 @@ class Server
 		void		setPassword( std::string );
 
 		bool		getStatus( void ) const;
-
+		std::string	getPrefix();
 
 		static void	SignalHandler( int );
 		void		Init( void );
@@ -59,18 +59,19 @@ class Server
 
 		void		SetSockOptions( void );
 
-		void		SetUsername( std::vector<std::string> Tokens, Client *client );
-		void		SetNickname( std::vector<std::string> Tokens, Client *client );
-		void		SetPassword( std::vector<std::string> Tokens, Client *client );
-		void		ChangeTopic( std::vector<std::string> Tokens, Client *client );
-		void		KickClient( std::vector<std::string> Tokens, Client *client );
-		void		InviteClient( std::vector<std::string> Tokens, Client *client );
-		void		JoinChannel( std::vector<std::string> Tokens, Client *client );
-		void		ChangeMode( std::vector<std::string> Tokens, Client *client );
-		void		SendPrivMsg( std::vector<std::string> Tokens, Client *client );
-		void		ChannelMessage( std::vector< std::string > Tokens, Client *client );
-		void		ChannelList( Client *client );
-		void		ExecCommand( std::vector<std::string> Tokens, Client *client );
+		void		SetUsername( Client *client, Parser parser );
+		void		SetNickname( Client *client, Parser parser );
+		void		SetPassword( Client *client, Parser parser );
+		void		ChangeTopic( Client *client, Parser parser );
+		void		KickClient( Client *client, Parser parser );
+		void		InviteClient( Client *client, Parser parser );
+		void		JoinChannel( Client *client, Parser parser );
+		void		ChangeMode( Client *client, Parser parser );
+		void		SendPrivMsg( Client *client, Parser parser );
+		void		ChannelMessage( Client *client, Parser parser );
+		void		ChannelList( Client *client, Parser parser );
+		void		CommandList( Client *client, Parser parser );
+		void		ExecCommand( Client *client );
 		
 		void		AcceptNewClient( void );
 		void		ReceiveNewData( Client *client );
@@ -92,4 +93,5 @@ class Server
 		bool		GiveTakeOperatorGrade( Channel *channel, Client *target );
 		void		SetRemoveUserLimitation( Channel *channel, std::string	Limitation );
 		void		PruneEmptyChannels( void );
+		void		respond( Client *client, std::string message );
 };

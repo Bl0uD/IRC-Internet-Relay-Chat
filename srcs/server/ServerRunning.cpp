@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ServerRunning.cpp                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/23 18:39:31 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 # include "../../includes/Server.hpp"
 
 void	Server::SignalHandler( int signum )
@@ -103,6 +91,27 @@ void	Server::SetServSocket( void )
 	new_cli.revents = 0;
 	this->_Fds.push_back( new_cli );
 	this->_ServerStatus = true;
+	
+	// Récupérer l'adresse réelle liée au socket
+	sockaddr_in actualAddr;
+	socklen_t addrLen = sizeof(actualAddr);
+	if ( getsockname(this->_SocketFd, (struct sockaddr *)&actualAddr, &addrLen) == -1 )
+	{
+		close(this->_SocketFd);
+		throw std::runtime_error("Error: getsockname failed");
+	}
+
+	// Résolution du nom de l'hôte
+	char hostBuffer[NI_MAXHOST];
+	int ret = getnameinfo((struct sockaddr *)&actualAddr, sizeof(actualAddr),
+							hostBuffer, sizeof(hostBuffer), NULL, 0, 0);
+	if (ret != 0)
+	{
+		close( this->_SocketFd );
+		throw std::runtime_error(std::string("Error: ") + gai_strerror(ret));
+	}
+
+	this->_hostName = std::string(hostBuffer);
 }
 
 void	Server::AcceptNewClient( void )
@@ -142,10 +151,10 @@ void	Server::ReceiveNewData( Client *client )
 	if ( !client )
 		return ;
 
-	char Data[1024];
-	memset( Data, 0, sizeof( Data ) );
+	char buffer[BUFFER_SIZE];
+	memset( buffer, 0, sizeof( buffer ) );
 
-	ssize_t bytes = recv( client->getFd() , Data, sizeof( Data ) - 1, 0 );
+	ssize_t bytes = recv( client->getFd() , buffer, sizeof( buffer ) - 1, 0 );
 	if ( bytes <= 0 )
 	{
 		int			fd = client->getFd();
@@ -187,13 +196,12 @@ void	Server::ReceiveNewData( Client *client )
 	}
 	else
 	{
-		Data[bytes] = '\0';
-		//std::vector< std::string > Tokens = Parse( Data );
-		std::string message;
+		buffer[bytes] = '\0';
+		std::string	message;
 		while ( (message = client->extractNextMessage()) != "" )
 		{
 		//	std::cout << GREEN"Message complet: '"DEFAULT << message << GREEN DEFAULT << std::endl;
-			this->Parse( Data );
+			this->Parse( message );
 			ExecCommand( client );
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:29 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/22 11:47:34 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/24 14:53:27 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,17 @@ std::string	Client::getPassword( void ) const
 
 bool	Client::getRegistered( void ) const
 {
-		// send au client message : "Register first." 
 	return ( this->_registered );
+}
+
+bool	Client::getisAuth( void ) const
+{
+	return ( this->_isAuth );
+}
+		
+bool	Client::getisLog( void ) const
+{
+	return ( this->_isLog );
 }
 
 void	Client::setFd( int fd )
@@ -133,11 +142,21 @@ bool	SendToClient( int clientFd, const std::string &message )
 	return true;
 }
 
-void	Client::setRegistered( bool regis )
+void	Client::setRegistered( bool status )
 {
-	this->_registered = regis;
+	this->_registered = status;
 	if ( this->_registered )
 		SendToClient( this->getFd(), REGISTERED( "registered" ) );
 	else
 		SendToClient( this->getFd(), REGISTERED( "unregistered" ) );
+}
+
+void	Client::setLog( bool status )
+{
+	this->_isLog = status;
+}
+
+void	Client::setAuth( bool status )
+{
+	this->_isAuth = status;
 }

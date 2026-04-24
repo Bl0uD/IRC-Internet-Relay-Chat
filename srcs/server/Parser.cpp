@@ -32,9 +32,8 @@ void	Parser::parseMessage( std::string message )
 		message = message.substr(0, pos);
 		this->params = split(message, ' ');
 	}
-	else{
+	else
 		this->params = split(message, ' ');
-	}
 
 	// std::cout << "prefix: '" << this->prefix << "'" << std::endl;
 	// std::cout << "command: '" << this->command << "'" << std::endl;

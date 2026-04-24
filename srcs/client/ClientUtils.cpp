@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ClientUtils.cpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:36 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/23 18:39:32 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 # include "../../includes/Server.hpp"
 
 bool	Server::IsOperator( Client *client, Channel *channel )
@@ -63,10 +51,19 @@ Channel	*Server::FindChannelWithTopic( std::string topic )
 std::string Client::extractNextMessage()
 {
 	size_t pos = this->_buffer.find("\n");
-	if (pos != std::string::npos) {
+	if (pos != std::string::npos)
+	{
 		std::string message = this->_buffer.substr(0, pos);
 		this->_buffer.erase(0, pos + 1);
 		return message;
 	}
 	return "";
+}
+
+std::string Client::getPrefix() const
+{
+	std::string username = this->_username.empty() ? "" : "!" + this->_username;
+	std::string hostname = this->_hostname.empty() ? "" : "@" + this->_hostname;
+
+	return (this->_nickname + username + hostname);
 }

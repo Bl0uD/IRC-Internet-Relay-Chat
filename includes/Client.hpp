@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:15 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/23 18:39:32 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/24 14:53:28 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Client
 		std::string	_ipAddress;
 		std::string _username;
 		std::string _nickname;
+		std::string	_hostname;
 		std::string _password;
 		bool		_registered;
 
@@ -43,9 +44,12 @@ class Client
 		std::string	getUsername( void ) const;
 		std::string	getNickname( void ) const;
 		std::string getPassword( void ) const;
-		std::string extractNextMessage();
-
+		std::string	getPrefix() const;
 		bool		getRegistered( void ) const;
+		bool		getIsAuth( void ) const;
+		bool		getIsLog( void ) const;
+
+		std::string extractNextMessage();
 
 		void		setFd( int );
 		void		setIpAddress( std::string );
@@ -53,4 +57,6 @@ class Client
 		void		setNickname( std::string );
 		void		setPassword( std::string );
 		void		setRegistered( bool );
+		void		setLog( bool );
+		void		setAuth( bool );
 };

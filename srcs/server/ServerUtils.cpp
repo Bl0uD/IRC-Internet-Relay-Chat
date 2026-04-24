@@ -1,5 +1,14 @@
 # include "../../includes/Server.hpp"
 
+void	Server::respond( Client *client, std::string message )
+{
+	std::string prefix = this->getPrefix();
+	if ( prefix.empty() )
+		SendToClient( client, message );
+	else
+		SendToClient( client, ":" + prefix + " " + message );
+}
+
 void	Server::Parse( std::string message ) 
 {
 	//std::string message = data; //jsp si ca marche mais il nous faut une string
@@ -19,4 +28,14 @@ void	Server::Parse( std::string message )
 		}
 		res = "";
 	}
+}
+
+std::string Server::getPrefix()
+{
+	return this->_hostName;
+	
+	struct hostent *hostEntry = gethostbyname( this->_hostName.c_str() );
+	if ( !hostEntry )
+		throw std::runtime_error( "Error: gethostbyname failed" );
+	return hostEntry->h_name;
 }

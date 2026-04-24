@@ -4,10 +4,10 @@ OBJDIR = objects
 FLAGS = -Wall -Wextra -Werror -std=c++98 
 SOURCES = srcs/main.cpp \
 			srcs/client/Client.cpp \
+			srcs/client/ClientUtils.cpp \
 			srcs/channel/Channel.cpp \
-			srcs/server/ChannelUtils.cpp \
+			srcs/channel/ChannelUtils.cpp \
 			srcs/server/ParsingData.cpp \
-			srcs/server/ClientUtils.cpp \
 			srcs/server/Commands.cpp \
 			srcs/server/ServerRunning.cpp \
 			srcs/server/SendTo.cpp \

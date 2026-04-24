@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Commands.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:38 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:33:31 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 # include "../../includes/Server.hpp"
 
 void	Server::PruneEmptyChannels( void )
@@ -23,7 +11,7 @@ void	Server::PruneEmptyChannels( void )
 	}
 }
 
-void	Server::SetUsername( std::vector<std::string> Tokens, Client *client )
+void	Server::SetUsername( Client *client, Parser parser )
 {
 	if ( Tokens.size() != 2 )
 	{
@@ -52,7 +40,7 @@ void	Server::SetUsername( std::vector<std::string> Tokens, Client *client )
 		client->setRegistered( true );
 }
 
-void	Server::SetNickname( std::vector<std::string> Tokens, Client *client )
+void	Server::SetNickname( Client *client, Parser parser )
 {
 	if ( Tokens.size() != 2 )
 	{
@@ -77,7 +65,7 @@ void	Server::SetNickname( std::vector<std::string> Tokens, Client *client )
 	SendToClient( client, UPDATE_NICKNAME( client->getNickname() ) );
 }
 
-void	Server::SetPassword( std::vector<std::string> Tokens, Client *client )
+void	Server::SetPassword( Client *client, Parser parser )
 {
 	if ( Tokens.size() != 2 )
 	{
@@ -91,7 +79,7 @@ void	Server::SetPassword( std::vector<std::string> Tokens, Client *client )
 }
 
 
-void	Server::ChangeTopic( std::vector<std::string> Tokens, Client *client )
+void	Server::ChangeTopic( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 3 )
 	{
@@ -131,7 +119,7 @@ void	Server::ChangeTopic( std::vector<std::string> Tokens, Client *client )
 	return ;
 }
 
-void	Server::KickClient( std::vector<std::string> Tokens, Client *client )
+void	Server::KickClient( Client *client, Parser parser )
 {
 	if ( Tokens.size() != 3 )
 	{
@@ -178,7 +166,7 @@ void	Server::KickClient( std::vector<std::string> Tokens, Client *client )
 		SendToClient( client, ERR_CLI_NOT_IN_CHAN( TargetClient->getNickname(), channel->getTopic() ) );
 }
 
-void	Server::InviteClient( std::vector<std::string> Tokens, Client *client )
+void	Server::InviteClient( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 3 )
 	{
@@ -231,7 +219,7 @@ bool	Server::IsChannelFull( Channel *channel )
 	return false;
 }
 
-void	Server::JoinChannel( std::vector<std::string> Tokens, Client *client )
+void	Server::JoinChannel( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 2 )
 	{
@@ -346,7 +334,7 @@ void	Server::SetRemoveUserLimitation( Channel *channel, std::string	Limitation )
 		channel->setUserLimitation( 0 );
 }
 
-void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
+void	Server::ChangeMode( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 3 || Tokens.size() > 4 || Tokens[2].size() != 1 )
 	{
@@ -450,7 +438,7 @@ void	Server::ChangeMode( std::vector<std::string> Tokens, Client *client )
 	}
 }
 
-void	Server::SendPrivMsg( std::vector<std::string> Tokens, Client *client )
+void	Server::SendPrivMsg( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 3 )
 	{
@@ -476,7 +464,7 @@ void	Server::SendPrivMsg( std::vector<std::string> Tokens, Client *client )
 	SendToClient( TargetClient, PRIV_MSG( client->getNickname(), message ) );
 }
 
-void	Server::ChannelMessage( std::vector< std::string > Tokens, Client *client )
+void	Server::ChannelMessage( Client *client, Parser parser )
 {
 	if ( Tokens.size() < 3 )
 	{
@@ -509,7 +497,7 @@ void	Server::ChannelMessage( std::vector< std::string > Tokens, Client *client )
 }
 
 
-void	Server::ChannelList( Client *client )
+void	Server::ChannelList( Client *client, Parser parser )
 {
 	size_t activeCount = 0;
 
@@ -544,77 +532,162 @@ void	Server::ChannelList( Client *client )
 	SendToClient( client, list.str() + CRLFNL );
 }
 
-void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )
-{
-	int			i = 0;
-	std::string	cmds[13] = {	"USER",				//0
-								"NICK",				//1
-								"PASS",				//2
-								"TOPIC",			//3
-								"KICK",				//4
-								"INVITE",			//5
-								"JOIN",				//6
-								"MODE",				//7
-								"PRIVMSG",			//8
-								"HELP",				//9
-								"CHANNEL",			//10
-								"HELP_MODE",		//11
-								"CHANNEL_ON"};		//12
-	if ( Tokens.empty() )
-		return ;
-	while ( i < 13 && Tokens[0] != cmds[i] )
-		i++;
-	switch ( i )
-	{
-		case 0:		//USER
-			SetUsername( Tokens, client );
-			break ;
-		case 1:		//NICK
-			if ( IsRegistered( client ) )
-				SetNickname( Tokens, client );
-			break ;
-		case 2:		//PASS
-			SetPassword( Tokens, client );
-			break ;
-		case 3:		//TOPIC
-			if ( IsRegistered( client ) )
-				ChangeTopic( Tokens, client );
-			break ;
-		case 4:		//KICK
-			if ( IsRegistered( client ) )
-				KickClient( Tokens, client );
-			break ;
-		case 5:		//INVITE
-			if ( IsRegistered( client ) )
-				InviteClient( Tokens, client );
-			break ;
-		case 6:		//JOIN
-			if ( IsRegistered( client ) )
-				JoinChannel( Tokens, client );
-			break ;
-		case 7:		//MODE
-			if ( IsRegistered( client ) )
-				ChangeMode( Tokens, client );
-			break ;
-		case 8:		//PRIVMSG
-			if ( IsRegistered( client ) )
-				SendPrivMsg( Tokens, client );
-			break ;
-		case 9:		//HELP
-			SendToClient( client, COMMAND_LIST );
-			break ;
-		case 10:	//CHANNEL
-			if ( IsRegistered( client ) )
-				ChannelMessage( Tokens, client );
-			break ;
-		case 11:	//HELP_MODE
-			SendToClient( client, HELP_MODE );
-			break ;
-		case 12:	//CHANNEL_ON
-			ChannelList( client );
-			break ;
-		default:
-			SendToClient( client, ERR_CMD_NOT_FOUND( Tokens[0] ) );
-			break ;
+void Server::cmdCap(Client *client, Parser cmd) {
+	if (cmd.params[0] == "LS")
+	return (this->respond(client, RPL_CAP()));
+}
+
+void Server::cmdQuit(Client *client, Parser cmd) {
+	std::cout << cmd.trailing << std::endl;
+
+	this->sendMessToAllCommonUsers(client, RPL_QUIT(client->getPrefix(), cmd.trailing));
+	this->clients.erase(searchForClient(client));
+	client->setToBeDeleted(true);
+}
+
+void Server::cmdPart(Client *client, Parser cmd) {
+	if (cmd.params.empty() || cmd.params.size() > 1) {
+		std::cout << RED"ERR_NEEDMOREPARAMS"DEFAULT << std::endl;
+		return this->respond(client, ERR_NEEDMOREPARAMS(client->getNickName(), cmd.command));
+	}
+
+	std::vector<std::string> chans = split(cmd.params[0], ',');
+	std::vector<std::string>::iterator chanIt;
+
+	for (chanIt = chans.begin(); chanIt != chans.end(); ++chanIt) {
+		std::string channelName = (*chanIt);
+		Channel *channel = getChannelByName(channelName);
+		if (channelName.empty() || channel == NULL) {
+			std::cout << RED"ERR_NOSUCHCHANNEL"DEFAULT << std::endl;
+			this->respond(client, ERR_NOSUCHCHANNEL((*chanIt)));
+		}
+		else if (channel != NULL && !channel->isClientInChan(client)) {
+			std::cout << RED"ERR_NOTONCHANNEL"DEFAULT << std::endl;
+			this->respond(client, ERR_NOSUCHCHANNEL((*chanIt)));
+		}
+		else {
+			channel->writeInChan(client, RPL_PART(channel->getName(), cmd.trailing), true);
+			if (channel->removeClient(client) == false) {
+				this->channels.erase(this->searchForChannel(channel));
+				delete (channel);
+			}
+
+		}
 	}
 }
+
+void	Help( Client *client, Parser parser )
+{
+	SendToClient( client, COMMAND_LIST );
+}
+
+void Server::ExecCommand( Client *client ) 
+{
+	parserIt it = this->_parsedMessages.begin();
+	std::string commandsStr[NB_CMD] = {"CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "NOTICE", "MODE", "KICK", "INVITE"};
+	cmdFunc_t	commandsFunc[NB_CMD] = {&Server::cmdCap, &Server::SetPassword, &Server::SetNickname, &Server::SetUsername, &Server::cmdQuit, &Server::JoinChannel, &Server::cmdPart, &Server::ChangeTopic &Server::SendPrivMsg, &Server::Help, &Server::ChangeMode, &Server::KickClient, &Server::InviteClient};
+
+	while (this->_parsedMessages.size() >= 1)
+	{
+		int i;
+		for ( i = 0; i < NB_CMD && commandsStr[i] != (*it).command; i++ ){}
+		// std::cout << "i = " << i << std::endl;
+		if ( (i == 2 || i == 3) && !client->getIsLog() )
+		{
+			std::cout << RED << "ERR_NOTREGISTERED" << WHITE << std::endl;
+			this->respond(client, ERR_NOTREGISTERED((*it).command));
+		}
+		else if ( i > 3 && client->getIsAuth() == false )
+		{
+			std::cout << RED << "ERR_NOTREGISTERED" << WHITE << std::endl;
+			this->respond( client, ERR_NOTREGISTERED((*it).command) );
+		}
+		else if ( i == NB_CMD )
+		{
+			std::cout << RED << "ERR_UNKNOWNCOMMAND" << WHITE << std::endl;
+			this->respond( client, ERR_UNKNOWNCOMMAND( client->getNickName(), (*it).command ) );
+		}
+		else
+		{
+			// std::cout << commandsStr[i] << std::endl;
+			(this->*commandsFunc[i])(client, *it);
+		}
+		this->_parsedMessages.erase(it);
+		std::cout << std::endl;
+	}
+}
+
+//void	Server::ExecCommand( std::vector<std::string> Tokens, Client *client )
+//{
+//	int			i = 0;
+//	std::string	cmds[13] = {	"USER",				//0
+//								"NICK",				//1
+//								"PASS",				//2
+//								"TOPIC",			//3
+//								"KICK",				//4
+//								"INVITE",			//5
+//								"JOIN",				//6
+//								"MODE",				//7
+//								"PRIVMSG",			//8
+//								"HELP",				//9
+//								"CHANNEL",			//10
+//								"HELP_MODE",		//11
+//								"CHANNEL_ON"};		//12
+//	if ( Tokens.empty() )
+//		return ;
+//	while ( i < 13 && Tokens[0] != cmds[i] )
+//		i++;
+//	switch ( i )
+//	{
+//		case 0:		//USER
+//			SetUsername( Tokens, client );
+//			break ;
+//		case 1:		//NICK
+//			if ( IsRegistered( client ) )
+//				SetNickname( Tokens, client );
+//			break ;
+//		case 2:		//PASS
+//			SetPassword( Tokens, client );
+//			break ;
+//		case 3:		//TOPIC
+//			if ( IsRegistered( client ) )
+//				ChangeTopic( Tokens, client );
+//			break ;
+//		case 4:		//KICK
+//			if ( IsRegistered( client ) )
+//				KickClient( Tokens, client );
+//			break ;
+//		case 5:		//INVITE
+//			if ( IsRegistered( client ) )
+//				InviteClient( Tokens, client );
+//			break ;
+//		case 6:		//JOIN
+//			if ( IsRegistered( client ) )
+//				JoinChannel( Tokens, client );
+//			break ;
+//		case 7:		//MODE
+//			if ( IsRegistered( client ) )
+//				ChangeMode( Tokens, client );
+//			break ;
+//		case 8:		//PRIVMSG
+//			if ( IsRegistered( client ) )
+//				SendPrivMsg( Tokens, client );
+//			break ;
+//		case 9:		//HELP
+//			SendToClient( client, COMMAND_LIST );
+//			break ;
+//		case 10:	//CHANNEL
+//			if ( IsRegistered( client ) )
+//				ChannelMessage( Tokens, client );
+//			break ;
+//		case 11:	//HELP_MODE
+//			SendToClient( client, HELP_MODE );
+//			break ;
+//		case 12:	//CHANNEL_ON
+//			ChannelList( client );
+//			break ;
+//		default:
+//			SendToClient( client, ERR_CMD_NOT_FOUND( Tokens[0] ) );
+//			break ;
+//	}
+//}
