@@ -546,7 +546,8 @@ void Server::cmdQuit(Client *client, Parser cmd) {
 }
 
 void Server::cmdPart(Client *client, Parser cmd) {
-	if (cmd.params.empty() || cmd.params.size() > 1) {
+	if (cmd.params.empty() || cmd.params.size() > 1) 
+	{
 		std::cout << RED"ERR_NEEDMOREPARAMS"DEFAULT << std::endl;
 		return this->respond(client, ERR_NEEDMOREPARAMS(client->getNickName(), cmd.command));
 	}
@@ -554,7 +555,8 @@ void Server::cmdPart(Client *client, Parser cmd) {
 	std::vector<std::string> chans = split(cmd.params[0], ',');
 	std::vector<std::string>::iterator chanIt;
 
-	for (chanIt = chans.begin(); chanIt != chans.end(); ++chanIt) {
+	for (chanIt = chans.begin(); chanIt != chans.end(); ++chanIt) 
+	{
 		std::string channelName = (*chanIt);
 		Channel *channel = getChannelByName(channelName);
 		if (channelName.empty() || channel == NULL) {
@@ -565,9 +567,11 @@ void Server::cmdPart(Client *client, Parser cmd) {
 			std::cout << RED"ERR_NOTONCHANNEL"DEFAULT << std::endl;
 			this->respond(client, ERR_NOSUCHCHANNEL((*chanIt)));
 		}
-		else {
+		else 
+		{
 			channel->writeInChan(client, RPL_PART(channel->getName(), cmd.trailing), true);
-			if (channel->removeClient(client) == false) {
+			if (channel->removeClient(client) == false) 
+			{
 				this->channels.erase(this->searchForChannel(channel));
 				delete (channel);
 			}
