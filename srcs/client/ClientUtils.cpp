@@ -38,16 +38,6 @@ Client	*Server::FindClientWithFd( int fd )
 	return ( NULL );
 }
 
-Channel	*Server::FindChannelWithTopic( std::string topic )
-{
-	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); ++it )
-	{
-		if ( it->getTopic() == topic )
-			return ( &(*it) );
-	}
-	return ( NULL );
-}
-
 std::string Client::extractNextMessage()
 {
 	size_t pos = this->_buffer.find("\n");

@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:12 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:13 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/26 15:07:10 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Channel
 		int					_id;
 		int					_userLimitation;
 		std::string			_password;
+		std::string			_name;
 		std::string			_topic;
 		std::set< int >		_clients;
 		std::set< int >		_operators;
@@ -37,6 +38,8 @@ class Channel
 
 		std::string			getTopic( void ) const;
 		void				setTopic( std::string );
+		std::string			getName( void ) const;
+		void				setName( std::string );
 		std::string			getPassword( void ) const;
 		void				setPassword( std::string );
 		bool				getInviteOnly( void ) const;

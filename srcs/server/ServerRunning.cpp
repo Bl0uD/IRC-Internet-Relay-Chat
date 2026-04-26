@@ -146,6 +146,46 @@ void	Server::AcceptNewClient( void )
 	//SendToClient( &client , MSG_NEW_CLIENT( client.getFd() ) );
 }
 
+void	Server::RemoveClient( Client *client )
+{
+	int			fd = client->getFd();
+	std::string	username = client->getUsername();
+	std::string	nickname = client->getNickname();
+
+	std::cout << CLIENT_DISCONNECTED( fd );
+	close( fd );
+	SendToAllClient( RPL_QUIT( nickname, "Leaving" ) );
+	for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
+	{
+		ch->removeClient( fd );
+		ch->removeOperator( fd );
+		ch->removePendingClient( fd );
+	}
+	PruneEmptyChannels();
+
+	for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
+	{
+		if ( it->getFd() == fd )
+		{
+			if ( username != "" )
+				this->_Usernames.erase( username );
+			if ( nickname != "" )
+				this->_Nicknames.erase( nickname );
+			this->_Clients.erase( it );
+			break;
+		}
+	}
+
+	for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
+	{
+		if ( it->fd == fd )
+		{
+			this->_Fds.erase( it );
+			break;
+		}
+	}
+}
+
 void	Server::ReceiveNewData( Client *client )
 {
 	if ( !client )
@@ -156,44 +196,7 @@ void	Server::ReceiveNewData( Client *client )
 
 	ssize_t bytes = recv( client->getFd() , buffer, sizeof( buffer ) - 1, 0 );
 	if ( bytes <= 0 )
-	{
-		int			fd = client->getFd();
-		std::string	username = client->getUsername();
-		std::string	nickname = client->getNickname();
-
-		std::cout << CLIENT_DISCONNECTED( fd );
-		close( fd );
-		SendToAllClient( RPL_QUIT( nickname, "Leaving" ) );
-		for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
-		{
-			ch->removeClient( fd );
-			ch->removeOperator( fd );
-			ch->removePendingClient( fd );
-		}
-		PruneEmptyChannels();
-
-		for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
-		{
-			if ( it->getFd() == fd )
-			{
-				if ( username != "" )
-					this->_Usernames.erase( username );
-				if ( nickname != "" )
-					this->_Nicknames.erase( nickname );
-				this->_Clients.erase( it );
-				break;
-			}
-		}
-
-		for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
-		{
-			if ( it->fd == fd )
-			{
-				this->_Fds.erase( it );
-				break;
-			}
-		}
-	}
+		RemoveClient( client );
 	else
 	{
 		buffer[bytes] = '\0';

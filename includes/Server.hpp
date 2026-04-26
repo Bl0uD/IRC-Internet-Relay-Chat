@@ -70,10 +70,12 @@ class Server
 		void		SendPrivMsg( Client *client, Parser parser );
 		void		ChannelMessage( Client *client, Parser parser );
 		void		ChannelList( Client *client, Parser parser );
-		void		CommandList( Client *client, Parser parser );
+		void		Help( Client *client, Parser parser );
+
 		void		ExecCommand( Client *client );
 		
 		void		AcceptNewClient( void );
+		void		RemoveClient( Client *client );
 		void		ReceiveNewData( Client *client );
 
 		bool		IsOperator( Client *client, Channel *channel );
@@ -88,10 +90,13 @@ class Server
 		bool		FindDuplicateTopic( std::string oldTopic, std::string newTopic );
 		bool		IsChannelFull( Channel *channel );
 		Client		*FindClientWithFd( int );
-		Channel		*FindChannelWithTopic( std::string topic );
+		Channel		*FindChannelWithName( std::string topic );
 		Client		*FindClientWithNickname( std::string Nickname );
 		bool		GiveTakeOperatorGrade( Channel *channel, Client *target );
 		void		SetRemoveUserLimitation( Channel *channel, std::string	Limitation );
 		void		PruneEmptyChannels( void );
 		void		respond( Client *client, std::string message );
+		void		cmdQuit( Client *client, Parser parser );
+		void		cmdCap( Client *client, Parser parser );
+		void		cmdPart( Client *client, Parser cmd );
 };

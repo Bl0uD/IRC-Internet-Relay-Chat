@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:24 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 17:06:25 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/26 15:07:21 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,16 @@ std::string	Channel::getTopic( void ) const
 void	Channel::setTopic( std::string newTopic )
 {
 	this->_topic = newTopic;
+}
+
+std::string	Channel::getName( void ) const
+{
+	return ( this->_name );
+}
+
+void	Channel::setName( std::string newName )
+{
+	this->_name = newName;
 }
 
 std::string	Channel::getPassword( void ) const

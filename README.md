@@ -111,7 +111,6 @@ Classic references used for IRC and network programming:
 - `man` pages: `socket(2)`, `bind(2)`, `listen(2)`, `accept(2)`, `poll(2)`, `fcntl(2)`
 
 Useful links:
-- https://www.rfc-editor.org/rfc/rfc1459
 - https://www.rfc-editor.org/rfc/rfc2812
 - https://beej.us/guide/bgnet/
 
