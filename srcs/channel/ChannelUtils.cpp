@@ -1,14 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ChannelUtils.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:34 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/26 15:07:10 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+
 
 # include "../../includes/Server.hpp"
 
@@ -32,4 +22,81 @@ Channel	*Server::FindChannelWithName( std::string name )
 			return ( &(*it) );
 	}
 	return ( NULL );
+}
+
+bool	Channel::isClientInChannel( Client *client )
+{
+	return ( this->getClients().find( client->getFd() ) != this->getClients().end() );
+}
+
+bool	Channel::isClientAdmin( Client *client )
+{
+	return ( this->getOperators().find( client->getFd() ) != this->getOperators().end() );
+}
+
+std::string	Channel::getModsForReply() const
+{
+	std::set<char>::iterator it;
+	std::string reply = "";
+	if (!this->_mods.empty())
+		reply += '+';
+	for (it = this->_mods.begin(); it != this->_mods.end(); ++it)
+		reply += *it;
+	return reply;
+}
+
+void	Server::PruneEmptyChannels( void )
+{
+	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); )
+	{
+		if ( it->getClients().empty() )
+			it = this->_Channels.erase( it );
+		else
+			++it;
+	}
+}
+
+void	Channel::setKey(Server *server, Client *client,  char sign, std::string _key)
+{
+	if ( sign == '-' )
+	{
+		if ( _key == this->_key && this->_mods.count('k') == 1 )
+		{
+			this->_key.clear();
+			this->setMods( server, client, sign, 'k' );
+			server->SendToChannel( client, this, RPL_MODE(this->_name, "-k "), true );
+		}
+	}
+	else
+	{
+		if ( _key != this->_key )
+		{
+			this->_key = _key;
+			this->setMods( server, client, sign, 'k' );
+			server->SendToChannel( client, this, RPL_MODE(this->_name, "+k " + _key), true );
+		}
+	}
+}
+
+void	Channel::setUserLimitation( Server *server, Client *client, char sign, std::string limit )
+{
+	if ( sign == '-' )
+	{
+		if ( this->_mods.count('l') == 1 )
+		{
+			this->_userLimitation = 1;
+			this->setMods( server, client, sign, 'l' );
+			server->SendToChannel( client, this, RPL_MODE( this->_name, "-l " ), true );
+		}
+	}
+	else
+	{
+		int lim = ft_atoi( limit );
+		if ( lim != -1 && isdigit( lim ) && lim != this->_userLimitation  )
+		{
+			this->_userLimitation = lim;
+			this->setMods( server, client, sign, 'l' );
+			server->SendToChannel( client, this, RPL_MODE( this->_name, "+l " + limit), true );
+		}
+	}
 }

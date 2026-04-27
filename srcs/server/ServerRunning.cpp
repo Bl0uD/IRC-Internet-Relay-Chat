@@ -157,7 +157,7 @@ void	Server::RemoveClient( Client *client )
 	SendToAllClient( RPL_QUIT( nickname, "Leaving" ) );
 	for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
 	{
-		ch->removeClient( fd );
+		ch->removeClient( client );
 		ch->removeOperator( fd );
 		ch->removePendingClient( fd );
 	}
@@ -170,7 +170,7 @@ void	Server::RemoveClient( Client *client )
 			if ( username != "" )
 				this->_Usernames.erase( username );
 			if ( nickname != "" )
-				this->_Nicknames.erase( nickname );
+				this->_ClientNames.erase( nickname );
 			this->_Clients.erase( it );
 			break;
 		}
@@ -200,6 +200,7 @@ void	Server::ReceiveNewData( Client *client )
 	else
 	{
 		buffer[bytes] = '\0';
+		client->appendBuffer( buffer );
 		std::string	message;
 		while ( (message = client->extractNextMessage()) != "" )
 		{

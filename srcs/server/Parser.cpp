@@ -24,6 +24,7 @@ void	Parser::parseMessage( std::string message )
 		this->command = message.substr(0, pos);
 		message = message.substr(pos + 1);
 	}
+	std::transform( this->command.begin(), this->command.end(), this->command.begin(), ::toupper );
 
 	pos = message.find(":");
 	if (pos != std::string::npos && this->command != "MODE") {

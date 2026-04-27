@@ -7,10 +7,12 @@ SOURCES = srcs/main.cpp \
 			srcs/client/ClientUtils.cpp \
 			srcs/channel/Channel.cpp \
 			srcs/channel/ChannelUtils.cpp \
-			srcs/server/ParsingData.cpp \
 			srcs/server/Commands.cpp \
+			srcs/server/Parser.cpp \
 			srcs/server/ServerRunning.cpp \
 			srcs/server/SendTo.cpp \
+			srcs/server/ServerUtils.cpp \
+			srcs/server/Utils.cpp \
 			srcs/server/Server.cpp
 
 OBJECTS = $(SOURCES:srcs/%.cpp=$(OBJDIR)/%.o)

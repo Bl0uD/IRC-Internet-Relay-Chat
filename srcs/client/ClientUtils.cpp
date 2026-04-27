@@ -1,15 +1,10 @@
 # include "../../includes/Server.hpp"
 
-bool	Server::IsOperator( Client *client, Channel *channel )
-{
-	return ( channel->getOperators().find( client->getFd() ) != channel->getOperators().end() );
-}
-
 bool	Server::IsRegistered( Client *client )
 {
 	if ( client->getRegistered() )
 		return true ;
-	this->SendToClient( client, GREEN + "Register first.\nSet a username with " \
+	SendToClient( client, GREEN + "Register first.\nSet a username with " \
 		+ YELLOW + "USER" \
 		+ GREEN + " and a password with " \
 		+ YELLOW + "PASS" + GREEN + "." + WHITE );

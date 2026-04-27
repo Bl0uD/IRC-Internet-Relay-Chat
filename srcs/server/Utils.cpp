@@ -50,3 +50,16 @@ bool	getStringUntil( const std::string& input, std::string& result, char delimit
 
 	return !result.empty();
 }
+
+bool	IsOperator( Client *client, Channel *channel )
+{
+	return ( channel->getOperators().find( client->getFd() ) != channel->getOperators().end() );
+}
+
+int		ft_atoi( std::string str )
+{
+	std::stringstream	ss( str );
+	int					res = -1;
+	ss >> res;
+	return ( res );
+}

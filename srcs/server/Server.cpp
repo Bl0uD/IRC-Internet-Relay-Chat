@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:49 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/14 18:34:08 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 # include "../../includes/Server.hpp"
 
@@ -16,15 +5,36 @@ bool	Server::_ServerStatus = false;
 
 Server::~Server( void ) {}
 
-Server::Server( void ) : _NextChannelId( 0 ) {}
+Server::Server( void )
+	: _Port( 0 ),
+	  _SocketFd( -1 ),
+	  _NextChannelId( 0 ),
+	  _Password( "" ),
+	  _hostName( "" ),
+	  _Clients(),
+	  _Fds(),
+	  _Channels(),
+	  _ClientNames(),
+	  _Usernames(),
+	  _Topics(),
+	  _parsedMessages()
+{}
 
-Server::Server( char **av ) : _NextChannelId( 0 )
+Server::Server( char **av )
+	: _Port( 0 ),
+	  _SocketFd( -1 ),
+	  _NextChannelId( 0 ),
+	  _Password( "" ),
+	  _hostName( "" ),
+	  _Clients(),
+	  _Fds(),
+	  _Channels(),
+	  _ClientNames(),
+	  _Usernames(),
+	  _Topics(),
+	  _parsedMessages()
 {
-	std::stringstream ss( av[1] );
-	int port;
-	ss >> port;
-
-	this->setPort( port );
+	this->setPort( ft_atoi( av[1] ) );
 	this->setPassword( av[2] );
 }
 
@@ -41,12 +51,15 @@ Server	&Server::operator=( Server const &instance )
 		this->_Password = instance._Password;
 		this->_ServerStatus = instance._ServerStatus;
 		this->_SocketFd = instance._SocketFd;
+		this->_hostName = instance._hostName;
 		this->_Clients = instance._Clients;
 		this->_Channels = instance._Channels;
 		this->_Fds = instance._Fds;
-		this->_Nicknames = instance._Nicknames;
+		this->_ClientNames = instance._ClientNames;
 		this->_Usernames = instance._Usernames;
+		this->_Topics = instance._Topics;
 		this->_NextChannelId = instance._NextChannelId;
+		this->_parsedMessages = instance._parsedMessages;
 	}
 	return ( *this );
 }

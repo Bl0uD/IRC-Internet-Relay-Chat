@@ -39,3 +39,14 @@ std::string Server::getPrefix()
 		throw std::runtime_error( "Error: gethostbyname failed" );
 	return hostEntry->h_name;
 }
+
+void	Server::SendWelcome( Client *client )
+{
+	if ( !client || client->getRegistered() )
+		return ;
+	client->setRegistered( true );
+	this->respond( client, RPL_WELCOME( client->getNickname(), client->getPrefix() ) );
+	this->respond( client, RPL_YOURHOST( client->getNickname(), this->getPrefix(), "ircserv" ) );
+	this->respond( client, RPL_CREATED( client->getNickname(), __DATE__ ) );
+	this->respond( client, RPL_MYINFO( client->getNickname(), this->getPrefix(), "ircserv" ) );
+}

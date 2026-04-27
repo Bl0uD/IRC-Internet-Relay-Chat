@@ -31,7 +31,7 @@ class Server
 		std::vector< Client >						_Clients;
 		std::vector< struct pollfd >				_Fds;
 		std::vector< Channel >						_Channels;
-		std::set< std::string >						_Nicknames;
+		std::set< std::string >						_ClientNames;
 		std::set< std::string >						_Usernames;
 		std::set< std::string >						_Topics;
 		std::vector<Parser>							_parsedMessages;
@@ -71,6 +71,9 @@ class Server
 		void		ChannelMessage( Client *client, Parser parser );
 		void		ChannelList( Client *client, Parser parser );
 		void		Help( Client *client, Parser parser );
+		void		cmdPing( Client *client, Parser parser );
+		void		SendWelcome( Client *client );
+		void		SendToChannel( Client *client, Channel *channel, const std::string &message, bool sendToMe );
 
 		void		ExecCommand( Client *client );
 		
@@ -78,12 +81,9 @@ class Server
 		void		RemoveClient( Client *client );
 		void		ReceiveNewData( Client *client );
 
-		bool		IsOperator( Client *client, Channel *channel );
 		bool		IsRegistered( Client *client );
 
 		void		SendToAllClient( const std::string &message );
-		void		SendToChannel( Client *client, Channel *channel, const std::string &message );
-		bool		SendToClient( Client *client, const std::string &message );
 		void		SendToAllMembers( Channel *channel, const std::string &message );
 		bool		InChannel( Client *client, Channel *channel );
 		void		SetRemovePassword( Channel *channel, std::string password );
@@ -92,11 +92,15 @@ class Server
 		Client		*FindClientWithFd( int );
 		Channel		*FindChannelWithName( std::string topic );
 		Client		*FindClientWithNickname( std::string Nickname );
-		bool		GiveTakeOperatorGrade( Channel *channel, Client *target );
-		void		SetRemoveUserLimitation( Channel *channel, std::string	Limitation );
 		void		PruneEmptyChannels( void );
 		void		respond( Client *client, std::string message );
 		void		cmdQuit( Client *client, Parser parser );
 		void		cmdCap( Client *client, Parser parser );
 		void		cmdPart( Client *client, Parser cmd );
 };
+
+bool	SendToClient( Client *client, const std::string &message );
+bool	IsOperator( Client *client, Channel *channel );
+
+int		ft_atoi( std::string str );
+

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:15 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/24 14:54:03 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
 #include "Include.hpp"
@@ -50,6 +38,7 @@ class Client
 		bool		getIsLog( void ) const;
 
 		std::string extractNextMessage();
+		void		appendBuffer( std::string );
 
 		void		setFd( int );
 		void		setIpAddress( std::string );

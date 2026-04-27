@@ -6,11 +6,11 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:29 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/24 14:54:02 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/04/27 14:50:162 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "../../includes/Client.hpp"
+# include "../../includes/Server.hpp"
 
 Client::~Client( void ) {}
 
@@ -19,8 +19,12 @@ Client::Client( void )
 	  _ipAddress( "" ),
 	  _username( "" ),
 	  _nickname( "" ),
+	  _hostname( "" ),
 	  _password( "" ),
-	  _registered( false )
+	  _registered( false ),
+	  _isAuth( false ),
+	  _isLog( false ),
+	  _buffer( "" )
 {}
 
 Client::Client( std::string ipAddress )
@@ -28,8 +32,12 @@ Client::Client( std::string ipAddress )
 	  _ipAddress( ipAddress ),
 	  _username( "" ),
 	  _nickname( "" ),
+	  _hostname( "" ),
 	  _password( "" ),
-	  _registered( false )
+	  _registered( false ),
+	  _isAuth( false ),
+	  _isLog( false ),
+	  _buffer( "" )
 {}
 
 Client::Client( Client const &copy )
@@ -45,8 +53,12 @@ Client	&Client::operator=( Client const &instance )
 		this->_ipAddress = instance._ipAddress;
 		this->_username = instance._username;
 		this->_nickname = instance._nickname;
+		this->_hostname = instance._hostname;
 		this->_password = instance._password;
 		this->_registered = instance._registered;
+		this->_isAuth = instance._isAuth;
+		this->_isLog = instance._isLog;
+		this->_buffer = instance._buffer;
 	}
 	return ( *this );
 }
@@ -78,17 +90,22 @@ std::string	Client::getPassword( void ) const
 	return ( this->_password );
 }
 
+void	Client::appendBuffer( std::string data )
+{
+	this->_buffer += data;
+}
+
 bool	Client::getRegistered( void ) const
 {
 	return ( this->_registered );
 }
 
-bool	Client::getisAuth( void ) const
+bool	Client::getIsAuth( void ) const
 {
 	return ( this->_isAuth );
 }
 		
-bool	Client::getisLog( void ) const
+bool	Client::getIsLog( void ) const
 {
 	return ( this->_isLog );
 }
@@ -145,10 +162,6 @@ bool	SendToClient( int clientFd, const std::string &message )
 void	Client::setRegistered( bool status )
 {
 	this->_registered = status;
-	if ( this->_registered )
-		SendToClient( this->getFd(), REGISTERED( "registered" ) );
-	else
-		SendToClient( this->getFd(), REGISTERED( "unregistered" ) );
 }
 
 void	Client::setLog( bool status )

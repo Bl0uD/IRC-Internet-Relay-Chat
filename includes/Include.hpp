@@ -13,6 +13,7 @@
 # pragma once
 
 # include <algorithm>
+# include <cctype>
 # include <arpa/inet.h> // for inet_ntoa()
 # include <csignal>
 # include <cstring>
@@ -88,9 +89,9 @@ typedef void	(Server::*cmdFunc_t)(Client *, Parser);
 /* -------------------------------------------------------------------------- */
 
 # define RPL_WELCOME( nickname, prefix )				"001 " + nickname + " :Welcome to the Internet Relay Network " + prefix 
-# define RPL_YOURHOST( nickname, servName, version )	"002 " + nickname + " :Your host is " + servername + ", running version " + version
+# define RPL_YOURHOST( nickname, servName, version )	"002 " + nickname + " :Your host is " + servName + ", running version " + version
 # define RPL_CREATED( nickname, date )					"003 " + nickname + " :This server was created " + date
-# define RPL_MYINFO( nickname, servName, version )		"004 " + nickname + " " + servername + " " + version + " <available user modes> <available channel modes>"
+# define RPL_MYINFO( nickname, servName, version )	"004 " + nickname + " " + servName + " " + version + " iov itkol"
 
 # define RPL_NOTOPIC( channel)							"331 " + channel + " :No topic is set"
 # define RPL_TOPIC( nickname, channel, topic )			"332 " + nickname + " " + channel + " :" + topic

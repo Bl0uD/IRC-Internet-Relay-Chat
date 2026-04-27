@@ -1,16 +1,6 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.cpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/14 17:06:24 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/26 15:07:21 by jdupuis          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
-# include "../../includes/Channel.hpp"
+
+# include "../../includes/Server.hpp"
 
 Channel::~Channel( void ) {}
 
@@ -55,10 +45,13 @@ Channel	&Channel::operator=( Channel const &instance )
 		this->_id = instance._id;
 		this->_userLimitation = instance._userLimitation;
 		this->_password = instance._password;
+		this->_name = instance._name;
 		this->_topic = instance._topic;
 		this->_clients = instance._clients;
 		this->_operators = instance._operators;
 		this->_pendingClients = instance._pendingClients;
+		this->_mods = instance._mods;
+		this->_key = instance._key;
 	}
 	return ( *this );
 }
@@ -81,6 +74,31 @@ std::string	Channel::getName( void ) const
 void	Channel::setName( std::string newName )
 {
 	this->_name = newName;
+}
+
+std::set<char> Channel::getMods() const
+{
+	return this->_mods;
+}
+
+void	Channel::setMods(Server *server, Client *client, char sign, char mod)
+{
+	if ( sign == '-' )
+	{
+		if ( mod == 't' )
+			server->SendToChannel( client, this, RPL_MODE( this->_name, "-t " ), true );
+		if ( mod == 'i' )
+			server->SendToChannel( client, this, RPL_MODE( this->_name, "-i " ), true );
+		this->_mods.erase( mod );
+	}
+	else
+	{
+		if ( mod == 't' )
+			server->SendToChannel( client, this, RPL_MODE(this->_name, "+t "), true );
+		if ( mod == 'i' )
+			server->SendToChannel( client, this, RPL_MODE(this->_name, "+i "), true );
+		this->_mods.insert( mod );
+	}
 }
 
 std::string	Channel::getPassword( void ) const
@@ -141,13 +159,6 @@ int	Channel::getUserLimitation( void ) const
 	return ( this->_userLimitation );
 }
 
-void	Channel::setUserLimitation( int newLimit )
-{
-	if ( newLimit < 0 )
-		newLimit = 0;
-	this->_userLimitation = newLimit;
-}
-
 const std::set< int >	&Channel::getClients( void ) const
 {
 	return ( this->_clients );
@@ -168,9 +179,25 @@ void	Channel::addPendingClient( int newClient )
 	this->_pendingClients.insert( newClient );
 }
 
-void	Channel::addOperator( int newOperator )
+
+void	Channel::setOperator( Server *server, Client *client, Client *target, char sign )
 {
-	this->_operators.insert( newOperator );
+	for ( std::set<int>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it )
+	{
+		if ( (*it) == target->getFd() ) 
+		{
+			if ( sign == '-' && IsOperator( target, this ) )
+			{
+				this->_operators.erase( it );
+				server->SendToChannel( client, this, RPL_MODE( this->_name, "-o " + target->getNickname()), true );
+			}
+			else if (sign == '+' && !IsOperator( target, this ) )
+			{
+				this->_operators.insert( *it );
+				server->SendToChannel( client, this, RPL_MODE( this->_name, "+o " + target->getNickname()), true );
+			}
+		}
+	}
 }
 
 bool	Channel::hasPendingClient( int clientFd ) const
@@ -178,9 +205,20 @@ bool	Channel::hasPendingClient( int clientFd ) const
 	return ( this->_pendingClients.find( clientFd ) != this->_pendingClients.end() );
 }
 
-void	Channel::removeClient( int clientFd )
+bool	Channel::removeClient( Client *client )
+{ 
+	if ( isClientInChannel( client ) == true )
+	{
+		this->_clients.erase( client->getFd() );
+		if (this->_clients.empty())
+			return ( false ); // Return false si le client etait le dernier du channel
+	}
+	return (true);
+}
+
+void	Channel::removeOperator( int clientFd )
 {
-	this->_clients.erase( clientFd );
+	this->_operators.erase( clientFd );
 }
 
 void	Channel::removePendingClient( int clientFd )
@@ -188,7 +226,3 @@ void	Channel::removePendingClient( int clientFd )
 	this->_pendingClients.erase( clientFd );
 }
 
-void	Channel::removeOperator( int operatorFd )
-{
-	this->_operators.erase( operatorFd );
-}
