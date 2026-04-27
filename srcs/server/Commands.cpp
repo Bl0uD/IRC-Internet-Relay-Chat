@@ -363,9 +363,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 		this->respond( client, RPL_CHANNELMODEIS(client->getNickname(), channel->getName(), channel->getModsForReply()) );
 		return;
 	}
-	char	sign;
-	if ( cmd.params[1][0] != '+' && cmd.params[1][0] != '-' )
-		sign = '+';
+	char	sign = '+';
 	std::vector<std::string>	modeArgs;
 	for ( size_t i = 2; i < cmd.params.size(); ++i )
 	{
@@ -394,9 +392,13 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 	for ( size_t i = 0; i < cmd.params[1].length(); ++i )
 	{
 		if ( cmd.params[1][i] == '+' || cmd.params[1][i] == '-' )
+		{
 			sign = cmd.params[1][i];
+		}
 		else if ( cmd.params[1][i] == ',' )
+		{
 			continue;
+		}
 		else
 		{
 			if ( cmd.params[1][i] != 'i' && cmd.params[1][i] != 't' && cmd.params[1][i] != 'k' && cmd.params[1][i] != 'o' && cmd.params[1][i] != 'l' )
@@ -427,6 +429,9 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 					this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), cmd.command) );
 					return ;
 				}
+				// Réinitialiser sign à '+' après chaque flag sauf s'il y a un signe explicite après
+				if ( i + 1 < cmd.params[1].length() && cmd.params[1][i + 1] != '+' && cmd.params[1][i + 1] != '-' )
+					sign = '+';
 			}
 			if ( cmd.params[1][i] == 'l' )
 			{
@@ -443,11 +448,24 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 					this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
 					return;
 				}
+				// Réinitialiser sign à '+' après chaque flag sauf s'il y a un signe explicite après
+				if ( i + 1 < cmd.params[1].length() && cmd.params[1][i + 1] != '+' && cmd.params[1][i + 1] != '-' )
+					sign = '+';
 			}
 			if ( cmd.params[1][i] == 'i' )
+			{
 				channel->setMods(this, client, sign, 'i' );
+				// Réinitialiser sign à '+' après chaque flag sauf s'il y a un signe explicite après
+				if ( i + 1 < cmd.params[1].length() && cmd.params[1][i + 1] != '+' && cmd.params[1][i + 1] != '-' )
+					sign = '+';
+			}
 			if ( cmd.params[1][i] == 't' )
+			{
 				channel->setMods(this, client, sign, 't' );
+				// Réinitialiser sign à '+' après chaque flag sauf s'il y a un signe explicite après
+				if ( i + 1 < cmd.params[1].length() && cmd.params[1][i + 1] != '+' && cmd.params[1][i + 1] != '-' )
+					sign = '+';
+			}
 			if ( cmd.params[1][i] == 'o' )
 			{
 				if ( arg_index < modeArgs.size() )
@@ -469,6 +487,9 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 					this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), cmd.command) );
 					return;
 				}
+				// Réinitialiser sign à '+' après chaque flag sauf s'il y a un signe explicite après
+				if ( i + 1 < cmd.params[1].length() && cmd.params[1][i + 1] != '+' && cmd.params[1][i + 1] != '-' )
+					sign = '+';
 			}
 		}
 	}
@@ -657,7 +678,7 @@ void	Server::ExecCommand( Client *client )
 			std::cout << RED << "ERR_NOTREGISTERED" << WHITE << std::endl;
 			this->respond( client, ERR_NOTREGISTERED((*it).command) );
 		}
-		else if ( i == NB_CMD && (*it).command != "WHO" )
+		else if ( i == NB_CMD )
 		{
 			std::cout << RED << "ERR_UNKNOWNCOMMAND" << WHITE << std::endl;
 			this->respond( client, ERR_UNKNOWNCOMMAND( client->getNickname(), (*it).command ) );
