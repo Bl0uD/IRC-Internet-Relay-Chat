@@ -42,7 +42,7 @@ class Channel;
 typedef			std::vector<Parser>::iterator	parserIt;
 typedef void	(Server::*cmdFunc_t)(Client *, Parser);
 
-# define		NB_CMD		13
+# define		NB_CMD		14
 # define		BUFFER_SIZE	512
 
 # define GREEN		std::string("\e[1;32m")
@@ -95,8 +95,8 @@ typedef void	(Server::*cmdFunc_t)(Client *, Parser);
 
 # define RPL_NOTOPIC( channel)							"331 " + channel + " :No topic is set"
 # define RPL_TOPIC( nickname, channel, topic )			"332 " + nickname + " " + channel + " :" + topic
-# define RPL_NAMREPLY( nickname, channel )				"353 " + nickname + " " + channel + " :"
-# define RPL_ENDOFNAMES( nickname, channel )			"366 " + nickname + " " + channel + " :End of /NAMES list"
+# define RPL_NAMREPLY( nickname, channel )				"353 " + nickname + " = " + channel + " :"
+# define RPL_ENDOFNAMES( nickname, channel )			"366 " + nickname + " = " + channel + " :End of /NAMES list"
 
 # define RPL_QUIT( nickname, reason )					":" + nickname + " QUIT :" + reason
 # define RPL_CAP()										"CAP * LS :"

@@ -62,6 +62,8 @@ class Server
 		void		SetUsername( Client *client, Parser parser );
 		void		SetNickname( Client *client, Parser parser );
 		void		SetPassword( Client *client, Parser parser );
+		void		cmdHelp( Client *client, Parser cmd );
+
 		void		ChangeTopic( Client *client, Parser parser );
 		void		KickClient( Client *client, Parser parser );
 		void		InviteClient( Client *client, Parser parser );
@@ -70,7 +72,6 @@ class Server
 		void		SendPrivMsg( Client *client, Parser parser );
 		void		ChannelMessage( Client *client, Parser parser );
 		void		ChannelList( Client *client, Parser parser );
-		void		Help( Client *client, Parser parser );
 		void		cmdPing( Client *client, Parser parser );
 		void		SendWelcome( Client *client );
 		void		SendToChannel( Client *client, Channel *channel, const std::string &message, bool sendToMe );

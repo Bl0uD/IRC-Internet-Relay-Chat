@@ -47,8 +47,15 @@ std::string Client::extractNextMessage()
 
 std::string Client::getPrefix() const
 {
-	std::string username = this->_username.empty() ? "" : "!" + this->_username;
-	std::string hostname = this->_hostname.empty() ? "" : "@" + this->_hostname;
+	std::string nickname = this->getNickname();
+	std::string username = this->_username;
+	std::string hostname = this->_hostname;
 
-	return (this->_nickname + username + hostname);
+	if ( nickname.empty() )
+		nickname = "*";
+	if ( username.empty() )
+		username = "unknown";
+	if ( hostname.empty() )
+		hostname = this->_ipAddress.empty() ? "localhost" : this->_ipAddress;
+	return ( nickname + "!" + username + "@" + hostname );
 }

@@ -5,8 +5,8 @@
 Channel::~Channel( void ) {}
 
 Channel::Channel( void ) :
-	_inviteOnly( true ),
-	_topicRestriction( true ),
+	_inviteOnly( false ),
+	_topicRestriction( false ),
 	_passwordRestriction( false ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -18,8 +18,8 @@ Channel::Channel( void ) :
 {}
 
 Channel::Channel( std::string topic, std::string paswrd ) :
-	_inviteOnly( true ),
-	_topicRestriction( true ),
+	_inviteOnly( false ),
+	_topicRestriction( false ),
 	_passwordRestriction( !paswrd.empty() ),
 	_id( 0 ),
 	_userLimitation( 0 ),
@@ -86,17 +86,29 @@ void	Channel::setMods(Server *server, Client *client, char sign, char mod)
 	if ( sign == '-' )
 	{
 		if ( mod == 't' )
+		{
+			this->_topicRestriction = false;
 			server->SendToChannel( client, this, RPL_MODE( this->_name, "-t " ), true );
+		}
 		if ( mod == 'i' )
+		{
+			this->_inviteOnly = false;
 			server->SendToChannel( client, this, RPL_MODE( this->_name, "-i " ), true );
+		}
 		this->_mods.erase( mod );
 	}
 	else
 	{
 		if ( mod == 't' )
+		{
+			this->_topicRestriction = true;
 			server->SendToChannel( client, this, RPL_MODE(this->_name, "+t "), true );
+		}
 		if ( mod == 'i' )
+		{
+			this->_inviteOnly = true;
 			server->SendToChannel( client, this, RPL_MODE(this->_name, "+i "), true );
+		}
 		this->_mods.insert( mod );
 	}
 }
@@ -188,13 +200,15 @@ void	Channel::setOperator( Server *server, Client *client, Client *target, char 
 		{
 			if ( sign == '-' && IsOperator( target, this ) )
 			{
-				this->_operators.erase( it );
+				this->_operators.erase( target->getFd() );
 				server->SendToChannel( client, this, RPL_MODE( this->_name, "-o " + target->getNickname()), true );
+				return ;
 			}
 			else if (sign == '+' && !IsOperator( target, this ) )
 			{
 				this->_operators.insert( *it );
 				server->SendToChannel( client, this, RPL_MODE( this->_name, "+o " + target->getNickname()), true );
+				return ;
 			}
 		}
 	}

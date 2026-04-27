@@ -60,7 +60,7 @@ void	Channel::setKey(Server *server, Client *client,  char sign, std::string _ke
 {
 	if ( sign == '-' )
 	{
-		if ( _key == this->_key && this->_mods.count('k') == 1 )
+		if ( this->_mods.count('k') == 1 )
 		{
 			this->_key.clear();
 			this->setMods( server, client, sign, 'k' );
@@ -84,7 +84,7 @@ void	Channel::setUserLimitation( Server *server, Client *client, char sign, std:
 	{
 		if ( this->_mods.count('l') == 1 )
 		{
-			this->_userLimitation = 1;
+			this->_userLimitation = 0;
 			this->setMods( server, client, sign, 'l' );
 			server->SendToChannel( client, this, RPL_MODE( this->_name, "-l " ), true );
 		}
@@ -92,7 +92,13 @@ void	Channel::setUserLimitation( Server *server, Client *client, char sign, std:
 	else
 	{
 		int lim = ft_atoi( limit );
-		if ( lim != -1 && isdigit( lim ) && lim != this->_userLimitation  )
+		bool valid = !limit.empty();
+		for ( size_t i = 0; valid && i < limit.size(); ++i )
+		{
+			if ( !std::isdigit( static_cast<unsigned char>( limit[i] ) ) )
+				valid = false;
+		}
+		if ( valid && lim >= 0 && lim != this->_userLimitation  )
 		{
 			this->_userLimitation = lim;
 			this->setMods( server, client, sign, 'l' );

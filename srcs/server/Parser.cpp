@@ -8,8 +8,14 @@ void	Parser::parseMessage( std::string message )
 {
 	size_t pos = 0;
 
-	// std::cout << "one message: '" << message << "'" << std::endl;
 	this->fullCmd = message;
+	this->prefix.clear();
+	this->command.clear();
+	this->params.clear();
+	this->trailing.clear();
+	this->hasTrailing = false;
+
+	// std::cout << "one message: '" << message << "'" << std::endl;
 	if (message[0] == ':') {
 		pos = message.find(' ');
 		this->prefix = message.substr(1, pos - 1);
@@ -27,7 +33,7 @@ void	Parser::parseMessage( std::string message )
 	std::transform( this->command.begin(), this->command.end(), this->command.begin(), ::toupper );
 
 	pos = message.find(":");
-	if (pos != std::string::npos && this->command != "MODE") {
+	if (pos != std::string::npos) {
 		this->hasTrailing = true;
 		this->trailing = message.substr(pos + 1);
 		message = message.substr(0, pos);
