@@ -141,30 +141,6 @@ void	Client::setPassword( std::string password )
 	this->_password = password;
 }
 
-bool	SendToClient( int clientFd, const std::string &message )
-{
-	std::string	wire = message;
-	size_t		total = 0;
-	
-	if ( (wire.size() < 2 || wire.substr( wire.size() - 2 ) != CRLF )
-		&& ( wire.size() < 3 || wire.substr( wire.size() - 3 ) != CRLFNL ))
-		wire += CRLF;
-	while ( total < wire.size() )
-	{
-		ssize_t sent = send( clientFd, wire.c_str() + total, wire.size() - total, 0 );
-
-		if ( sent > 0 )
-			total += static_cast<size_t>( sent );
-		else if ( sent == -1 && errno == EINTR )
-			continue;
-		else if ( sent == -1 && ( errno == EAGAIN || errno == EWOULDBLOCK ) )
-			return false;
-		else
-			return false;
-	}
-	return true;
-}
-
 void	Client::setRegistered( bool status )
 {
 	this->_registered = status;

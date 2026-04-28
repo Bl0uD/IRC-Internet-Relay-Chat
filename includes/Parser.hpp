@@ -4,20 +4,26 @@
 
 class Parser
 {
-	private:
-
+	/*
+	Simple parsing struct used by the server to split an incoming raw
+	message into its IRC components.
+	Fields are public for direct access by command handlers.
+	*/
 	public:
+		/* Parsed message components */
 		std::string fullCmd;
 		std::string prefix;
 		std::string command;
 		std::vector<std::string> params;
 		std::string trailing;
 
-		bool hasTrailing;
+		/* Flags */
+		bool    hasTrailing;
 
-		void	parseMessage(std::string message);
+		/* Behavior */
+		void    parseMessage(std::string message);
 
-		Parser(/* args */);
+		/* Construction */
+		Parser();
 		~Parser();
-
 };

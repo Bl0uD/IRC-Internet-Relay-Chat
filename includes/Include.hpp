@@ -81,7 +81,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define ERR_NOSUCHCHANNEL( channel )					"403 " + channel + " :No such channel"
 # define ERR_NOTONCHANNEL( nickname, channel )			"442 " + nickname + " " + channel + " :You're not on that channel"
 # define ERR_USERNOTINCHANNEL( nick, target, chan )		"441 " + nick + " " + target + " " + chan + " :They aren't on that channel"
-# define ERR_USERONCHANNEL( nickname, channel )			"443 " + nickname + " " + channel + " :is already on channel"
+# define ERR_USERONCHANNEL( user, nickname, channel )	"443 " + user + " " + nickname + " " + channel + " :is already on channel"
 
 /* Commandes */
 # define ERR_KEYSET( nickname, channel )				"467 " + nickname + " " + channel + " :Channel key already set"
@@ -104,14 +104,14 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define RPL_CREATED( nickname, date )					"003 " + nickname + " :This server was created " + date
 # define RPL_ENDOFNAMES( nickname, channel )			"366 " + nickname + " = " + channel + " :End of /NAMES list"
 # define RPL_INVITING( nick, invited, chan )			"341 " + nick + " " + invited + " " + chan
-# define RPL_JOIN( channel )							"JOIN :" + channel
+# define RPL_JOIN( channel )							"JOIN " + channel
 # define RPL_KICK( channel, nickname, reason )			"KICK " + channel + " " + nickname +  " :" + reason
 # define RPL_MODE( target, message )					"MODE " + target + " " + message
 # define RPL_MYINFO( nickname, servName, version )		"004 " + nickname + " " + servName + " " + version + " iov itkol"
 # define RPL_NAMREPLY( nickname, channel )				"353 " + nickname + " = " + channel + " :"
-# define RPL_NICK( oldNick, newNick )					":" + oldNick + " NICK " + newNick
+# define RPL_NICK( oldNick, newNick )					":" + oldNick + " NICK :" + newNick
 # define RPL_NOTOPIC( channel)							"331 " + channel + " :No topic is set"
-# define RPL_PART( channel, reason )					"PART " + channel + " " + reason
+# define RPL_PART( channel, reason )					"PART " + channel + " :" + reason
 # define RPL_PRIVMSG( target, message )					"PRIVMSG " + target + " :" + message
 # define RPL_QUIT( nickname, reason )					":" + nickname + " QUIT :" + reason
 # define RPL_TOPIC( nickname, channel, topic )			"332 " + nickname + " " + channel + " :" + topic
@@ -125,7 +125,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 
 # define ERR_WRONG_USAGE 								WRONG_USAGE << WHITE << "Try:  ./ircserv " << GREEN << "<" << WHITE << "port" << GREEN << "> <" << WHITE << "password" << GREEN << ">" << WHITE << CRLFNL
 
-# define SERVER_CONNECTED( fd, port )					WHITE << "  Server " << GREEN << "CONNECTED" << WHITE << " !!\tListening on FD " << GREEN << "< " << YELLOW << fd << GREEN << " >" << WHITE << " and port " << GREEN << "< " << YELLOW << port << GREEN << " >" << WHITE << " )." << WHITE << CRLF
+# define SERVER_CONNECTED( fd, port )					WHITE << "  Server " << GREEN << "CONNECTED" << WHITE << " !!\tListening on FD " << GREEN << "< " << YELLOW << fd << GREEN << " >" << WHITE << " and port " << GREEN << "< " << YELLOW << port << GREEN << " >" << WHITE << "." << CRLF
 # define WAITING_CONNECTION								WHITE << "\tWaiting connection..." << CRLF
 # define NEW_CLIENT( ClientFd )							WHITE << "Client < " << YELLOW << ClientFd << WHITE << " > " << YELLOW << "TRYING TO CONNECT." << WHITE << CRLF
 # define CLIENT_DISCONNECTED( ClientFd )				WHITE << "Client < " << YELLOW << ClientFd << WHITE << " > " << RED << "DISCONNECTED." << WHITE << CRLF

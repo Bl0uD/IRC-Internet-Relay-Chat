@@ -4,7 +4,7 @@ bool	Server::IsRegistered( Client *client )
 {
 	if ( client->getRegistered() )
 		return true ;
-	SendToClient( client, GREEN + "Register first.\nSet a username with " \
+	this->respond( client, GREEN + "Register first.\nSet a username with " \
 		+ YELLOW + "USER" \
 		+ GREEN + " and a password with " \
 		+ YELLOW + "PASS" + GREEN + "." + WHITE );

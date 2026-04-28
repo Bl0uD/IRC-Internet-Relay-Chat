@@ -48,7 +48,7 @@ void	Server::SendToAllClient( const std::string &message )
 	for ( int i = 0; i < size; i++ )
 	{
 		if ( IsRegistered( &this->_Clients[i] ) )
-			SendToClient( &this->_Clients[i], message );
+			this->respond( &this->_Clients[i], message );
 	}
 	return ;
 }

@@ -56,6 +56,14 @@ void	Server::PruneEmptyChannels( void )
 	}
 }
 
+bool	Server::IsChannelFull( Channel *channel )
+{
+	if ( channel->getUserLimitation() > 0
+		&& channel->getClients().size() >= static_cast<size_t>( channel->getUserLimitation() ) )
+		return true;
+	return false;
+}
+
 void	Channel::setKey(Server *server, Client *client,  char sign, std::string _key)
 {
 	if ( sign == '-' )
