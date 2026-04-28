@@ -71,7 +71,6 @@ class Server
 		void		ChangeMode( Client *client, Parser parser );
 		void		SendPrivMsg( Client *client, Parser parser );
 		void		ChannelMessage( Client *client, Parser parser );
-		void		ChannelList( Client *client, Parser parser );
 		void		cmdPing( Client *client, Parser parser );
 		void		SendWelcome( Client *client );
 		void		SendToChannel( Client *client, Channel *channel, const std::string &message, bool sendToMe );

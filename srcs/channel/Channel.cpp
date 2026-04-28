@@ -208,6 +208,7 @@ void	Channel::setOperator( Server *server, Client *client, Client *target, char 
 			{
 				this->_operators.insert( *it );
 				server->SendToChannel( client, this, RPL_MODE( this->_name, "+o " + target->getNickname()), true );
+				SendToClient( client, RPL_YOUREOPER );
 				return ;
 			}
 		}

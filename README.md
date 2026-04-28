@@ -105,8 +105,7 @@ Main folders:
 ## Resources
 
 Classic references used for IRC and network programming:
-- RFC 1459 (Internet Relay Chat Protocol)
-- RFC 2810/2811/2812 (IRC architecture, channel management, and client protocol)
+- RFC 2812 (IRC architecture, channel management, and client protocol)
 - Beej's Guide to Network Programming
 - `man` pages: `socket(2)`, `bind(2)`, `listen(2)`, `accept(2)`, `poll(2)`, `fcntl(2)`
 

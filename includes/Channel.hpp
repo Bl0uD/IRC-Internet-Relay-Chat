@@ -31,7 +31,7 @@ class Channel
 		std::string				getName( void ) const;
 		void					setName( std::string );
 		std::set<char>			getMods() const;
-		void				setMods( Server *server, Client *client, char sign, char mod );
+		void					setMods( Server *server, Client *client, char sign, char mod );
 		std::string				getPassword( void ) const;
 		void					setPassword( std::string );
 		bool					getInviteOnly( void ) const;
@@ -43,19 +43,19 @@ class Channel
 		int						getId( void ) const;
 		void					setId( int );
 		int						getUserLimitation( void ) const;
-		void				setKey( Server *server, Client *client,  char sign, std::string _key );
+		void					setKey( Server *server, Client *client,  char sign, std::string _key );
 		const std::set< int >	&getClients( void ) const;
 		const std::set< int >	&getOperators( void ) const;
 		void					addClient( int );
 		void					addPendingClient( int );
-		void				setOperator( Server *server, Client *, Client *, char );
+		void					setOperator( Server *server, Client *, Client *, char );
 		bool					hasPendingClient( int ) const;
 		bool					removeClient( Client * );
-		void				removeOperator( int );
+		void					removeOperator( int );
 		void					removePendingClient( int );
 		bool					isClientInChannel( Client *client );
 		bool					isClientAdmin( Client *client );
 		std::string				getModsForReply() const;
 
-		void				setUserLimitation( Server *server, Client *client, char sign, std::string limit );
+		void					setUserLimitation( Server *server, Client *client, char sign, std::string limit );
 };

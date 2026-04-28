@@ -13,7 +13,6 @@ void	Server::Running( void )
 	{
 		if ( errno == EINTR && !this->_ServerStatus )
 		{
-			//SendToAllClient( SERVER_CLOSED );
 			throw SERVER_OFF;
 		}
 		throw ERR_POLL;
@@ -143,7 +142,6 @@ void	Server::AcceptNewClient( void )
 	_Fds.push_back( NewPoll );
 
 	std::cout << NEW_CLIENT( client.getFd() );
-	//SendToClient( &client , MSG_NEW_CLIENT( client.getFd() ) );
 }
 
 void	Server::RemoveClient( Client *client )

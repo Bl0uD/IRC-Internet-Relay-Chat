@@ -122,12 +122,18 @@ void	Client::setIpAddress( std::string add )
 
 void	Client::setUsername( std::string username )
 {
-	this->_username = username;
+	int i = 0;
+	while ( username[i] == '#' )
+		++i;
+	this->_username = username.substr( i, username.size() - i );
 }
 
 void	Client::setNickname( std::string nickname )
 {
-	this->_nickname = nickname;
+	int i = 0;
+	while ( nickname[i] == '#' )
+		++i;
+	this->_nickname = nickname.substr( i, nickname.size() - i );
 }
 
 void	Client::setPassword( std::string password )
