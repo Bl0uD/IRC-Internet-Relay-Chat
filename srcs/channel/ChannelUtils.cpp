@@ -63,6 +63,7 @@ void	Channel::setKey(Server *server, Client *client,  char sign, std::string _ke
 		if ( this->_mods.count('k') == 1 )
 		{
 			this->_key.clear();
+			this->setPassword( "" );
 			this->setMods( server, client, sign, 'k' );
 			server->SendToChannel( client, this, RPL_MODE(this->_name, "-k "), true );
 		}
@@ -72,6 +73,12 @@ void	Channel::setKey(Server *server, Client *client,  char sign, std::string _ke
 		if ( _key != this->_key )
 		{
 			this->_key = _key;
+			this->setPassword( _key );
+			// Quand on SET un password (+k), forcer aussi invite-only (+i)
+			if ( !this->_inviteOnly )
+			{
+				this->setMods( server, client, '+', 'i' );
+			}
 			this->setMods( server, client, sign, 'k' );
 			server->SendToChannel( client, this, RPL_MODE(this->_name, "+k " + _key), true );
 		}

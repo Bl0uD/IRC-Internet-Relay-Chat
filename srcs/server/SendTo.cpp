@@ -34,6 +34,8 @@ void	Server::SendToChannel( Client *client, Channel *channel, const std::string 
 	for ( std::set< int >::const_iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it )
 	{
 		Client *Member = FindClientWithFd( *it );
+		if ( !Member )
+			continue;
 		if ( client != Member || sendToMe )
 			SendToClient( Member, ":" + client->getPrefix() + " " + message );
 	}
@@ -56,7 +58,8 @@ void	Server::SendToAllMembers( Channel *channel, const std::string &message )
 	for ( std::set< int >::const_iterator it = channel->getClients().begin(); it != channel->getClients().end(); ++it )
 	{
 		Client *member = FindClientWithFd( *it );
-		if ( member )
-			SendToClient( member, ":" + member->getPrefix() + " " + message );
+		if ( !member )
+			continue;
+		SendToClient( member, ":" + member->getPrefix() + " " + message );
 	}
 }

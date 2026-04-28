@@ -82,23 +82,23 @@ void	Server::SetPassword( Client *client, Parser cmd )
 
 void	Server::ChangeTopic( Client *client, Parser cmd )
 {
-	if ( cmd.params.size() < 3 )
+	if ( cmd.params.empty() )
 	{
-		SendToClient( client, ERR_CMD_ARGS( "TOPIC", "<old topic> <new topic>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "TOPIC", "<#channel> [<topic>]" ) );
 		return ;
 	}
 
-	std::string oldTopic = cmd.params[0];
-	Channel	*channel = FindChannelWithName( oldTopic );
+	std::string channelName = cmd.params[0];
+	Channel	*channel = FindChannelWithName( channelName );
 	if ( channel == NULL )
 	{
-		SendToClient( client, ERR_NOT_TOPIC_FOUND( oldTopic ) );
+		SendToClient( client, ERR_INEXISTANT_CHANNEL( channelName ) );
 		return ;
 	}
 
 	if ( !InChannel( client, channel ) )
 	{
-		SendToClient( client, ERR_NOT_IN_CHANNEL( oldTopic ) );
+		SendToClient( client, ERR_NOT_IN_CHANNEL( channelName ) );
 		return ;
 	}
 
@@ -108,7 +108,16 @@ void	Server::ChangeTopic( Client *client, Parser cmd )
 		return ;
 	}
 
-	std::string newTopic = cmd.params[1];
+	if ( !cmd.hasTrailing )
+	{
+		if ( channel->getTopic().empty() )
+			this->respond( client, RPL_NOTOPIC( channel->getName() ) );
+		else
+			this->respond( client, RPL_TOPIC( client->getNickname(), channel->getName(), channel->getTopic() ) );
+		return ;
+	}
+
+	std::string newTopic = cmd.trailing;
 	SendToChannel( client, channel, "TOPIC " + channel->getName() + " :" + newTopic, true );
 	channel->setTopic( newTopic );
 	return ;
@@ -235,11 +244,16 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 {
 	if (  cmd.params.empty() || cmd.params.size() > 2 )
 	{
-		SendToClient( client, ERR_CMD_ARGS( "JOIN", "<channel name>" ) );
+		SendToClient( client, ERR_CMD_ARGS( "JOIN", "<#channel name>" ) );
 		return ;
 	}
 
 	std::string Name = cmd.params[0];
+	if ( Name.empty() || Name[0] != '#' )
+	{
+		SendToClient( client, ERR_CMD_ARGS( "JOIN", "<#channel name>" ) );
+		return ;
+	}
 	Channel *channel = FindChannelWithName( Name );
 	bool	isNewChannel = false;
 	if ( !channel )
@@ -268,16 +282,15 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 			providedPassword = providedPassword.substr( 1 );
 		hasValidPassword = channel->getPassword() == providedPassword;
 	}
-
-	if ( !isNewChannel && ( channel->getInviteOnly() || channel->getPasswordRestriction() )
-		&& !isInvited && !hasValidPassword )
+	else if ( cmd.hasTrailing && !cmd.trailing.empty() )
 	{
-		if ( channel->getPasswordRestriction() && channel->getInviteOnly() )
-			SendToClient( client, GREEN + "Channel needs a password or an invite.\nTry " + YELLOW + "JOIN" + GREEN + " <" + YELLOW + channel->getTopic() + GREEN + "> <" + YELLOW + "password" + GREEN + ">" + WHITE + CRLFNL );
-		else if ( channel->getPasswordRestriction() )
-			this->respond( client, ERR_BADCHANNELKEY( client->getNickname(), channel->getName() ) );
-		else
-			this->respond( client, ERR_INVITEONLYCHAN( channel->getName() ) );
+		providedPassword = cmd.trailing;
+		hasValidPassword = channel->getPassword() == providedPassword;
+	}
+
+	if ( !isNewChannel && channel->getInviteOnly() && !isInvited && !hasValidPassword )
+	{
+		this->respond( client, ERR_INVITEONLYCHAN( channel->getName() ) );
 		return ;
 	}
 
@@ -318,9 +331,15 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 
 void	Server::ChangeMode( Client *client, Parser cmd )
 {
-	if (cmd.params.size() < 2 || cmd.params[0].empty())
+	if (cmd.params.empty() || cmd.params[0].empty())
 	{
-		if ( cmd.params.size() == 1 && cmd.params[0][0] == '#' )
+		std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+		this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
+		return;
+	}
+	if (cmd.params.size() < 2)
+	{
+		if ( cmd.params[0][0] == '#' )
 		{
 			Channel	*channeltest = this->FindChannelWithName( cmd.params[0] );
 			if ( channeltest == NULL )
@@ -671,7 +690,7 @@ void	Server::ExecCommand( Client *client )
 	{
 		parserIt it = this->_parsedMessages.begin();
 		int i;
-		std::cout << "Commamd tried by" << YELLOW << client->getNickname() << WHITE << "\t:\t" << (*it).fullCmd << std::endl;
+		std::cout << "Commamd tried by " << YELLOW << client->getNickname() << WHITE << "\t:\t" << (*it).fullCmd << std::endl;
 		for ( i = 0; i < NB_CMD && commandsStr[i] != (*it).command; i++ ){}
 		if ( i > 3 && client->getIsAuth() == false )
 		{
