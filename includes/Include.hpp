@@ -20,6 +20,7 @@
 # include <errno.h>
 # include <exception>
 # include <fcntl.h>
+# include <iomanip>
 # include <iostream>
 # include <netdb.h>
 # include <netinet/in.h> // for sockaddr_in

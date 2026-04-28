@@ -680,7 +680,6 @@ void	Server::cmdCap( Client *client, Parser cmd )
 		this->respond( client, RPL_CAP() );
 }
 
-
 void	Server::ExecCommand( Client *client ) 
 {
 	std::string commandsStr[NB_CMD] = {"CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "NOTICE", "MODE", "KICK", "INVITE", "PING"};
@@ -690,21 +689,25 @@ void	Server::ExecCommand( Client *client )
 	{
 		parserIt it = this->_parsedMessages.begin();
 		int i;
-		std::cout << "Commamd tried by " << YELLOW << client->getNickname() << WHITE << "\t:\t" << (*it).fullCmd << std::endl;
+
+		std::cout << "Command tried by "
+		          << YELLOW << std::left << std::setw(16) << client->getNickname() << WHITE
+		          << ": " << (*it).fullCmd << std::endl;
+
 		for ( i = 0; i < NB_CMD && commandsStr[i] != (*it).command; i++ ){}
 		if ( i > 3 && client->getIsAuth() == false )
 		{
-			std::cout << RED << "ERR_NOTREGISTERED" << WHITE << std::endl;
+			std::cout << "  " << RED << std::left << std::setw(20) << "ERR_NOTREGISTERED" << WHITE << std::endl;
 			this->respond( client, ERR_NOTREGISTERED((*it).command) );
 		}
 		else if ( i == NB_CMD )
 		{
-			std::cout << RED << "ERR_UNKNOWNCOMMAND" << WHITE << std::endl;
+			std::cout << "  " << RED << std::left << std::setw(20) << "ERR_UNKNOWNCOMMAND" << WHITE << std::endl;
 			this->respond( client, ERR_UNKNOWNCOMMAND( client->getNickname(), (*it).command ) );
 		}
 		else
 			(this->*commandsFunc[i])(client, *it);
 		this->_parsedMessages.erase(it);
-		std::cout << GREEN << "\t- Command has succeed" << WHITE << "." << std::endl;
+		std::cout << "  " << GREEN << std::left << std::setw(20) << "OK" << WHITE << "Command succeeded." << std::endl;
 	}
 }
