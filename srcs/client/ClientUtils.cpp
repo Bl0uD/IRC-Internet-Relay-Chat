@@ -29,7 +29,6 @@ Client	*Server::FindClientWithFd( int fd )
 		if ( it->getFd() == fd )
 			return ( &(*it) );
 	}
-
 	return ( NULL );
 }
 

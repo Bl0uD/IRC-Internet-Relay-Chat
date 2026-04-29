@@ -11,11 +11,11 @@ class Parser
 	*/
 	public:
 		/* Parsed message components */
-		std::string fullCmd;
-		std::string prefix;
-		std::string command;
-		std::vector<std::string> params;
-		std::string trailing;
+		std::string					fullCmd;
+		std::string					prefix;
+		std::string					command;
+		std::vector<std::string>	params;
+		std::string					trailing;
 
 		/* Flags */
 		bool    hasTrailing;

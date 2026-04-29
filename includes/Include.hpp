@@ -140,6 +140,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define ERR_POLL										std::runtime_error( ERROR + WHITE + "Poll failed ..." + CRLFNL)
 # define ERR_SO_REUSEADDR								std::runtime_error( ERROR + WHITE + "Failed to set option (SO_REUSEADDR) on server socket ..." + CRLFNL)
 # define ERR_SOCKET_CREATION							std::runtime_error( ERROR + WHITE + "Server socket creation failed ..." + CRLFNL)
+# define DISPLAY_CMD( cFD, cNickname, message )			"Command tried by" << PURPLE << "  < " << YELLOW << cFD << PURPLE << " >  " << YELLOW << std::left << std::setw(16) << cNickname << WHITE << ": " << message << std::endl;
 
 # define SERVER_OFF										std::runtime_error( WHITE + "SERVER CLOSED." + CRLF )
 

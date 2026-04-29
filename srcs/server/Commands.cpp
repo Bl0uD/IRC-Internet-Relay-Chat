@@ -40,13 +40,12 @@ void	Server::SetNickname( Client *client, Parser cmd )
 		return ;
 	}
 
-	std::string newNickname = cmd.params[0];
-	std::string oldNickname = client->getNickname();
+	std::string	newNickname = cmd.params[0];
+	std::string	oldNickname = client->getNickname();
 
-	if ( newNickname != oldNickname
-		&& this->_ClientNames.find( newNickname ) != this->_ClientNames.end() )
+	if ( newNickname != oldNickname && this->_ClientNames.find( newNickname ) != this->_ClientNames.end() )
 	{
-		std::string currentNick = oldNickname.empty() ? "*" : oldNickname;
+		std::string	currentNick = oldNickname.empty() ? "*" : oldNickname;
 		this->respond( client, ERR_NICKNAMEINUSE( currentNick, newNickname ) );
 		return ;
 	}
@@ -57,8 +56,7 @@ void	Server::SetNickname( Client *client, Parser cmd )
 	this->_ClientNames.insert( newNickname );
 	if ( client->getRegistered() )
 		SendToClient( client, ":" + oldNickname + " NICK :" + client->getNickname() );
-	else if ( !client->getUsername().empty()
-		&& client->getPassword() == this->getPassword() )
+	else if ( !client->getUsername().empty() && client->getPassword() == this->getPassword() )
 	{
 		client->setAuth( true );
 		this->SendWelcome( client );
@@ -67,7 +65,7 @@ void	Server::SetNickname( Client *client, Parser cmd )
 
 void	Server::SetPassword( Client *client, Parser cmd )
 {
-	if (  cmd.params.empty() || cmd.params.size() > 4  )
+	if ( cmd.params.empty() || cmd.params.size() > 4 )
 	{
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "PASS" ) );
 		return ;
@@ -631,28 +629,26 @@ void	Server::cmdCap( Client *client, Parser cmd )
 
 void	Server::ExecCommand( Client *client ) 
 {
-	std::string commandsStr[NB_CMD] = {"CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "MODE", "KICK", "INVITE", "PING"};
-	cmdFunc_t	commandsFunc[NB_CMD] = {&Server::cmdCap, &Server::SetPassword, &Server::SetNickname, &Server::SetUsername, &Server::cmdQuit, &Server::JoinChannel, &Server::cmdPart, &Server::ChangeTopic, &Server::SendPrivMsg, &Server::ChangeMode, &Server::KickClient, &Server::InviteClient, &Server::cmdPing};
+	std::string	commandsStr[NB_CMD] = { "CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "MODE", "KICK", "INVITE", "PING" };
+	cmdFunc_t	commandsFunc[NB_CMD] = { &Server::cmdCap, &Server::SetPassword, &Server::SetNickname, &Server::SetUsername, &Server::cmdQuit, &Server::JoinChannel, &Server::cmdPart, &Server::ChangeTopic, &Server::SendPrivMsg, &Server::ChangeMode, &Server::KickClient, &Server::InviteClient, &Server::cmdPing };
 
-	while (this->_parsedMessages.size() >= 1)
+	while ( this->_parsedMessages.size() >= 1 )
 	{
 		parserIt	it = this->_parsedMessages.begin();
 		int			i;
 
-		std::cout << "Command tried by" << PURPLE << "  < " << YELLOW << client->getFd() << PURPLE << " >  "
-		          << YELLOW << std::left << std::setw(16) << client->getNickname() << WHITE
-		          << ": " << (*it).fullCmd << std::endl;
+		std::cout << DISPLAY_CMD( client->getFd(), client->getNickname(), (*it).fullCmd );
 
-		for ( i = 0; i < NB_CMD && commandsStr[i] != (*it).command; i++ ){}
 		if ( (*it).command == "WHO" )
 		{
 			this->_parsedMessages.erase( it );
 			continue ;
 		}
+		for ( i = 0; i < NB_CMD && commandsStr[i] != (*it).command; i++ ){}
 		if ( i > 3 && client->getIsAuth() == false )
 		{
 			std::cout << "  " << RED << std::left << std::setw(20) << "ERR_NOTREGISTERED" << WHITE << std::endl;
-			this->respond( client, ERR_NOTREGISTERED((*it).command) );
+			this->respond( client, ERR_NOTREGISTERED( (*it).command) );
 		}
 		else if ( i == NB_CMD )
 		{
@@ -660,10 +656,8 @@ void	Server::ExecCommand( Client *client )
 			this->respond( client, ERR_UNKNOWNCOMMAND( (*it).command ) );
 		}
 		else
-			(this->*commandsFunc[i])(client, *it);
+			( this->*commandsFunc[i] )( client, *it );
 
-		this->_parsedMessages.erase(it);
+		this->_parsedMessages.erase( it );
 	}
 }
-
-//pas de message limit trop haute channel fulll

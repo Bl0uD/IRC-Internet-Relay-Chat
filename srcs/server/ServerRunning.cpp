@@ -3,7 +3,7 @@
 void	Server::SignalHandler( int signum )
 {
 	(void)signum;
-	std::cout << RED << std::endl << "Signal Received!" << std::endl;
+	std::cout << RED << std::endl << "Signal Received!" << WHITE << std::endl;
 	_ServerStatus = false;
 }
 
@@ -12,9 +12,7 @@ void	Server::Running( void )
 	if ( poll( &this->_Fds[0], this->_Fds.size(), -1 ) == -1 )
 	{
 		if ( errno == EINTR && !this->_ServerStatus )
-		{
 			throw SERVER_OFF;
-		}
 		throw ERR_POLL;
 	}
 	for ( size_t i = 0; i < this->_Fds.size(); i++ )
@@ -31,7 +29,7 @@ void	Server::Running( void )
 					this->_Fds.erase( this->_Fds.begin() + i );
 					if ( i > 0 )
 						i--;
-					continue;
+					continue ;
 				}
 				ReceiveNewData( client );
 			}
@@ -48,8 +46,8 @@ void	Server::Init( void )
 
 void	Server::SetSockOptions( void )
 {
-	int en = 1;
-	struct sockaddr_in add;
+	int					en = 1;
+	struct sockaddr_in	add;
 
 	add.sin_family = AF_INET;
 	add.sin_addr.s_addr = INADDR_ANY;
@@ -79,7 +77,7 @@ void	Server::SetSockOptions( void )
 
 void	Server::SetServSocket( void )
 {
-	struct pollfd new_cli;
+	struct pollfd	new_cli;
 
 	this->_SocketFd = socket( AF_INET, SOCK_STREAM, 0 );
 	if ( _SocketFd == -1 )
@@ -92,25 +90,25 @@ void	Server::SetServSocket( void )
 	this->_ServerStatus = true;
 	
 	// Récupérer l'adresse réelle liée au socket
-	sockaddr_in actualAddr;
-	socklen_t addrLen = sizeof(actualAddr);
+	sockaddr_in	actualAddr;
+	socklen_t	addrLen = sizeof(actualAddr);
 	if ( getsockname(this->_SocketFd, (struct sockaddr *)&actualAddr, &addrLen) == -1 )
 	{
-		close(this->_SocketFd);
-		throw std::runtime_error("Error: getsockname failed");
+		close( this->_SocketFd );
+		throw std::runtime_error( "Error: getsockname failed" );
 	}
 
 	// Résolution du nom de l'hôte
-	char hostBuffer[NI_MAXHOST];
-	int ret = getnameinfo((struct sockaddr *)&actualAddr, sizeof(actualAddr),
-							hostBuffer, sizeof(hostBuffer), NULL, 0, 0);
-	if (ret != 0)
+	char	hostBuffer[NI_MAXHOST];
+	int		ret = getnameinfo( (struct sockaddr *)&actualAddr, sizeof(actualAddr),
+							hostBuffer, sizeof(hostBuffer), NULL, 0, 0 );
+	if ( ret != 0 )
 	{
 		close( this->_SocketFd );
-		throw std::runtime_error(std::string("Error: ") + gai_strerror(ret));
+		throw std::runtime_error( std::string("Error: ") + gai_strerror(ret) );
 	}
 
-	this->_hostName = std::string(hostBuffer);
+	this->_hostName = std::string( hostBuffer );
 }
 
 void	Server::AcceptNewClient( void )
@@ -120,7 +118,7 @@ void	Server::AcceptNewClient( void )
 	struct pollfd		NewPoll;
 	socklen_t			len = sizeof( clientAdd );
 
-	int NewFd = accept( this->_SocketFd, (sockaddr *)&( clientAdd ), &len );
+	int	NewFd = accept( this->_SocketFd, (sockaddr *)&( clientAdd ), &len );
 	if ( NewFd == -1 )
 	{
 		std::cerr << ERR_ACCEPT_FAILED;
@@ -153,15 +151,15 @@ void	Server::RemoveClient( Client *client )
 	std::cout << CLIENT_DISCONNECTED( fd );
 	close( fd );
 	SendToAllClient( RPL_QUIT( nickname, "Leaving" ) );
-	for ( std::vector< Channel >::iterator ch = this->_Channels.begin(); ch != this->_Channels.end(); ++ch )
+	for ( std::vector< Channel >::iterator it = this->_Channels.begin(); it != this->_Channels.end(); ++it )
 	{
-		ch->removeClient( client );
-		ch->removeOperator( fd );
-		ch->removePendingClient( fd );
+		it->removeClient( client );
+		it->removeOperator( fd );
+		it->removePendingClient( fd );
 	}
 	PruneEmptyChannels();
 
-	for ( std::vector<Client>::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
+	for ( std::vector< Client >::iterator it = this->_Clients.begin(); it != this->_Clients.end(); ++it )
 	{
 		if ( it->getFd() == fd )
 		{
@@ -170,16 +168,16 @@ void	Server::RemoveClient( Client *client )
 			if ( nickname != "" )
 				this->_ClientNames.erase( nickname );
 			this->_Clients.erase( it );
-			break;
+			break ;
 		}
 	}
 
-	for ( std::vector<struct pollfd>::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
+	for ( std::vector< struct pollfd >::iterator it = this->_Fds.begin(); it != this->_Fds.end(); ++it )
 	{
 		if ( it->fd == fd )
 		{
 			this->_Fds.erase( it );
-			break;
+			break ;
 		}
 	}
 }
@@ -189,10 +187,10 @@ void	Server::ReceiveNewData( Client *client )
 	if ( !client )
 		return ;
 
-	char buffer[BUFFER_SIZE];
+	char	buffer[BUFFER_SIZE];
 	memset( buffer, 0, sizeof( buffer ) );
 
-	ssize_t bytes = recv( client->getFd() , buffer, sizeof( buffer ) - 1, 0 );
+	ssize_t	bytes = recv( client->getFd() , buffer, sizeof( buffer ) - 1, 0 );
 	if ( bytes <= 0 )
 		RemoveClient( client );
 	else
@@ -202,7 +200,6 @@ void	Server::ReceiveNewData( Client *client )
 		std::string	message;
 		while ( (message = client->extractNextMessage()) != "" )
 		{
-		//	std::cout << GREEN"Message complet: '"DEFAULT << message << GREEN DEFAULT << std::endl;
 			this->Parse( message );
 			ExecCommand( client );
 		}
