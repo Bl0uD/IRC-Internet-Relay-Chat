@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignanperpignan.fr    +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/23 18:25:2541 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/01 03:08:09 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

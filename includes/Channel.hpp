@@ -1,18 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Channel.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/01 03:03:25 by jdupuis           #+#    #+#             */
+/*   Updated: 2026/05/01 03:09:30 by jdupuis          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # pragma once
 
 # include "Include.hpp"
 
 class Channel
 {
-	/*
-	Sections:
-	- Constructors / Destructor
-	- Accessors (alphabetical)
-	- Mutators / Setters (alphabetical)
-	- Client membership management
-	- Operator & pending management
-	- Utilities
-	*/
 	private:
 		bool                    _inviteOnly;
 		bool                    _topicRestriction;
@@ -29,14 +32,12 @@ class Channel
 		std::string             _key;
 
 	public:
-		/* Constructors / Destructor */
 		Channel();
 		Channel( std::string topic, std::string paswrd );
 		Channel( const Channel &copy );
 		~Channel();
 		Channel &operator=( const Channel &instance );
 
-		/* Accessors (alphabetical) */
 		const std::set< int >  &getClients( void ) const;
 		std::string             getModsForReply() const;
 		std::set<char>          getMods() const;
@@ -47,7 +48,6 @@ class Channel
 		int                     getUserLimitation( void ) const;
 		const std::set< int >  &getOperators( void ) const;
 
-		/* Mutators / Setters (alphabetical) */
 		void                    addClient( int );
 		void                    addPendingClient( int );
 		void                    removePendingClient( int );
@@ -62,17 +62,14 @@ class Channel
 		void                    setTopicRestriction( bool );
 		void                    setUserLimitation( Server *server, Client *client, char sign, std::string limit );
         
-		/* Client membership management */
 		bool                    isClientInChannel( Client *client );
 		bool                    hasPendingClient( int ) const;
 		bool                    removeClient( Client * );
 		void                    removeOperator( int );
 
-		/* Operator & pending management */
 		void                    setOperator( Server *server, Client *, Client *, char );
 		bool                    isClientAdmin( Client *client );
 
-		/* Utilities */
 		bool                    getInviteOnly( void ) const;
 		bool                    getPasswordRestriction( void ) const;
 		bool                    getTopicRestriction( void ) const;

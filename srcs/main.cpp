@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:55 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/22 12:12:17 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/01 03:13:14 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ int main ( int ac, char **av )
 		Irc.Init();
 		while ( Irc.getStatus() )
 			Irc.Running();
-		//CloseFds(); // close the server file descriptors when the server stops*/
 	}
 	catch( const std::exception &e )
 	{

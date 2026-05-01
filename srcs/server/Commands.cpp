@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Commands.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/01 03:02:51 by jdupuis           #+#    #+#             */
+/*   Updated: 2026/05/01 03:02:52 by jdupuis          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "../../includes/Server.hpp"
 
 void	Server::SetUsername( Client *client, Parser cmd )
@@ -6,11 +18,13 @@ void	Server::SetUsername( Client *client, Parser cmd )
 
 	if ( client->getRegistered() )
 	{
+		std::cout << "  " << RED << "ERR_ALREADYREGISTRED" << WHITE << std::endl;
 		this->respond( client, ERR_ALREADYREGISTRED( currentNick ) );
 		return ;
 	}
 	if ( cmd.params.size() < 3 || !cmd.hasTrailing )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( currentNick, "USER" ) );
 		return ;
 	}
@@ -36,6 +50,7 @@ void	Server::SetNickname( Client *client, Parser cmd )
 {
 	if (  cmd.params.empty() || cmd.params.size() > 2 )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "NICK" ) );
 		return ;
 	}
@@ -46,6 +61,7 @@ void	Server::SetNickname( Client *client, Parser cmd )
 	if ( newNickname != oldNickname && this->_ClientNames.find( newNickname ) != this->_ClientNames.end() )
 	{
 		std::string	currentNick = oldNickname.empty() ? "*" : oldNickname;
+		std::cout << "  " << RED << "ERR_NICKNAMEINUSE" << WHITE << std::endl;
 		this->respond( client, ERR_NICKNAMEINUSE( currentNick, newNickname ) );
 		return ;
 	}
@@ -67,6 +83,7 @@ void	Server::SetPassword( Client *client, Parser cmd )
 {
 	if ( cmd.params.empty() || cmd.params.size() > 4 )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "PASS" ) );
 		return ;
 	}
@@ -74,6 +91,7 @@ void	Server::SetPassword( Client *client, Parser cmd )
 	client->setLog( true );
 	if ( client->getPassword() != this->getPassword() )
 	{
+		std::cout << "  " << RED << "ERR_PASSWDMISMATCH" << WHITE << std::endl;
 		this->respond( client, ERR_PASSWDMISMATCH( client->getNickname().empty() ? "*" : client->getNickname() ) );
 		return ;
 	}
@@ -89,6 +107,7 @@ void	Server::ChangeTopic( Client *client, Parser cmd )
 {
 	if ( cmd.params.empty() )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "TOPIC" ) );
 		return ;
 	}
@@ -100,12 +119,14 @@ void	Server::ChangeTopic( Client *client, Parser cmd )
 
 	if ( !InChannel( client, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOTONCHANNEL( client->getNickname(), channelName ) );
 		return ;
 	}
 
 	if ( !IsOperator( client, channel ) && channel->getTopicRestriction() )
 	{
+		std::cout << "  " << RED << "ERR_CHANOPRIVSNEEDED" << WHITE << std::endl;
 		this->respond( client, ERR_CHANOPRIVSNEEDED( client->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -131,6 +152,7 @@ void	Server::KickClient( Client *client, Parser cmd )
 {
 	if ( cmd.params.size() != 2 || !cmd.hasTrailing )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "KICK" ) );
 		return ;
 	}
@@ -138,12 +160,14 @@ void	Server::KickClient( Client *client, Parser cmd )
 	Channel  *channel = FindChannelWithName( cmd.params[0] );
 	if ( channel == NULL )
 	{
+		std::cout << "  " << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOSUCHCHANNEL(cmd.params[0]) );
 		return ;
 	}
 
 	if ( !InChannel( client, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOTONCHANNEL( client->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -151,12 +175,14 @@ void	Server::KickClient( Client *client, Parser cmd )
 	Client *TargetClient = FindClientWithNickname( cmd.params[1] );
 	if ( TargetClient == NULL )
 	{
+		std::cout << "  " << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
 		this->respond( client, ERR_NOSUCHNICK( client->getNickname(), cmd.params[1] ) );
 		return ;
 	}
 	
 	if ( !IsOperator( client, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_CHANOPRIVSNEEDED" << WHITE << std::endl;
 		this->respond( client, ERR_CHANOPRIVSNEEDED( client->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -168,6 +194,7 @@ void	Server::KickClient( Client *client, Parser cmd )
 			reason.erase( 0, 1 );
 		if ( reason.empty() )
 		{
+			std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 			this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "KICK" ) );
 			return ;
 		}
@@ -178,13 +205,17 @@ void	Server::KickClient( Client *client, Parser cmd )
 		PruneEmptyChannels();
 	}
 	else
+	{
+		std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOTONCHANNEL( TargetClient->getNickname(), channel->getTopic() ) );
+	}
 }
 
 void	Server::InviteClient( Client *client, Parser cmd )
 {
 	if ( cmd.params.size() != 2 )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "INVITE" ) );
 		return ;
 	}
@@ -203,6 +234,7 @@ void	Server::InviteClient( Client *client, Parser cmd )
 	}
 	else
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "INVITE" ) );
 		return ;
 	}
@@ -213,12 +245,14 @@ void	Server::InviteClient( Client *client, Parser cmd )
 
 	if ( !InChannel( client, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOTONCHANNEL( client->getNickname(), channel->getName() ) );
 		return ;
 	}
 
 	if ( channel->getInviteOnly() && !IsOperator( client, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_CHANOPRIVSNEEDED" << WHITE << std::endl;
 		this->respond( client, ERR_CHANOPRIVSNEEDED( client->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -226,12 +260,14 @@ void	Server::InviteClient( Client *client, Parser cmd )
 	Client *TargetClient = FindClientWithNickname( targetNickname );
 	if ( !TargetClient )
 	{
+		std::cout << "  " << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
 		this->respond( client, ERR_NOSUCHNICK( targetNickname, cmd.command ) );
 		return ;
 	}
 
 	if ( InChannel( TargetClient, channel ) )
 	{
+		std::cout << "  " << RED << "ERR_USERONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_USERONCHANNEL( client->getNickname(), TargetClient->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -245,6 +281,7 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 {
 	if (  cmd.params.empty() || cmd.params.size() > 2 )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "JOIN" ) );
 		return ;
 	}
@@ -252,6 +289,7 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 	std::string Name = cmd.params[0];
 	if ( Name.empty() || Name[0] != '#' )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "JOIN" ) );
 		return ;
 	}
@@ -269,6 +307,7 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 	}
 	if ( InChannel( client, channel ))
 	{
+		std::cout << "  " << RED << "ERR_USERONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_USERONCHANNEL( client->getNickname(), client->getNickname(), Name ) );
 		return ;
 	}
@@ -291,12 +330,14 @@ void	Server::JoinChannel( Client *client, Parser cmd )
 
 	if ( !isNewChannel && channel->getInviteOnly() && !isInvited && !channel->getPasswordRestriction() )
 	{
+		std::cout << "  " << RED << "ERR_INVITEONLYCHAN" << WHITE << std::endl;
 		this->respond( client, ERR_INVITEONLYCHAN( channel->getName() ) );
 		return ;
 	}
 
 	if ( !isNewChannel && channel->getPasswordRestriction() && !isInvited && !hasValidPassword )
 	{
+		std::cout << "  " << RED << "ERR_BADCHANNELKEY" << WHITE << std::endl;
 		this->respond( client, ERR_BADCHANNELKEY( client->getNickname(), channel->getName() ) );
 		return ;
 	}
@@ -340,7 +381,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 {
 	if (cmd.params.empty() || cmd.params[0].empty())
 	{
-		std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
 		return;
 	}
@@ -351,7 +392,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 			Channel	*channeltest = this->FindChannelWithName( cmd.params[0] );
 			if ( channeltest == NULL )
 			{
-				std::cout << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
+				std::cout << "  " << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
 				this->respond(client, ERR_NOSUCHCHANNEL(cmd.params[0]));
 				return;
 			}
@@ -360,7 +401,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 		}
 		else
 		{
-			std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+			std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 			this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
 		}
 		return;
@@ -368,19 +409,19 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 	Channel	*channel = FindChannelWithName( cmd.params[0] );
 	if ( channel == NULL )
 	{
-		std::cout << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
 		this->respond(client, ERR_NOSUCHCHANNEL(cmd.params[0]));
 		return;
 	}
 	if ( !channel->isClientInChannel(client) )
 	{
-		std::cout << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 		this->respond( client, ERR_NOTONCHANNEL(client->getNickname(), cmd.params[0]) );
 		return;
 	}
 	if ( !channel->isClientAdmin(client) )
 	{
-		std::cout << RED << "ERR_CHANOPRIVSNEEDED" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_CHANOPRIVSNEEDED" << WHITE << std::endl;
 		this->respond( client, ERR_CHANOPRIVSNEEDED(client->getNickname(), cmd.params[0]) );
 		return;
 	}
@@ -433,7 +474,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 				case 'k':
 					if ( sign == '+' && channel->getMods().count( 'k' ) == 1 )
 					{
-						std::cout << RED << "ERR_KEYSET" << WHITE << std::endl;
+						std::cout << "  " << RED << "ERR_KEYSET" << WHITE << std::endl;
 						this->respond( client, ERR_KEYSET( client->getNickname(), channel->getName() ) );
 						return;
 					}
@@ -443,7 +484,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 						channel->setKey( this, client, sign, modeArgs[arg_index++] );
 					else
 					{
-						std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+						std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 						this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), cmd.command ) );
 						return;
 					}
@@ -456,7 +497,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 						channel->setUserLimitation( this, client, sign, modeArgs[arg_index++] );
 					else
 					{
-						std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+						std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 						this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), cmd.command ) );
 						return;
 					}
@@ -478,7 +519,7 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 							channel->setOperator( this, client, Target, sign );
 						else
 						{
-							std::cout << RED << "ERR_USERNOTINCHANNEL" << WHITE << std::endl;
+							std::cout << "  " << RED << "ERR_USERNOTINCHANNEL" << WHITE << std::endl;
 							this->respond( client, ERR_USERNOTINCHANNEL( client->getNickname(), modeArgs[arg_index], channel->getName() ) );
 							return;
 						}
@@ -486,13 +527,14 @@ void	Server::ChangeMode( Client *client, Parser cmd )
 					}
 					else
 					{
-						std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+						std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 						this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), cmd.command ) );
 						return;
 					}
 					break;
 
 				default:
+					std::cout << "  " << RED << "ERR_UNKNOWNMODE" << WHITE << std::endl;
 					this->respond( client, ERR_UNKNOWNMODE( client->getNickname(), std::string( 1, mode ) ) );
 					return;
 			}
@@ -508,28 +550,28 @@ void	Server::SendPrivMsg( Client *client, Parser cmd )
 {
 	if ( cmd.params.empty() || cmd.params[0].empty() )
 	{
-		std::cout << RED << "ERR_NORECIPIENT" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NORECIPIENT" << WHITE << std::endl;
 		this->respond( client, ERR_NORECIPIENT(client->getNickname(), cmd.command) );
 		return ;
 	}
 
 	if ( cmd.params.size() != 1 )
 	{
-		std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
 		return ;
 	}
 
 	if ( !cmd.hasTrailing )
 	{
-		std::cout << RED << "ERR_NOTEXTTOSEND" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NOTEXTTOSEND" << WHITE << std::endl;
 		this->respond( client, ERR_NOTEXTTOSEND(client->getNickname(), cmd.command) );
 		return ;
 	}
 
 	if ( cmd.params[0].find(',') != std::string::npos )
 	{
-		std::cout << RED << "ERR_TOOMANYTARGETS" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_TOOMANYTARGETS" << WHITE << std::endl;
 		this->respond( client, ERR_TOOMANYTARGETS(client->getNickname(), cmd.command) );
 		return ;
 	}
@@ -539,23 +581,31 @@ void	Server::SendPrivMsg( Client *client, Parser cmd )
 		Channel *channel = this->FindChannelWithName( cmd.params[0] );
 		if ( channel == NULL )
 		{
-			std::cout << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
+			std::cout << "  " << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
 			this->respond( client, ERR_NOSUCHCHANNEL( cmd.params[0] ) );
 		}
 		else if ( !channel->isClientInChannel( client ) )
 		{
-			std::cout << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
+			std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 			this->respond( client, ERR_NOTONCHANNEL( client->getNickname(), cmd.params[0] ) );
 		}
 		else
+		{
+			Client *Member = FindClientWithNickname( cmd.params[0] );
+			if ( !Member )
+			{
+				std::cout << "  " << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
+				this->respond( client, ERR_NOSUCHNICK( client->getNickname(), cmd.params[0] ) );
+			}
 			SendToChannel( client, channel, RPL_PRIVMSG(cmd.params[0], cmd.trailing), false );
+		}
 		return ;
 	}
 
 	Client *target = this->FindClientWithNickname( cmd.params[0] );
 	if ( target == NULL || !target->getIsAuth() )
 	{
-		std::cout << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
 		this->respond( client, ERR_NOSUCHNICK(client->getNickname(), cmd.command) );
 		return;
 	}
@@ -573,7 +623,7 @@ void	Server::cmdPart( Client *client, Parser cmd )
 {
 	if ( cmd.params.empty() || cmd.params.size() > 1 ) 
 	{
-		std::cout << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		return this->respond( client, ERR_NEEDMOREPARAMS(client->getNickname(), cmd.command) );
 	}
 
@@ -586,12 +636,12 @@ void	Server::cmdPart( Client *client, Parser cmd )
 		Channel		*channel = FindChannelWithName( channelName );
 		if ( channelName.empty() || channel == NULL )
 		{
-			std::cout << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
+			std::cout << "  " << RED << "ERR_NOSUCHCHANNEL" << WHITE << std::endl;
 			this->respond( client, ERR_NOSUCHCHANNEL((*chanIt)) );
 		}
 		else if ( channel != NULL && !InChannel( client, channel ) )
 		{
-			std::cout << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
+			std::cout << "  " << RED << "ERR_NOTONCHANNEL" << WHITE << std::endl;
 			this->respond(client, ERR_NOTONCHANNEL( client->getNickname(), (*chanIt) ));
 		}
 		else
@@ -615,6 +665,7 @@ void	Server::cmdPing( Client *client, Parser cmd )
 		token = cmd.trailing;
 	if ( token.empty() )
 	{
+		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
 		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "PING" ) );
 		return ;
 	}

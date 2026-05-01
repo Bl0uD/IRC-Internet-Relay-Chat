@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Include.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/04/23 18:23:516 by marvin           ###   ########.fr       */
+/*   Updated: 2026/05/01 03:11:20 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,11 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 /*                               Constantes IRC                               */
 /* -------------------------------------------------------------------------- */
 
-# define CRLF "\r\n"
-# define CRLFNL "\r\n\n"
+# define CRLF				"\r\n"
+# define CRLFNL				"\r\n\n"
 # define DISPLAY_SERVER		PURPLE << "\n   ☑️\t Server launched !\n\n"
-# define ERROR		RED + CRLF + "🚨 Error:\t" + WHITE
-# define WRONG_USAGE	RED << "\n   ⚠️\t WRONG USAGE !\n\n"
+# define ERROR				RED + CRLF + "🚨 Error:\t" + WHITE
+# define WRONG_USAGE		RED << "\n   ⚠️\t WRONG USAGE !\n\n"
 
 /* -------------------------------------------------------------------------- */
 /*                            Messages d'erreur IRC                           */
@@ -92,8 +92,6 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define ERR_TOOMANYTARGETS( nickname, command )		"407 " + nickname + " " + command + " :Duplicate recipients. No message delivered"
 # define ERR_UNKNOWNCOMMAND( command )					"421 " + command + " :Unknown command"
 # define ERR_UNKNOWNMODE( nickname, charac )			"472 " + nickname + " " + charac  + " :is unknown mode char to me for <channel>"
-
-# define 				ERR_SHUTDOWN									"ERROR :Server shutting down"
 
 /* -------------------------------------------------------------------------- */
 /*                           Messages de reponse IRC                          */
@@ -150,7 +148,7 @@ std::vector<std::string>	split(std::string toSplit, char delim);
 class runtime_error : public std::exception
 {
 	public:
-		explicit runtime_error( const std::string& message );
+		explicit	runtime_error( const std::string &message );
 
-		explicit runtime_error( const char *message );
+		explicit	runtime_error( const char *message );
 };

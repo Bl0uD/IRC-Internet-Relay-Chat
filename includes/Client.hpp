@@ -1,20 +1,23 @@
-#pragma once
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/01 03:03:27 by jdupuis           #+#    #+#             */
+/*   Updated: 2026/05/01 03:09:36 by jdupuis          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#pragma once
+# pragma once
 
-#include "Include.hpp"
+# include "Include.hpp"
 
 class Channel;
 
 class Client
 {
-	/*
-	Sections:
-	- Constructors / Destructor
-	- Accessors (alphabetical)
-	- Mutators / Setters (alphabetical)
-	- Buffer / Message helpers
-	*/
 	private:
 		int				_fd;
 		std::string		_ipAddress;
@@ -28,14 +31,12 @@ class Client
 		std::string		_buffer;
 
 	public:
-		/* Constructors / Destructor */
 		Client();
 		Client( std::string );
 		Client( const Client &copy );
 		~Client();
 		Client &operator=( const Client &instance );
 
-		/* Accessors (alphabetical) */
 		int				getFd( void ) const;
 		std::string		getIpAddress( void ) const;
 		bool			getIsAuth( void ) const;
@@ -46,7 +47,6 @@ class Client
 		bool			getRegistered( void ) const;
 		std::string		getUsername( void ) const;
 
-		/* Mutators / Setters (alphabetical) */
 		void			setAuth( bool );
 		void			setFd( int );
 		void			setIpAddress( std::string );
@@ -56,7 +56,6 @@ class Client
 		void			setRegistered( bool );
 		void			setUsername( std::string );
 
-		/* Buffer / Message helpers */
 		std::string		extractNextMessage();
 		void			appendBuffer( std::string );
 };
