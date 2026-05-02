@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:08:09 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/02 02:03:24 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,6 @@ class Client;
 
 class Server
 {
-	/*
-	Sections:
-	- Lifecycle / Signals
-	- Constructors / Destructor
-	- Accessors
-	- Core server operations
-	- Command handlers
-	- Client management
-	- Channel management
-	- Utilities
-	*/
 	private:
 		int                                _Port;
 		int                                _SocketFd;
