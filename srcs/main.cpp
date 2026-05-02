@@ -6,13 +6,13 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:55 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:13:14 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/02 02:04:15 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Server.hpp"
 
-int main ( int ac, char **av )
+int	main ( int ac, char **av )
 {
 	if ( ac != 3 )
 	{
