@@ -4,7 +4,7 @@
 
 ## Description
 
-This project is a custom IRC server implementation in C++98, developed as part of the 42 curriculum.
+This project implements a custom IRC server in C++98 as part of the 42 curriculum.
 
 The goal is to understand and implement the core mechanisms of a real-time network service:
 - socket creation and configuration
@@ -91,7 +91,7 @@ After connecting, register with `PASS`, `NICK`, and `USER`, then test channel an
 ## Project Structure
 
 Main folders:
-- `includes/`: headers (`Server`, `Client`, `Channel`)
+- `includes/`: headers (`Server`, `Client`, `Channel`, `Parser`)
 - `srcs/`: source files by domain (`server`, `client`, `channel`)
 - `subject/`: reference material and provided baseline files
 - `objects/`: build artifacts
