@@ -6,11 +6,21 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:55 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/02 02:04:15 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 16:13:45 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Server.hpp"
+
+void	closeFds( Server Irc )
+{
+	std::vector<struct pollfd>	&fds = Irc.getPollFds();
+	for ( std::vector<struct pollfd>::iterator it = fds.begin(); it != fds.end(); ++it )
+	{
+		if ( it->fd >= 0 )
+			close( it->fd );
+	}
+}
 
 int	main ( int ac, char **av )
 {
@@ -28,6 +38,7 @@ int	main ( int ac, char **av )
 		Irc.Init();
 		while ( Irc.getStatus() )
 			Irc.Running();
+		closeFds( Irc );
 	}
 	catch( const std::exception &e )
 	{

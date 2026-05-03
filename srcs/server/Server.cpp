@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:03:47 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 15:28:08 by norabino         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:13:31 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,4 +101,9 @@ void	Server::setPassword( std::string pswrd )
 		this->_Password = pswrd;
 	else
 		throw ERR_INVALID_PASSWORD;
+}
+
+std::vector<struct pollfd> &Server::getPollFds()
+{
+    return this->_Fds;
 }
