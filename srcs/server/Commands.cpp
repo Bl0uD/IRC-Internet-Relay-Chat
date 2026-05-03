@@ -6,7 +6,7 @@
 /*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:02:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 15:50:58 by norabino         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:33:36 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,14 @@ void	Server::KickClient( Client *client, Parser cmd )
 		channel->removeClient( TargetClient );
 		channel->removeOperator( TargetClient->getFd() );
 		channel->removePendingClient( TargetClient->getFd() );
+		// If there is no operator left but other clients remain, promote one
+		if ( channel->getOperators().empty() && !channel->getClients().empty() )
+		{
+			int newOpFd = *channel->getClients().begin();
+			Client *newOp = FindClientWithFd( newOpFd );
+			if ( newOp )
+				channel->setOperator( this, client, newOp, '+' );
+		}
 		PruneEmptyChannels();
 	}
 	else
@@ -630,10 +638,18 @@ void	Server::cmdPart( Client *client, Parser cmd )
 		}
 		else
 		{
-		SendToChannel( client, channel, "PART " + channel->getName() + " " + cmd.trailing, true );
+			SendToChannel( client, channel, "PART " + channel->getName() + " " + cmd.trailing, true );
 			channel->removeClient( client );
 			channel->removeOperator( client->getFd() );
 			channel->removePendingClient( client->getFd() );
+			// If the leaving user was the last operator, promote another member
+			if ( channel->getOperators().empty() && !channel->getClients().empty() )
+			{
+				int newOpFd = *channel->getClients().begin();
+				Client *newOp = FindClientWithFd( newOpFd );
+				if ( newOp )
+					channel->setOperator( this, client, newOp, '+' );
+			}
 			PruneEmptyChannels();
 		}
 	}
