@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:02:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:02:52 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 15:50:58 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,6 @@ void	Server::SetUsername( Client *client, Parser cmd )
 		this->respond( client, ERR_NEEDMOREPARAMS( currentNick, "USER" ) );
 		return ;
 	}
-	std::string newUsername = cmd.params[0];
-	std::string oldUsername = client->getUsername();
-
-	if ( oldUsername != "" )
-		this->_Usernames.erase( oldUsername );
-	this->_Usernames.insert( newUsername );
-	
-
 	client->setUsername( cmd.params[0] );
 	client->setLog( true );
 	if ( client->getPassword() == this->getPassword()
@@ -590,15 +582,7 @@ void	Server::SendPrivMsg( Client *client, Parser cmd )
 			this->respond( client, ERR_NOTONCHANNEL( client->getNickname(), cmd.params[0] ) );
 		}
 		else
-		{
-			Client *Member = FindClientWithNickname( cmd.params[0] );
-			if ( !Member )
-			{
-				std::cout << "  " << RED << "ERR_NOSUCHNICK" << WHITE << std::endl;
-				this->respond( client, ERR_NOSUCHNICK( client->getNickname(), cmd.params[0] ) );
-			}
 			SendToChannel( client, channel, RPL_PRIVMSG(cmd.params[0], cmd.trailing), false );
-		}
 		return ;
 	}
 

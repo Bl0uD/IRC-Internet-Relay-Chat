@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:29 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:07:28 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 15:52:40 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,6 @@ std::string	Client::getUsername( void ) const
 
 std::string	Client::getNickname( void ) const
 {
-	if ( this->_nickname.empty() )
-		return ( this->_username );
 	return ( this->_nickname );
 }
 

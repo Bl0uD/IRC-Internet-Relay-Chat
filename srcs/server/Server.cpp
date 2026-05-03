@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:03:47 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:12:12 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 15:28:08 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ Server::Server( void )
 	  _Fds(),
 	  _Channels(),
 	  _ClientNames(),
-	  _Usernames(),
 	  _Topics(),
 	  _parsedMessages()
 {}
@@ -41,7 +40,6 @@ Server::Server( char **av )
 	  _Fds(),
 	  _Channels(),
 	  _ClientNames(),
-	  _Usernames(),
 	  _Topics(),
 	  _parsedMessages()
 {
@@ -67,7 +65,6 @@ Server	&Server::operator=( Server const &instance )
 		this->_Channels = instance._Channels;
 		this->_Fds = instance._Fds;
 		this->_ClientNames = instance._ClientNames;
-		this->_Usernames = instance._Usernames;
 		this->_Topics = instance._Topics;
 		this->_NextChannelId = instance._NextChannelId;
 		this->_parsedMessages = instance._parsedMessages;

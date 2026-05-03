@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/02 02:03:24 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 15:28:08 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ class Server
 		std::vector< struct pollfd >        _Fds;
 		std::vector< Channel >              _Channels;
 		std::set< std::string >             _ClientNames;
-		std::set< std::string >             _Usernames;
 		std::set< std::string >             _Topics;
 		std::vector<Parser>                 _parsedMessages;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerRunning.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
+/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:03:49 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:03:50 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/03 15:28:08 by norabino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,6 @@ void	Server::RemoveClient( Client *client )
 	{
 		if ( it->getFd() == fd )
 		{
-			if ( username != "" )
-				this->_Usernames.erase( username );
 			if ( nickname != "" )
 				this->_ClientNames.erase( nickname );
 			this->_Clients.erase( it );
