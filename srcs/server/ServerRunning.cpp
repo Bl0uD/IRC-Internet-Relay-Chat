@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerRunning.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:03:49 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 16:33:36 by norabino         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:36:57 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,6 @@ void	Server::RemoveClient( Client *client )
 	{
 		it->removeClient( client );
 		it->removeOperator( fd );
-		// If the disconnected client was the last operator but other clients remain, promote one
 		if ( it->getOperators().empty() && !it->getClients().empty() )
 		{
 			int newOpFd = *it->getClients().begin();
