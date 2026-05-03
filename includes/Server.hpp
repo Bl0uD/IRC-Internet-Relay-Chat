@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: norabino <norabino@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 15:28:08 by norabino         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:03:25 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,14 @@ class Server
 		std::vector<Parser>                 _parsedMessages;
 
 	public:
-		/* Lifecycle / Signals */
 		static void    SignalHandler( int );
 
-		/* Constructors / Destructor */
 		Server();
 		Server( char ** );
 		Server( const Server &copy );
 		~Server();
 		Server &operator=( const Server &instance );
 
-		/* Accessors */
 		int				getPort( void ) const;
 		void			setPort( int );
 		std::string		getPassword( void ) const;
@@ -54,14 +51,13 @@ class Server
 		bool			getStatus( void ) const;
 		std::string		getPrefix();
 
-		/* Core server operations */
 		void			Init( void );
 		void			Running( void );
 		void			SetServSocket( void );
 		void			SetSockOptions( void );
 		void			Parse( std::string );
 
-		/* Command handlers (alphabetical by command name) */
+		/* Command handlers */
 		void    	    ChangeMode( Client *client, Parser parser );
 		void			ChangeTopic( Client *client, Parser parser );
 		void    	    ExecCommand( Client *client );
@@ -90,7 +86,6 @@ class Server
 		void			PruneEmptyChannels( void );
 		Channel			*FindChannelWithName( std::string topic );
 
-		/* Utilities */
 		void			SendToAllClient( const std::string &message );
 		Client			*FindClientWithFd( int );
 		Client			*FindClientWithNickname( std::string Nickname );
