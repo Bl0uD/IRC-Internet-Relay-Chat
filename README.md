@@ -88,6 +88,8 @@ You can connect with a standard IRC client (for example HexChat, irssi, WeeChat)
 
 After connecting, register with `PASS`, `NICK`, and `USER`, then test channel and messaging commands.
 
+Note: During development we used the HexChat client to test and run the IRC server.
+
 ## Project Structure
 
 Main folders:
