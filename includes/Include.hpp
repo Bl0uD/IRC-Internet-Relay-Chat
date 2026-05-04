@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/04 16:39:17 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/04 16:51:06 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define ERR_ALREADYREGISTRED( nickname )				"462 " + nickname + " :You may not reregister"
 # define ERR_NICKNAMEINUSE( nickname, newNickname )		"433 " + nickname + " " + newNickname + " :Nickname is already in use"
 # define ERR_NOTREGISTERED( command )					"451 " + command + " :You have not registered"
-# define ERR_PASSWDMISMATCH( nickname )					"464 " + nickname + " :Incorrect password (disconecting)"
+# define ERR_PASSWDMISMATCH( nickname )					(std::string("464 ") + (nickname) + " :Incorrect password (disconecting)")
 
 /* Canaux */
 # define ERR_BADCHANNELKEY( nick, channel )				"475 " + nick + " " + channel + " :Cannot join channel (+k)"
