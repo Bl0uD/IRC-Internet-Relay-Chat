@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/04 16:51:06 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/04 17:35:31 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 
 # define SERVER_OFF										std::runtime_error( WHITE + "SERVER CLOSED." + CRLF )
 
-bool	getStringUntil(const std::string& input, std::string& result, char delimiter, size_t& startPos);
+bool						getStringUntil(const std::string& input, std::string& result, char delimiter, size_t& startPos);
 std::vector<std::string>	split(std::string toSplit, char delim);
 
 class runtime_error : public std::exception
