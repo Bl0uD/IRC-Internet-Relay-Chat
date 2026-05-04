@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:18 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/01 03:11:20 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/04 16:39:17 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ typedef void		(Server::*cmdFunc_t)(Client *, Parser);
 # define RPL_MYINFO( nickname, servName, version )		"004 " + nickname + " " + servName + " " + version + " iov itkol"
 # define RPL_NAMREPLY( nickname, channel )				"353 " + nickname + " = " + channel + " :"
 # define RPL_NICK( oldNick, newNick )					":" + oldNick + " NICK :" + newNick
+# define RPL_NOTICE(target, message)					"NOTICE " + target + " :" + message
 # define RPL_NOTOPIC( channel)							"331 " + channel + " :No topic is set"
 # define RPL_PART( channel, reason )					"PART " + channel + " :" + reason
 # define RPL_PRIVMSG( target, message )					"PRIVMSG " + target + " :" + message

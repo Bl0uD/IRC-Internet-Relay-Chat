@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/01 03:02:51 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 16:40:37 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/04 16:40:07 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -653,21 +653,22 @@ void	Server::cmdPart( Client *client, Parser cmd )
 	}
 }
 
-void	Server::cmdPing( Client *client, Parser cmd )
+void	Server::cmdNotice( Client *client, Parser cmd )
 {
-	std::string token;
+	if ( cmd.params[0].empty() || cmd.params.size() != 1 || !cmd.hasTrailing || cmd.params[0].find(',') != std::string::npos )
+		return;
 
-	if ( !cmd.params.empty() )
-		token = cmd.params[0];
-	else if ( cmd.hasTrailing )
-		token = cmd.trailing;
-	if ( token.empty() )
+	if ( cmd.params[0][0] == '#' )
 	{
-		std::cout << "  " << RED << "ERR_NEEDMOREPARAMS" << WHITE << std::endl;
-		this->respond( client, ERR_NEEDMOREPARAMS( client->getNickname(), "PING" ) );
+		Channel *channel = this->FindChannelWithName( cmd.params[0] );
+		if ( channel != NULL )
+			SendToChannel( client, channel, RPL_NOTICE(cmd.params[0], cmd.trailing), false );
 		return ;
 	}
-	this->respond( client, "PONG :" + token );
+
+	Client *target = this->FindClientWithNickname( cmd.params[0] );
+	if ( target != NULL && target->getIsAuth() )
+		SendToClient( target, ":" + client->getPrefix() + " " + RPL_NOTICE(cmd.params[0], cmd.trailing) );
 }
 
 void	Server::cmdCap( Client *client, Parser cmd )
@@ -678,8 +679,8 @@ void	Server::cmdCap( Client *client, Parser cmd )
 
 void	Server::ExecCommand( Client *client ) 
 {
-	std::string	commandsStr[NB_CMD] = { "CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "MODE", "KICK", "INVITE", "PING" };
-	cmdFunc_t	commandsFunc[NB_CMD] = { &Server::cmdCap, &Server::SetPassword, &Server::SetNickname, &Server::SetUsername, &Server::cmdQuit, &Server::JoinChannel, &Server::cmdPart, &Server::ChangeTopic, &Server::SendPrivMsg, &Server::ChangeMode, &Server::KickClient, &Server::InviteClient, &Server::cmdPing };
+	std::string	commandsStr[NB_CMD] = { "CAP", "PASS", "NICK", "USER", "QUIT", "JOIN", "PART", "TOPIC", "PRIVMSG", "MODE", "KICK", "INVITE", "NOTICE" };
+	cmdFunc_t	commandsFunc[NB_CMD] = { &Server::cmdCap, &Server::SetPassword, &Server::SetNickname, &Server::SetUsername, &Server::cmdQuit, &Server::JoinChannel, &Server::cmdPart, &Server::ChangeTopic, &Server::SendPrivMsg, &Server::ChangeMode, &Server::KickClient, &Server::InviteClient, &Server::cmdNotice };
 
 	while ( this->_parsedMessages.size() >= 1 )
 	{

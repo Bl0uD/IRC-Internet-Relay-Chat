@@ -6,7 +6,7 @@
 /*   By: jdupuis <jdupuis@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 17:06:20 by jdupuis           #+#    #+#             */
-/*   Updated: 2026/05/03 16:13:17 by jdupuis          ###   ########.fr       */
+/*   Updated: 2026/05/04 16:37:18 by jdupuis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ class Server
 		void							SendPrivMsg( Client *client, Parser parser );
 		void							SendWelcome( Client *client );
 		void							cmdCap( Client *client, Parser parser );
-		void							cmdPing( Client *client, Parser parser );
+		void							cmdNotice( Client *client, Parser cmd );
 		void							cmdPart( Client *client, Parser cmd );
 		void							cmdQuit( Client *client, Parser parser );
 
